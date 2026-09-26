@@ -22,3 +22,6 @@ export const SERVIZI: VoceServizio[] = [
     testo: 'Navetta Cotrab Matera – Aeroporto di Bari Palese. I biglietti si acquistano solo online su marozzivt.it.' },
   { id: 'matera-policoro', titolo: 'Linea Matera – Policoro', sotto: 'Linea 354 via Metaponto', colore: BLU, tipo: 'linea', linea: 'matera-policoro' },
 ];
+
+/** Pagina del parco macchine sul sito aziendale. */
+export const URL_FLOTTA = 'https://www.deangelisbus.it/';

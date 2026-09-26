@@ -25,7 +25,7 @@ export default function LineaView({ orario, id, nav }: { orario: Orario; id: str
 
   return (
     <>
-      <Testata titolo={linea.nome} sotto={linea.subappalto ? `Servizio ${linea.committente ?? ''} svolto da De Angelis Bus` : linea.comune ?? undefined}
+      <Testata titolo={linea.nome} sotto={linea.subappalto ? `Servizio ${linea.committente ?? ''} svolto da Deangelisbus S.r.l.` : linea.comune ?? undefined}
         onIndietro={nav.indietro} colore={linea.colore} />
 
       {!orario.d.corse.some((c) => c.linea_id === id && c.attiva) ? (

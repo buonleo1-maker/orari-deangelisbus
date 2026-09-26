@@ -59,7 +59,7 @@ export default function Info({ orario, stato, onAggiorna, nav }: {
 
       <footer className="azienda">
         <Logo variante="scuro" dimensione="grande" motto />
-        <p><strong>De Angelis Bus S.r.l.</strong><br />C.so Umberto I, 28 – 75010 Grottole (MT)</p>
+        <p><strong>Deangelisbus S.r.l.</strong><br />C.so Umberto I, 28 – 75010 Grottole (MT)</p>
         <h3>Uffici</h3>
         <p>
           <a href="https://www.google.com/maps/search/?api=1&query=Via+degli+Arcioni+8+75010+Grottole+MT" target="_blank" rel="noreferrer">Via degli Arcioni, 8 – 75010 Grottole (MT)</a><br />

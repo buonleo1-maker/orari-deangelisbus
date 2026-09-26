@@ -105,7 +105,7 @@ export default function Preventivo({ nav }: { nav: Nav }) {
           <label>Email (facoltativa)<input type="email" autoComplete="email" value={r.email ?? ''} onChange={(e) => set('email', e.target.value)} /></label>
           <label className="spunta">
             <input type="checkbox" checked={r.consenso_privacy} onChange={(e) => set('consenso_privacy', e.target.checked)} />
-            <span>Acconsento al trattamento dei miei dati da parte di De Angelis Bus S.r.l. solo per rispondere a questa richiesta.{' '}
+            <span>Acconsento al trattamento dei miei dati da parte di Deangelisbus S.r.l. solo per rispondere a questa richiesta.{' '}
               <a href="https://www.deangelisbus.it/privacy-policy/" target="_blank" rel="noreferrer">Informativa privacy</a></span>
           </label>
         </fieldset>

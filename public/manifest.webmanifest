@@ -1,7 +1,7 @@
 {
   "name": "Orari De Angelis Bus",
   "short_name": "Orari Bus",
-  "description": "Orari, fermate e tariffe dei servizi De Angelis Bus",
+  "description": "Orari, fermate e tariffe dei servizi Deangelisbus S.r.l.",
   "lang": "it",
   "start_url": "./",
   "scope": "./",

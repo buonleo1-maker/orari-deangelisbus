@@ -5,7 +5,7 @@ import LinkSito from '../components/LinkSito';
 import SchedaNovita from '../components/SchedaNovita';
 import Testata from '../components/Testata';
 import { hhmm, minutoAdesso, oggi, type Orario } from '../lib/schedule';
-import { SERVIZI, type VoceServizio } from '../lib/servizi';
+import { SERVIZI, URL_FLOTTA, type VoceServizio } from '../lib/servizi';
 
 export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; casa: number | null }) {
   const [ora, setOra] = useState(minutoAdesso());
@@ -25,7 +25,7 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
   return (
     <>
       <Testata titolo="Orari e servizi" conLogo />
-      <p className="saluto-home">Benvenuti! Ecco gli orari delle corse esercitate da De Angelis Bus:</p>
+      <p className="saluto-home">Benvenuti! Ecco gli orari delle corse esercitate dalla Deangelisbus S.r.l.:</p>
 
       <button className="mini-partenza" onClick={() => nav.apri({ tipo: 'tab', tab: 'partenze' })}>
         {fermata ? (
@@ -84,6 +84,19 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
         <strong>Richiesta trasferimenti e noleggio con conducente</strong>
         <span>Compila la richiesta: ti ricontattiamo noi con il preventivo.</span>
       </button>
+      <a className="nostri-bus" href={URL_FLOTTA} target="_blank" rel="noreferrer">
+        <svg viewBox="0 0 64 40" aria-hidden="true">
+          <rect x="2" y="4" width="60" height="26" rx="6" fill="currentColor" />
+          <rect x="8" y="9" width="12" height="9" rx="2" fill="#fff" /><rect x="23" y="9" width="12" height="9" rx="2" fill="#fff" /><rect x="38" y="9" width="12" height="9" rx="2" fill="#fff" />
+          <rect x="53" y="9" width="6" height="15" rx="1.5" fill="#fff" />
+          <circle cx="16" cy="31" r="5" fill="#101c28" stroke="#fff" strokeWidth="2" /><circle cx="48" cy="31" r="5" fill="#101c28" stroke="#fff" strokeWidth="2" />
+        </svg>
+        <span>
+          <strong>I nostri bus</strong>
+          <small>Autobus e minibus Gran Turismo, minivan e auto con conducente: scopri il parco macchine</small>
+        </span>
+        <svg className="freccia-esterna" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>
+      </a>
       <LinkSito />
       <Installa />
     </>
