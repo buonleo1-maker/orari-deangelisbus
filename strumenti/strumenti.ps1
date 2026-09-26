@@ -6,8 +6,14 @@
 #  NB: testi senza accenti di proposito (compatibilita' PowerShell 5).
 # =====================================================================
 $ErrorActionPreference = 'Continue'
-$BASE        = 'C:\DEANGELISBUS'
-$ORARI       = Join-Path $BASE 'orari-deangelisbus'
+# Le cartelle si ricavano dalla posizione di questo script: <BASE>\orari-deangelisbus\strumenti
+# Sul PC:        C:\DEANGELISBUS\orari-deangelisbus\strumenti
+# Su chiavetta:  X:\DEANGELISBUS-USB-v21\orari-deangelisbus\strumenti  (qualsiasi lettera)
+$ORARI       = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$BASE        = Split-Path $ORARI -Parent
+$DRIVE       = (Split-Path $ORARI -Qualifier)
+# "chiavetta" = qualsiasi unita' diversa da quella di Windows (alcune chiavette grandi risultano come dischi fissi)
+$SU_USB      = ($DRIVE -ne $env:SystemDrive)
 $URL_ORARI   = 'https://github.com/buonleo1-maker/orari-deangelisbus.git'
 $URL_GEST    = 'https://github.com/buonleo1-maker/deangelisbus-gestionale.git'
 $PROGETTO_SB = 'hmdpaypyljdgoehztbvi'
@@ -23,10 +29,15 @@ function SiNo($t)   { $r = Read-Host "  $t (s/n)"; return ($r -match '^[sSyY]') 
 
 # ---------- dove sono i progetti su questo PC ----------
 function Trova-RepoGestionale {
-  foreach ($c in @("$BASE\2-SORGENTE-APP\2-SORGENTE-APP", "$BASE\2-SORGENTE-APP")) {
-    if (Test-Path "$c\.git") {
-      $url = (git -C $c remote get-url origin 2>$null)
-      if ($url -match 'deangelisbus-gestionale') { return $c }
+  $cand = @()
+  $cand += Get-ChildItem $BASE -Directory -Force -ErrorAction SilentlyContinue |
+           Where-Object { $_.Name -ne 'orari-deangelisbus' -and $_.Name -notmatch 'node_modules' }
+  $cand += $cand | ForEach-Object { Get-ChildItem $_.FullName -Directory -Force -ErrorAction SilentlyContinue |
+           Where-Object { $_.Name -notmatch 'node_modules|usb-v21|dist' } }
+  foreach ($c in $cand) {
+    if (Test-Path (Join-Path $c.FullName '.git')) {
+      $url = (git -C $c.FullName remote get-url origin 2>$null)
+      if ($url -match 'deangelisbus-gestionale') { return $c.FullName }
     }
   }
   return $null
@@ -93,6 +104,7 @@ function Prima-Installazione {
   if ($script:REPO_GEST) { Ok "Gestionale gia' presente in $($script:REPO_GEST)" }
   else {
     $dest = "$BASE\2-SORGENTE-APP\2-SORGENTE-APP"
+    Avviso "Il gestionale (come repository Git) non e' presente in ${BASE}: lo scarico da GitHub."
     if (Test-Path $dest) { Avviso "La cartella $dest esiste ma non e' il gestionale: la rinomino in $dest-vecchia"; Rename-Item $dest "$dest-vecchia" }
     if (-not (Test-Path "$BASE\2-SORGENTE-APP")) { New-Item -ItemType Directory "$BASE\2-SORGENTE-APP" | Out-Null }
     Write-Host "  Scarico il gestionale (ramo master)..."
@@ -193,6 +205,7 @@ function Pubblica($cartella, $nome, $progetto, $ramo) {
 # ---------- 6. copia su USB ----------
 function Copia-Usb {
   Titolo "COPIA DI SICUREZZA SU CHIAVETTA USB"
+  if ($SU_USB) { Avviso "Stai gia' lavorando dalla chiavetta: la copia serve solo quando lavori dal disco del PC."; return }
   Stato-Postazione
   $usb = Get-CimInstance Win32_LogicalDisk -Filter "DriveType=2" -ErrorAction SilentlyContinue
   if (-not $usb) { Errore "Nessuna chiavetta USB trovata. Inseriscila e riprova."; return }
@@ -232,6 +245,7 @@ function Controllo {
 
 # ---------- 8. collegamento sul Desktop ----------
 function Collegamento-Desktop {
+  if ($SU_USB) { Avviso "Stai usando la chiavetta: l'icona smetterebbe di funzionare quando la togli. Usa il .bat dalla chiavetta."; return }
   $bat = Join-Path $PSScriptRoot 'DeAngelisBus-Strumenti.bat'
   $lnk = Join-Path ([Environment]::GetFolderPath('Desktop')) 'DeAngelisBus Strumenti.lnk'
   $sh = New-Object -ComObject WScript.Shell
@@ -239,9 +253,20 @@ function Collegamento-Desktop {
   Ok "Creato il collegamento sul Desktop: 'DeAngelisBus Strumenti'"
 }
 
+# ---------- avvio ----------
+$sd = git config --global --get-all safe.directory 2>$null
+if (-not ($sd -contains '*')) { git config --global --add safe.directory '*' }   # evita il blocco di Git su chiavette
+if ($SU_USB) {
+  Titolo "MODALITA' CHIAVETTA ($BASE)"
+  Avviso "Lavori dalla chiavetta: prima scarico le ultime modifiche da GitHub."
+  Aggiorna-Tutto
+  Avviso "Ricorda: prima di togliere la chiavetta usa la voce 3 (Salva tutto)."
+}
+
 # ---------- menu ----------
 while ($true) {
-  Titolo "STRUMENTI DEANGELISBUS  -  PC: $env:COMPUTERNAME"
+  $dove = if ($SU_USB) { "CHIAVETTA $DRIVE" } else { "PC $env:COMPUTERNAME" }
+  Titolo "STRUMENTI DEANGELISBUS  -  $dove  ($BASE)"
   Write-Host "   1) Prima installazione su questo PC"
   Write-Host "   2) Aggiorna tutto          (INIZIO lavoro: scarica le modifiche da GitHub)"
   Write-Host "   3) Salva tutto su GitHub   (FINE lavoro, prima di cambiare PC)"
@@ -261,7 +286,14 @@ while ($true) {
     '6' { Copia-Usb }
     '7' { Controllo }
     '8' { Collegamento-Desktop }
-    '0' { return }
+    '0' {
+      if ($SU_USB) {
+        Stato-Postazione
+        $da = @($ORARI, $script:REPO_GEST) | Where-Object { $_ -and (git -C $_ status --porcelain) }
+        if ($da) { Avviso "Ci sono modifiche non salvate su GitHub."; if (SiNo "Salvo prima di uscire") { Salva-Tutto } }
+      }
+      return
+    }
     default { Avviso "Scelta non valida" }
   }
 }
