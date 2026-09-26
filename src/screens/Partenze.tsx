@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Nav } from '../App';
+import Installa from '../components/Installa';
+import LinkSito from '../components/LinkSito';
 import Logo from '../components/Logo';
 import StopPicker from '../components/StopPicker';
 import Testata from '../components/Testata';
@@ -23,6 +25,8 @@ export default function Partenze({ orario, fermataId, nav, onScegli, dettaglio, 
         <h1>Da quale fermata parti?</h1>
         <p>Scegli la fermata che usi di più: da qui vedrai subito i prossimi bus.</p>
         <button className="primario" onClick={() => setPicker(true)}>Scegli la fermata</button>
+        <div style={{ marginTop: 32 }}><Installa /></div>
+        <LinkSito variante="compatto" />
         {picker && <StopPicker orario={orario} titolo="La tua fermata" onChiudi={() => setPicker(false)}
           onScegli={(id) => { onScegli(id); setPicker(false); }} />}
       </div>

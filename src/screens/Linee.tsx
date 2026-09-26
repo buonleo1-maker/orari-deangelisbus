@@ -1,4 +1,5 @@
 import type { Nav } from '../App';
+import LinkSito from '../components/LinkSito';
 import Testata from '../components/Testata';
 import type { Orario } from '../lib/schedule';
 import type { Categoria } from '../lib/types';
@@ -33,6 +34,7 @@ export default function Linee({ orario, nav }: { orario: Orario; nav: Nav }) {
           </ul>
         </section>
       ))}
+      <div className="sezione"><LinkSito /></div>
     </>
   );
 }

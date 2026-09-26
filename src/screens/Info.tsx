@@ -1,4 +1,6 @@
 import type { Nav } from '../App';
+import Installa from '../components/Installa';
+import LinkSito from '../components/LinkSito';
 import Logo from '../components/Logo';
 import Testata from '../components/Testata';
 import { onlineConfigurato } from '../lib/data';
@@ -14,6 +16,7 @@ export default function Info({ orario, stato, onAggiorna, nav }: {
   return (
     <>
       <Testata titolo="Informazioni" conLogo />
+      <Installa />
       <button className="richiesta" onClick={() => nav.apri({ tipo: 'preventivo' })}>
         <strong>Richiedi un preventivo</strong>
         <span>Trasferimenti, noleggio con autista, gite di gruppo. Ti ricontattiamo noi.</span>
@@ -30,11 +33,12 @@ export default function Info({ orario, stato, onAggiorna, nav }: {
           ))}
         </section>
       )}
+      <LinkSito />
+
       <section className="sezione contatti">
         <h2 className="gruppo">Contatti</h2>
         <a className="contatto" href="tel:+390835758126">Chiama 0835 758126<small>dal lunedì al venerdì, 8:30–13:30 e 15:30–19:00</small></a>
         <a className="contatto" href="mailto:info@deangelisbus.it">Scrivi a info@deangelisbus.it</a>
-        <a className="contatto" href="https://www.deangelisbus.it" target="_blank" rel="noreferrer">Sito deangelisbus.it</a>
       </section>
       <section className="sezione">
         <h2 className="gruppo">Biglietti</h2>

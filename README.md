@@ -18,7 +18,7 @@ In Supabase > SQL Editor esegui, in quest'ordine:
 ## Logo
 
 Il marchio è già incluso in `src\assets\` (versione bianca e blu, ricavate da logo.jpg).
-L'icona dell'app è `assets\icon.png` (1024x1024): da lì si generano le icone Android.
+Icone e schermata di avvio Android si generano da `assets\logo.png` (marchio bianco su sfondo trasparente).
 
 ## Richieste di preventivo
 
@@ -59,8 +59,7 @@ In Android Studio:
    senza quella non potrai più pubblicare aggiornamenti.
 4. Il file `.aab` finisce in `android\app\release\`.
 
-Icona dell'app: è già pronta in `assets\icon.png`; per generare le icone Android lancia
-`npx.cmd @capacitor/assets generate --android`.
+Icone e schermata di avvio: `npx.cmd @capacitor/assets generate --android --iconBackgroundColor "#020a5d" --iconBackgroundColorDark "#020a5d" --splashBackgroundColor "#020a5d" --splashBackgroundColorDark "#020a5d"`.
 
 Ad ogni modifica del codice: `npm.cmd run build` e poi `npx.cmd cap sync android`.
 Per cambiare solo gli orari **non serve** ripubblicare l'app: basta modificare le tabelle su Supabase.
@@ -74,14 +73,17 @@ Per cambiare solo gli orari **non serve** ripubblicare l'app: basta modificare l
 4. Carica icona 512x512, grafica in evidenza 1024x500 e almeno 2 screenshot del telefono.
 5. Carica il file `.aab` in un rilascio (prima "Test interno", poi "Produzione").
 
-## 5. Versione web (facoltativa)
+## 5. Versione web (PWA installabile)
 
 La stessa app si può pubblicare come sito, come il gestionale:
 
 ```powershell
 npm.cmd run build
-npx.cmd wrangler pages deploy dist --project-name=orari-deangelisbus
+npx.cmd wrangler pages deploy dist --project-name=orari-deangelisbus --branch=main
 ```
+
+Indirizzo pubblico: https://orari.deangelisbus.it (dominio personalizzato del progetto Pages, record CNAME `orari` -> `orari-deangelisbus.pages.dev`).
+La cartella `stampa/` contiene QR code e locandina A4.
 
 ## Note
 

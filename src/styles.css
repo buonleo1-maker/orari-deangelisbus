@@ -236,3 +236,20 @@ div.errori { padding-left: 16px; }
   .logo-auto .marchio-blu { display: none; }
   .logo-auto .marchio-bianco { display: block; }
 }
+
+/* box installazione (solo versione web) */
+.installa { display: grid; gap: 8px; margin: 18px; padding: 16px 18px; background: var(--superficie); border: 2px solid var(--blu); border-radius: 10px; }
+.benvenuto .installa { margin: 0; }
+.installa strong { font-family: var(--cond); font-size: 1.2rem; color: var(--blu); }
+@media (prefers-color-scheme: dark) { .installa { border-color: var(--giallo); } .installa strong { color: var(--giallo); } }
+.installa span { color: var(--tenue); font-size: .95rem; }
+.installa .primario { justify-self: start; }
+
+/* collegamento al sito */
+.sito { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 18px; padding: 16px 18px; background: var(--blu); color: #fff; border-radius: 10px; text-decoration: none; }
+.sito strong { display: block; font-family: var(--cond); font-size: 1.35rem; }
+.sito small { display: block; color: #c9cfe6; font-size: .92rem; margin-top: 2px; }
+.sito svg { width: 26px; height: 26px; flex: none; color: var(--giallo); }
+.sito-compatto { display: inline-flex; align-items: center; gap: 6px; margin-top: 24px; color: var(--blu); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.sito-compatto svg { width: 18px; height: 18px; }
+@media (prefers-color-scheme: dark) { .sito-compatto { color: var(--giallo); } }
