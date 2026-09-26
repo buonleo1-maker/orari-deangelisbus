@@ -141,6 +141,13 @@ export class Orario {
     return [...ids].map((id) => this.linee.get(id)!).filter(Boolean);
   }
 
+  novitaVisibili(giorno: Date) {
+    const data = isoData(giorno);
+    return (this.d.novita ?? [])
+      .filter((n) => n.visibile_dal <= data && (!n.visibile_al || n.visibile_al >= data))
+      .sort((a, b) => Number(b.in_evidenza) - Number(a.in_evidenza) || b.creato_il.localeCompare(a.creato_il));
+  }
+
   avvisiAttivi(giorno: Date) {
     const data = isoData(giorno);
     return this.d.avvisi.filter((a) => (!a.dal || a.dal <= data) && (!a.al || a.al >= data));

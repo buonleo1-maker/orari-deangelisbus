@@ -253,3 +253,34 @@ div.errori { padding-left: 16px; }
 .sito-compatto { display: inline-flex; align-items: center; gap: 6px; margin-top: 24px; color: var(--blu); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 .sito-compatto svg { width: 18px; height: 18px; }
 @media (prefers-color-scheme: dark) { .sito-compatto { color: var(--giallo); } }
+
+/* messaggio di benvenuto */
+.benvenuto .saluto { margin: -12px 0 36px; max-width: 32ch; color: var(--inchiostro); font-size: 1.1rem; font-weight: 600; }
+.saluto-home { margin: 14px 18px 0; padding: 12px 14px; background: var(--superficie); border-left: 5px solid var(--giallo); border-radius: 6px; font-weight: 600; font-size: .98rem; }
+
+/* home: mini tabellone e menu servizi */
+.mini-partenza { display: grid; gap: 2px; margin: 14px 18px 0; width: calc(100% - 36px); padding: 14px 16px; background: var(--blu); color: #fff; border-radius: 6px 6px 16px 6px; border-left: 8px solid var(--giallo); }
+.mp-etichetta { color: var(--giallo); font-weight: 600; font-size: .9rem; }
+.mp-ora { font-family: var(--cond); font-weight: 700; font-size: 2.6rem; line-height: 1; }
+.mp-dest { font-weight: 600; font-size: .98rem; }
+.menu-servizi { list-style: none; margin: 16px 18px 0; padding: 0; background: var(--superficie); border: 1px solid var(--riga); border-radius: 10px; overflow: hidden; }
+.menu-servizi li + li { border-top: 1px solid var(--riga); }
+.menu-servizi button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 14px; min-height: 56px; }
+.menu-servizi .nome { flex: 1; font-weight: 600; }
+.menu-servizi .nome small { display: block; color: var(--tenue); font-weight: 400; font-size: .85rem; }
+.chevron { width: 20px; height: 20px; color: var(--tenue); flex: none; }
+.menu-servizi + .richiesta { margin-top: 18px; }
+.richiesta + .sito { margin-bottom: 4px; }
+
+/* novità ed eventi */
+.gruppo-riga { display: flex; justify-content: space-between; align-items: baseline; margin-right: 18px; }
+.novita-anteprima { display: grid; gap: 10px; width: calc(100% - 36px); margin: 0 18px; }
+.elenco-novita { display: grid; gap: 12px; margin: 18px; }
+.novita { display: block; padding: 14px 16px; background: var(--superficie); border: 1px solid var(--riga); border-left: 6px solid #E07A1F; border-radius: 8px; text-align: left; }
+.novita-evento { border-left-color: var(--blu); }
+.novita-variazione { border-left-color: var(--pericolo); }
+.novita-tipo { display: block; font-size: .8rem; font-weight: 600; color: var(--tenue); }
+.novita h3 { font-family: var(--cond); font-size: 1.2rem; margin: 2px 0 4px; }
+.novita-testo { margin: 0; white-space: pre-wrap; }
+.novita-testo.breve { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--tenue); }
+.novita .link { display: inline-block; margin-top: 8px; }

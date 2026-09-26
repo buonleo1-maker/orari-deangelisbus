@@ -12,13 +12,19 @@ import Viaggio from './screens/Viaggio';
 import Mappa from './screens/Mappa';
 import Info from './screens/Info';
 import Preventivo from './screens/Preventivo';
+import Home from './screens/Home';
+import Servizio from './screens/Servizio';
+import NovitaView from './screens/Novita';
 
 export type Schermata =
   | { tipo: 'tab'; tab: Tab }
   | { tipo: 'linea'; id: string }
   | { tipo: 'corsa'; codice: string; giorno: string }
   | { tipo: 'fermata'; id: number }
-  | { tipo: 'preventivo' };
+  | { tipo: 'preventivo' }
+  | { tipo: 'categoria'; categoria: 'extraurbano' }
+  | { tipo: 'servizio'; id: string }
+  | { tipo: 'novita' };
 
 export interface Nav {
   apri: (s: Schermata) => void;
@@ -30,7 +36,7 @@ const FERMATA_KEY = 'fermata_preferita';
 export default function App() {
   const [dati, setDati] = useState<Dati>(datiIniziali);
   const [stato, setStato] = useState<'pronto' | 'aggiorno' | 'offline'>('aggiorno');
-  const [pila, setPila] = useState<Schermata[]>([{ tipo: 'tab', tab: 'partenze' }]);
+  const [pila, setPila] = useState<Schermata[]>([{ tipo: 'tab', tab: 'home' }]);
   const [fermataCasa, setFermataCasa] = useState<number | null>(() => {
     const v = localStorage.getItem(FERMATA_KEY);
     return v ? Number(v) : null;
@@ -50,12 +56,32 @@ export default function App() {
     indietro: () => setPila((p) => (p.length > 1 ? p.slice(0, -1) : p)),
   }), []);
 
+  // Riaprendo l'app dopo un po' si riparte dalla schermata iniziale, con orari aggiornati
+  const [ripresa, setRipresa] = useState(0);
+  useEffect(() => {
+    const SOGLIA_MS = 30_000; // tempo in secondo piano oltre il quale si torna alla home
+    let nascostaDal = 0;
+    const via = () => { nascostaDal = Date.now(); };
+    const torna = () => {
+      if (nascostaDal && Date.now() - nascostaDal >= SOGLIA_MS) {
+        setPila([{ tipo: 'tab', tab: 'home' }]);
+        setRipresa((n) => n + 1);
+        aggiorna();
+      }
+      nascostaDal = 0;
+    };
+    const onVis = () => (document.visibilityState === 'hidden' ? via() : torna());
+    document.addEventListener('visibilitychange', onVis);
+    const h = CapApp.addListener('appStateChange', ({ isActive }) => (isActive ? torna() : via()));
+    return () => { document.removeEventListener('visibilitychange', onVis); h.then((x) => x.remove()); };
+  }, [aggiorna]);
+
   // tasto "indietro" di Android
   useEffect(() => {
     const h = CapApp.addListener('backButton', () => {
       setPila((p) => {
         if (p.length > 1) return p.slice(0, -1);
-        if (!(p[0].tipo === 'tab' && p[0].tab === 'partenze')) return [{ tipo: 'tab', tab: 'partenze' }];
+        if (!(p[0].tipo === 'tab' && p[0].tab === 'partenze')) return [{ tipo: 'tab', tab: 'home' }];
         CapApp.exitApp();
         return p;
       });
@@ -66,27 +92,31 @@ export default function App() {
   const scegliCasa = (id: number) => { setFermataCasa(id); localStorage.setItem(FERMATA_KEY, String(id)); };
 
   const cima = pila[pila.length - 1];
-  const tabAttivo: Tab = pila[0].tipo === 'tab' ? pila[0].tab : 'partenze';
+  const tabAttivo: Tab = pila[0].tipo === 'tab' ? pila[0].tab : 'home';
 
   let contenuto: JSX.Element;
   switch (cima.tipo) {
     case 'linea': contenuto = <LineaView orario={orario} id={cima.id} nav={nav} />; break;
     case 'corsa': contenuto = <CorsaView orario={orario} codice={cima.codice} giorno={cima.giorno} nav={nav} />; break;
+    case 'categoria': contenuto = <Linee orario={orario} nav={nav} soloExtraurbano />; break;
+    case 'novita': contenuto = <NovitaView orario={orario} nav={nav} />; break;
+    case 'servizio': contenuto = <Servizio id={cima.id} nav={nav} />; break;
     case 'preventivo': contenuto = <Preventivo nav={nav} />; break;
     case 'fermata': contenuto = <Partenze orario={orario} fermataId={cima.id} nav={nav} dettaglio onScegli={scegliCasa} casa={fermataCasa} />; break;
     default:
       switch (cima.tab) {
         case 'linee': contenuto = <Linee orario={orario} nav={nav} />; break;
+        case 'partenze': contenuto = <Partenze orario={orario} fermataId={fermataCasa} nav={nav} onScegli={scegliCasa} casa={fermataCasa} />; break;
         case 'viaggio': contenuto = <Viaggio orario={orario} nav={nav} />; break;
         case 'mappa': contenuto = <Mappa orario={orario} nav={nav} />; break;
         case 'info': contenuto = <Info orario={orario} stato={stato} onAggiorna={aggiorna} nav={nav} />; break;
-        default: contenuto = <Partenze orario={orario} fermataId={fermataCasa} nav={nav} onScegli={scegliCasa} casa={fermataCasa} />;
+        default: contenuto = <Home orario={orario} nav={nav} casa={fermataCasa} />;
       }
   }
 
   return (
     <div className="app">
-      <main className="schermo" key={JSON.stringify(cima)}>{contenuto}</main>
+      <main className="schermo" key={JSON.stringify(cima) + ripresa}>{contenuto}</main>
       <TabBar attivo={tabAttivo} onCambia={(tab) => nav.apri({ tipo: 'tab', tab })} />
     </div>
   );

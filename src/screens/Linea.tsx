@@ -28,6 +28,12 @@ export default function LineaView({ orario, id, nav }: { orario: Orario; id: str
       <Testata titolo={linea.nome} sotto={linea.subappalto ? `Servizio ${linea.committente ?? ''} svolto da De Angelis Bus` : linea.comune ?? undefined}
         onIndietro={nav.indietro} colore={linea.colore} />
 
+      {!orario.d.corse.some((c) => c.linea_id === id && c.attiva) ? (
+        <>
+          {linea.info_pubblico && <p className="avviso-linea">{linea.info_pubblico}</p>}
+          <p className="avviso-linea">Gli orari di questo servizio sono in aggiornamento. Per informazioni chiama lo 0835 758126 o scrivi a info@deangelisbus.it.</p>
+        </>
+      ) : (<>
       {direzioni.length > 1 && (
         <div className="interruttore" role="tablist">
           {direzioni.map((d) => (
@@ -62,6 +68,7 @@ export default function LineaView({ orario, id, nav }: { orario: Orario; id: str
       )}
 
       {linea.info_pubblico && <p className="avviso-linea">{linea.info_pubblico}</p>}
+      </>)}
 
       {unica.length > 0 && (
         <section className="sezione">

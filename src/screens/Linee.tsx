@@ -8,15 +8,17 @@ const TITOLI: Record<Categoria, string> = {
   extraurbano: 'Linee extraurbane', urbano: 'Servizi urbani', scolastico: 'Trasporto scolastico', navetta: 'Navette aeroporto',
 };
 
-export default function Linee({ orario, nav }: { orario: Orario; nav: Nav }) {
-  const linee = orario.lineeOrdinate();
+export default function Linee({ orario, nav, soloExtraurbano }: { orario: Orario; nav: Nav; soloExtraurbano?: boolean }) {
+  const linee = orario.lineeOrdinate().filter((l) => !soloExtraurbano || (l.categoria === 'extraurbano' && !l.subappalto));
   const cat = (Object.keys(TITOLI) as Categoria[]).filter((c) => linee.some((l) => l.categoria === c));
   return (
     <>
-      <Testata titolo="Linee e servizi" conLogo />
+      {soloExtraurbano
+        ? <Testata titolo="Trasporto pubblico extraurbano" sotto="Linee Cotrab da Grottole" onIndietro={nav.indietro} colore="#1E5BB8" />
+        : <Testata titolo="Linee e servizi" conLogo />}
       {cat.map((c) => (
         <section key={c} className="sezione">
-          <h2 className="gruppo">{TITOLI[c]}</h2>
+          {!soloExtraurbano && <h2 className="gruppo">{TITOLI[c]}</h2>}
           <ul className="elenco-linee">
             {linee.filter((l) => l.categoria === c).map((l) => {
               const attive = orario.d.corse.some((x) => x.linea_id === l.id && x.attiva);
@@ -34,7 +36,7 @@ export default function Linee({ orario, nav }: { orario: Orario; nav: Nav }) {
           </ul>
         </section>
       ))}
-      <div className="sezione"><LinkSito /></div>
+      {!soloExtraurbano && <div className="sezione"><LinkSito /></div>}
     </>
   );
 }

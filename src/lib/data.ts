@@ -10,8 +10,10 @@ const supabase = url && key ? createClient(url, key, { auth: { persistSession: f
 const TABELLE = {
   linee: 'orari_linee', fermate: 'orari_fermate', percorsi: 'orari_percorsi',
   percorsi_fermate: 'orari_percorsi_fermate', corse: 'orari_corse', tariffe: 'orari_tariffe',
-  avvisi: 'orari_avvisi', periodi: 'orari_periodi', sospensioni: 'orari_sospensioni',
+  avvisi: 'orari_avvisi', periodi: 'orari_periodi', sospensioni: 'orari_sospensioni', novita: 'orari_novita',
 } as const;
+/** Tabelle facoltative: se non esistono ancora, l'app funziona lo stesso. */
+const FACOLTATIVE = new Set<string>(['orari_novita']);
 
 /** Dati disponibili subito: copia salvata sul telefono, altrimenti quelli inclusi nell'app. */
 export function datiIniziali(): Dati {
@@ -37,7 +39,7 @@ export async function aggiornaDati(): Promise<Dati | null> {
   if (!supabase) return null;
   try {
     const voci = await Promise.all(
-      Object.entries(TABELLE).map(async ([k, t]) => [k, await leggiTutto(t)] as const),
+      Object.entries(TABELLE).map(async ([k, t]) => [k, FACOLTATIVE.has(t) ? await leggiTutto(t).catch(() => []) : await leggiTutto(t)] as const),
     );
     const dati = { generato: new Date().toISOString(), ...Object.fromEntries(voci) } as Dati;
     dati.corse.forEach((c) => { c.partenza = c.partenza.slice(0, 5); });
