@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Orari De Angelis Bus</string>
+    <string name="title_activity_main">Orari De Angelis Bus</string>
+    <string name="package_name">it.deangelisbus.orari</string>
+    <string name="custom_url_scheme">it.deangelisbus.orari</string>
+</resources>
