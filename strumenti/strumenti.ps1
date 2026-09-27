@@ -29,16 +29,19 @@ function SiNo($t)   { $r = Read-Host "  $t (s/n)"; return ($r -match '^[sSyY]') 
 
 # ---------- dove sono i progetti su questo PC ----------
 function Trova-RepoGestionale {
+  # Cerca il repository del gestionale sotto BASE (fino a 2 livelli), SALTANDO archivi, backup e copie vecchie.
+  $escludi = '(?i)archivio|backup|bkp|old|copia|vecchi|solo-pagine|node_modules|usb-v21|dist'
   $cand = @()
   $cand += Get-ChildItem $BASE -Directory -Force -ErrorAction SilentlyContinue |
-           Where-Object { $_.Name -ne 'orari-deangelisbus' -and $_.Name -notmatch 'node_modules' }
+           Where-Object { $_.Name -ne 'orari-deangelisbus' -and $_.Name -notmatch $escludi }
   $cand += $cand | ForEach-Object { Get-ChildItem $_.FullName -Directory -Force -ErrorAction SilentlyContinue |
-           Where-Object { $_.Name -notmatch 'node_modules|usb-v21|dist' } }
+           Where-Object { $_.Name -notmatch $escludi } }
   foreach ($c in $cand) {
-    if (Test-Path (Join-Path $c.FullName '.git')) {
-      $url = (git -C $c.FullName remote get-url origin 2>$null)
-      if ($url -match 'deangelisbus-gestionale') { return $c.FullName }
-    }
+    $d = $c.FullName
+    if (-not (Test-Path (Join-Path $d '.git'))) { continue }
+    $url = (git -C $d remote get-url origin 2>$null)
+    if ($url -notmatch 'deangelisbus-gestionale') { continue }
+    if ((Test-Path "$d\2-SORGENTE-APP\src\components\AdminShell.tsx") -or (Test-Path "$d\src\components\AdminShell.tsx")) { return $d }
   }
   return $null
 }
