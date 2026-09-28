@@ -44,7 +44,15 @@ export default function LineaView({ orario, id, nav }: { orario: Orario; id: str
       <Giorni valore={giorno} onCambia={setGiorno} />
 
       {corse.length === 0 ? (
-        <p className="vuoto">Nessuna corsa in questo giorno. Prova un altro giorno.</p>
+        (() => {
+          const periodi = orario.d.periodi.filter((p) => p.linea_id === id).sort((a, b) => a.dal.localeCompare(b.dal));
+          const fuoriTurno = periodi.length > 0 && !periodi.some((p) => giorno >= p.dal && giorno <= p.al);
+          const prossimo = periodi.find((p) => p.dal > giorno);
+          return fuoriTurno ? (
+            <p className="avviso-linea">In questo periodo il servizio è svolto da un'altra azienda del consorzio Cotrab: gli orari sono su cotrab.it.
+              {prossimo && <> Il prossimo turno di Deangelisbus inizia il {new Date(prossimo.dal + 'T12:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}.</>}</p>
+          ) : <p className="vuoto">Nessuna corsa in questo giorno. Prova un altro giorno.</p>;
+        })()
       ) : (
         <ul className="elenco-corse">
           {corse.map((c) => {

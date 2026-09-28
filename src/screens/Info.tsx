@@ -33,6 +33,10 @@ export default function Info({ orario, stato, onAggiorna, nav }: {
           ))}
         </section>
       )}
+      <button className="card-segnala" onClick={() => nav.apri({ tipo: 'segnalazione' })}>
+        <strong>Feedback, reclami e segnalazioni</strong>
+        <span>Un ritardo, un problema a bordo o un suggerimento? Scrivici.</span>
+      </button>
       <LinkSito />
 
       <section className="sezione contatti">

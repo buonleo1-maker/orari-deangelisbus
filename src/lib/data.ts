@@ -71,3 +71,21 @@ export async function inviaRichiesta(r: Richiesta): Promise<boolean> {
     return false;
   }
 }
+
+export interface Segnalazione {
+  tipo: 'suggerimento' | 'reclamo' | 'segnalazione' | 'complimento';
+  linea_id: string | null; data_evento: string | null; ora_evento: string | null;
+  luogo: string | null; messaggio: string;
+  nome: string | null; email: string | null; telefono: string | null; consenso_privacy: boolean;
+}
+
+/** Invia una segnalazione / reclamo / suggerimento. Restituisce true se salvata. */
+export async function inviaSegnalazione(s: Segnalazione): Promise<boolean> {
+  if (!supabase) return false;
+  try {
+    const { error } = await supabase.from('segnalazioni_app').insert(s);
+    return !error;
+  } catch {
+    return false;
+  }
+}

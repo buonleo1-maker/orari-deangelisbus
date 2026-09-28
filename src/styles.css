@@ -293,3 +293,11 @@ div.errori { padding-left: 16px; }
 .nostri-bus strong { display: block; font-family: var(--cond); font-size: 1.3rem; }
 .nostri-bus small { display: block; color: var(--tenue); font-size: .9rem; }
 .nostri-bus .freccia-esterna { width: 22px; height: 22px; flex: none; color: var(--tenue); }
+
+/* card feedback, reclami e segnalazioni */
+.card-segnala { display: grid; gap: 4px; margin: 0 18px 12px; width: calc(100% - 36px); padding: 16px 18px; background: var(--superficie); border: 2px solid var(--blu); border-left: 8px solid #E07A1F; border-radius: 10px; color: var(--inchiostro); }
+.card-segnala strong { font-family: var(--cond); font-size: 1.3rem; color: var(--blu); }
+@media (prefers-color-scheme: dark) { .card-segnala { border-color: var(--giallo); } .card-segnala strong { color: var(--giallo); } }
+.card-segnala span { color: var(--tenue); font-size: .95rem; }
+.modulo select { font: inherit; font-weight: 400; padding: 12px; border: 2px solid var(--riga); border-radius: 10px; background: var(--superficie); color: var(--inchiostro); width: 100%; }
+.modulo #msg { font: inherit; padding: 12px; border: 2px solid var(--riga); border-radius: 10px; background: var(--superficie); color: var(--inchiostro); width: 100%; }

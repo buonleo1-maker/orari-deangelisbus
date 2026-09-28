@@ -15,6 +15,7 @@ import Preventivo from './screens/Preventivo';
 import Home from './screens/Home';
 import Servizio from './screens/Servizio';
 import NovitaView from './screens/Novita';
+import SegnalazioneView from './screens/Segnalazione';
 
 export type Schermata =
   | { tipo: 'tab'; tab: Tab }
@@ -24,7 +25,8 @@ export type Schermata =
   | { tipo: 'preventivo' }
   | { tipo: 'categoria'; categoria: 'extraurbano' }
   | { tipo: 'servizio'; id: string }
-  | { tipo: 'novita' };
+  | { tipo: 'novita' }
+  | { tipo: 'segnalazione' };
 
 export interface Nav {
   apri: (s: Schermata) => void;
@@ -99,6 +101,7 @@ export default function App() {
     case 'linea': contenuto = <LineaView orario={orario} id={cima.id} nav={nav} />; break;
     case 'corsa': contenuto = <CorsaView orario={orario} codice={cima.codice} giorno={cima.giorno} nav={nav} />; break;
     case 'categoria': contenuto = <Linee orario={orario} nav={nav} soloExtraurbano />; break;
+    case 'segnalazione': contenuto = <SegnalazioneView orario={orario} nav={nav} />; break;
     case 'novita': contenuto = <NovitaView orario={orario} nav={nav} />; break;
     case 'servizio': contenuto = <Servizio id={cima.id} nav={nav} />; break;
     case 'preventivo': contenuto = <Preventivo nav={nav} />; break;
