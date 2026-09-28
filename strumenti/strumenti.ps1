@@ -74,8 +74,8 @@ function Controlla-Programmi {
   return $ok
 }
 function Controlla-Env($cartella, $nome) {
-  $f = Join-Path $cartella '.env'
-  if (-not (Test-Path $f)) { Errore "$nome - manca il file .env in $cartella"; return $false }
+  $f = @('.env', '.env.local', '.env.production') | ForEach-Object { Join-Path $cartella $_ } | Where-Object { Test-Path $_ } | Select-Object -First 1
+  if (-not $f) { Errore "$nome - manca il file .env in $cartella"; return $false }
   $t = Get-Content $f -Raw
   if ($t -notmatch 'VITE_SUPABASE_URL=https://' -or $t -notmatch 'VITE_SUPABASE_ANON_KEY=eyJ' -or $t -notmatch $PROGETTO_SB) {
     Errore "$nome - il file .env non e' completo (servono VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY del progetto $PROGETTO_SB)"; return $false
