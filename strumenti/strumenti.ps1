@@ -77,7 +77,7 @@ function Controlla-Env($cartella, $nome) {
   $f = @('.env', '.env.local', '.env.production') | ForEach-Object { Join-Path $cartella $_ } | Where-Object { Test-Path $_ } | Select-Object -First 1
   if (-not $f) { Errore "$nome - manca il file .env in $cartella"; return $false }
   $t = Get-Content $f -Raw
-  if ($t -notmatch 'VITE_SUPABASE_URL=https://' -or $t -notmatch 'VITE_SUPABASE_ANON_KEY=eyJ' -or $t -notmatch $PROGETTO_SB) {
+  if ($t -notmatch 'VITE_SUPABASE_URL\s*=\s*["'']?https://' -or $t -notmatch 'VITE_SUPABASE_ANON_KEY\s*=\s*["'']?(eyJ|sb_publishable_)' -or $t -notmatch $PROGETTO_SB) {
     Errore "$nome - il file .env non e' completo (servono VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY del progetto $PROGETTO_SB)"; return $false
   }
   Ok "$nome - file .env presente e corretto"; return $true
@@ -118,7 +118,7 @@ function Prima-Installazione {
   # file .env (non stanno su GitHub)
   $chiave = $null
   foreach ($c in @($ORARI, $script:APP_GEST)) {
-    if ($c -and (Test-Path "$c\.env")) { $m = Select-String -Path "$c\.env" -Pattern '^VITE_SUPABASE_ANON_KEY=(eyJ\S+)'; if ($m) { $chiave = $m.Matches[0].Groups[1].Value } }
+    if ($c -and (Test-Path "$c\.env")) { $m = Select-String -Path "$c\.env" -Pattern '^VITE_SUPABASE_ANON_KEY=((eyJ|sb_publishable_)\S+)'; if ($m) { $chiave = $m.Matches[0].Groups[1].Value } }
   }
   if (-not $chiave) {
     Write-Host "  Serve la chiave 'anon public' di Supabase (Project Settings > API Keys > Legacy > anon)."
