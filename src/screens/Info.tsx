@@ -1,5 +1,6 @@
 import type { Nav } from '../App';
 import Installa from '../components/Installa';
+import LinkBiglietti from '../components/LinkBiglietti';
 import LinkSito from '../components/LinkSito';
 import Logo from '../components/Logo';
 import Testata from '../components/Testata';
@@ -46,7 +47,8 @@ export default function Info({ orario, stato, onAggiorna, nav }: {
       </section>
       <section className="sezione">
         <h2 className="gruppo">Biglietti</h2>
-        <p className="testo">Per le linee extraurbane Cotrab puoi comprare biglietti e abbonamenti con l'app Cotrab, nelle rivendite autorizzate o a bordo. Per la navetta per l'aeroporto di Bari i biglietti si comprano solo online su marozzivt.it.</p>
+        <LinkBiglietti />
+        <p className="testo">Per le linee extraurbane Cotrab puoi comprare biglietti e abbonamenti online, con l'app Cotrab, nelle rivendite autorizzate o a bordo (con sovrapprezzo). Per la navetta per l'aeroporto di Bari i biglietti si comprano solo online su marozzivt.it.</p>
       </section>
       <section className="sezione">
         <h2 className="gruppo">Orari dell'app</h2>

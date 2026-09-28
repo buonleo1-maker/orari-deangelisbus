@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Nav } from '../App';
 import Installa from '../components/Installa';
+import LinkBiglietti from '../components/LinkBiglietti';
 import LinkSito from '../components/LinkSito';
 import SchedaNovita from '../components/SchedaNovita';
 import Testata from '../components/Testata';
@@ -48,6 +49,8 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
           </>
         )}
       </button>
+
+      <LinkBiglietti compatto />
 
       {novita.length > 0 && (
         <section className="sezione">

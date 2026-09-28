@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Nav } from '../App';
 import Giorni, { daIso } from '../components/Giorni';
+import LinkBiglietti from '../components/LinkBiglietti';
 import Testata from '../components/Testata';
 import { descriviGiorni, euro, hhmm, isoData, oggi, type Orario } from '../lib/schedule';
 
@@ -77,6 +78,8 @@ export default function LineaView({ orario, id, nav }: { orario: Orario; id: str
 
       {linea.info_pubblico && <p className="avviso-linea">{linea.info_pubblico}</p>}
       </>)}
+
+      {linea.committente === 'Cotrab' && linea.categoria === 'extraurbano' && <div className="sezione"><LinkBiglietti /></div>}
 
       {unica.length > 0 && (
         <section className="sezione">

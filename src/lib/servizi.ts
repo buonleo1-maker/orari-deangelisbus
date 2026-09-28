@@ -1,4 +1,4 @@
-﻿/** Menu dei servizi mostrato nella home. Se una linea con quell'id esiste nei dati, si apre la linea;
+/** Menu dei servizi mostrato nella home. Se una linea con quell'id esiste nei dati, si apre la linea;
  *  altrimenti si apre una pagina informativa (orari in arrivo, servizio su prenotazione, ecc.). */
 export type VoceServizio =
   | { id: string; titolo: string; sotto?: string; colore: string; tipo: 'categoria' }
@@ -17,11 +17,16 @@ export const SERVIZI: VoceServizio[] = [
   { id: 'urb-montescaglioso', titolo: 'Servizio urbano Montescaglioso', colore: BIANCO, tipo: 'linea', linea: 'montescaglioso-urbano',
     testo: 'Gli orari del servizio urbano di Montescaglioso saranno pubblicati a breve.' },
   { id: 'disabili-matera', titolo: 'Trasporto disabili Matera', sotto: 'Servizio su prenotazione', colore: VERDE, tipo: 'linea', linea: 'matera-disabili',
-    testo: 'Servizio di trasporto per alunni con disabilitÃ  svolto per conto del Comune di Matera. Il servizio Ã¨ organizzato su prenotazione: per informazioni contatta i nostri uffici.' },
-  { id: 'navetta-bari', titolo: 'Trasferimenti Matera â€“ Bari Aeroporto', colore: NAVY, tipo: 'linea', linea: 'navetta-bari',
-    testo: 'Navetta Cotrab Matera â€“ Aeroporto di Bari Palese. I biglietti si acquistano solo online su marozzivt.it.' },
-  { id: 'matera-policoro', titolo: 'Linea Matera â€“ Policoro', sotto: 'Linea 354 via Metaponto', colore: BLU, tipo: 'linea', linea: 'matera-policoro' },
+    testo: 'Servizio di trasporto per alunni con disabilità svolto per conto del Comune di Matera. Il servizio è organizzato su prenotazione: per informazioni contatta i nostri uffici.' },
+  { id: 'navetta-bari', titolo: 'Trasferimenti Matera – Bari Aeroporto', colore: NAVY, tipo: 'linea', linea: 'navetta-bari',
+    testo: 'Navetta Cotrab Matera – Aeroporto di Bari Palese. I biglietti si acquistano solo online su marozzivt.it.' },
+  { id: 'matera-policoro', titolo: 'Linea Matera – Policoro', sotto: 'Linea 354 via Metaponto', colore: BLU, tipo: 'linea', linea: 'matera-policoro' },
 ];
 
 /** Pagina del parco macchine sul sito aziendale. */
 export const URL_FLOTTA = 'https://www.deangelisbus.it/parco-macchine/';
+
+/** Biglietteria online ufficiale Cotrab (acquisto e pagamento di biglietti e abbonamenti). */
+export const URL_BIGLIETTERIA = 'https://biglietteria.cotrab.it/';
+/** Guida Cotrab all'acquisto online. */
+export const URL_GUIDA_BIGLIETTI = 'https://www.cotrab.it/biglietti-e-abbonamenti-online/';
