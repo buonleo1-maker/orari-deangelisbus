@@ -35,6 +35,7 @@ function tabellaHtml(titolo: string, sotto: string, righe: [string, unknown][], 
     <table style="border-collapse:collapse;width:100%">
       ${righe.map(([k, v]) => `<tr><td style="padding:8px;border-bottom:1px solid #d6dde4;color:#5b6b7b;width:130px;vertical-align:top">${esc(k)}</td><td style="padding:8px;border-bottom:1px solid #d6dde4;font-weight:bold;white-space:pre-wrap">${esc(v)}</td></tr>`).join('')}
     </table>
+    <p style="color:#5b6b7b;font-size:12px;margin-top:16px">Messaggio automatico dell'app Orari Deangelisbus S.r.l. – orari.deangelisbus.it</p>
     ${azione ? `<p style="margin-top:16px"><a href="${esc(azione.href)}" style="background:#ffc628;color:#020a5d;padding:10px 16px;border-radius:6px;text-decoration:none;font-weight:bold">${esc(azione.testo)}</a></p>` : ''}
   </div>`;
 }
@@ -65,7 +66,7 @@ Deno.serve(async (req) => {
     oggetto = `Segnalazione app: ${TIPI_SEGNALAZIONE[r.tipo] ?? r.tipo}${r.linea_id ? ` – ${r.linea_id}` : ''}`;
     html = tabellaHtml(`Nuova segnalazione n. ${r.id}`, `Inviata dall'app Orari il ${quando(r.creata_il)}`, righe,
       r.telefono ? { href: `tel:${String(r.telefono).replace(/\s/g, '')}`, testo: 'Chiama il cliente' } : undefined);
-    testo = righe.map(([k, v]) => `${k}: ${v}`).join('\n');
+    testo = righe.map(([k, v]) => `${k}: ${v}`).join('\n') + '\n\nMessaggio automatico dell\'app Orari Deangelisbus S.r.l.';
     replyTo = r.email || undefined;
   } else {
     const righe: [string, unknown][] = [
@@ -93,12 +94,16 @@ Deno.serve(async (req) => {
     secure: true,
     auth: { user: Deno.env.get('SMTP_USER')!, pass: Deno.env.get('SMTP_PASS')! },
   });
+  let esitoSmtp: Record<string, unknown> = {};
   try {
-    await transport.sendMail({
+    const info = await transport.sendMail({
       from: `"App Orari Deangelisbus" <${Deno.env.get('SMTP_USER')}>`,
       to: Deno.env.get('EMAIL_TO') ?? Deno.env.get('SMTP_USER'),
-      replyTo, subject: oggetto, text: testo, html,
+      replyTo: replyTo ?? Deno.env.get('SMTP_USER'), subject: oggetto, text: testo, html,
     });
+    // risposta del server di posta: utile per capire dove finisce il messaggio
+    esitoSmtp = { accettati: info.accepted, rifiutati: info.rejected, risposta: info.response, id: info.messageId };
+    console.log('Email inviata', tabella, r.id, JSON.stringify(esitoSmtp));
   } catch (e) {
     console.error('Invio email fallito:', e);
     return new Response(JSON.stringify({ ok: false, errore: String(e) }), { status: 500 });
@@ -108,5 +113,5 @@ Deno.serve(async (req) => {
   const nomeTabella = tabella === 'segnalazioni_app' ? 'segnalazioni_app' : 'richieste_preventivo';
   await sb.from(nomeTabella).update({ email_inviata_il: new Date().toISOString() }).eq('id', r.id);
 
-  return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } });
+  return new Response(JSON.stringify({ ok: true, tabella, ...esitoSmtp }), { headers: { 'Content-Type': 'application/json' } });
 });
