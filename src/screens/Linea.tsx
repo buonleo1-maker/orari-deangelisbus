@@ -15,7 +15,9 @@ export default function LineaView({ orario, id, nav }: { orario: Orario; id: str
   const corse = orario.corseDelGiorno(id, dir, daIso(giorno));
   const esempio = orario.d.corse.find((c) => c.linea_id === id && c.direzione === dir);
   const ps = esempio ? orario.passaggi(esempio) : [];
+  const scolastico = linea?.categoria === 'scolastico';
   const etichetta = (d: 'A' | 'R') => {
+    if (scolastico) return d === 'A' ? 'Andata a scuola' : 'Ritorno da scuola';
     const c = orario.d.corse.find((x) => x.linea_id === id && x.direzione === d);
     const p = c ? orario.passaggi(c) : [];
     return p.length ? `verso ${p[p.length - 1].fermata.comune === p[0].fermata.comune ? p[p.length - 1].fermata.nome : p[p.length - 1].fermata.comune}` : d;
@@ -66,6 +68,7 @@ export default function LineaView({ orario, id, nav }: { orario: Orario; id: str
                   <span className="freccia" aria-hidden="true" />
                   <span className="ora arrivo">{!a.confermato && '~'}{hhmm(a.minuto)}</span>
                   <span className="dettagli">
+                    {scolastico && c.denominazione ? <strong className="scuola-tipo">{c.denominazione}</strong> : null}
                     {p[0].fermata.comune === a.fermata.comune ? `${p[0].fermata.nome} → ${a.fermata.nome}` : `${p[0].fermata.comune} → ${a.fermata.comune}`}
                     <small>{[descriviGiorni(c.giorni), c.solo_giorni_scolastici && 'solo giorni di scuola', c.solo_giorni_non_scolastici && 'solo quando le scuole sono chiuse', c.stagionale && `stagione ${c.stagionale}`].filter(Boolean).join(' – ')}</small>
                   </span>
