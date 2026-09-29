@@ -48,7 +48,7 @@ export default function Preventivo({ nav }: { nav: Nav }) {
 
   const testoEmail = () => encodeURIComponent(
     `Richiesta di preventivo\nNome: ${r.nome} ${r.cognome}\n${r.azienda ? `Azienda: ${r.azienda}\n` : ''}Telefono: ${r.telefono}\n` +
-    `Partenza: ${r.partenza} il ${r.data_andata ?? ''}\nDestinazione: ${r.destinazione}\nRientro: ${r.data_ritorno ?? ''}\n` +
+    `Partenza: ${r.partenza} il ${r.data_andata ?? ''} ${r.ora_andata ?? ''}\nDestinazione: ${r.destinazione}\nRientro: ${r.data_ritorno ?? ''} ${r.ora_ritorno ?? ''}\n` +
     `Partecipanti: ${r.passeggeri ?? ''}\n${r.itinerario ? `Itinerario: ${r.itinerario}\n` : ''}${r.note ? `Ulteriori informazioni: ${r.note}\n` : ''}`);
 
   if (stato === 'inviata') {
@@ -84,7 +84,11 @@ export default function Preventivo({ nav }: { nav: Nav }) {
           <legend>Il viaggio</legend>
           <div className="coppia">
             <label>Data di partenza *<input type="date" value={r.data_andata ?? ''} onChange={(e) => set('data_andata', e.target.value || null)} /></label>
+            <label>Ora di partenza<input type="time" value={r.ora_andata ?? ''} onChange={(e) => set('ora_andata', e.target.value || null)} /></label>
+          </div>
+          <div className="coppia">
             <label>Data di rientro *<input type="date" value={r.data_ritorno ?? ''} min={r.data_andata ?? undefined} onChange={(e) => set('data_ritorno', e.target.value || null)} /></label>
+            <label>Ora di rientro<input type="time" value={r.ora_ritorno ?? ''} onChange={(e) => set('ora_ritorno', e.target.value || null)} /></label>
           </div>
           <label>Luogo di partenza *<input value={r.partenza} onChange={(e) => set('partenza', e.target.value)} placeholder="Es. Grottole" /></label>
           <label>Luogo di destinazione *<input value={r.destinazione} onChange={(e) => set('destinazione', e.target.value)} placeholder="Es. Roma" /></label>
