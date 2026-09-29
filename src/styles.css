@@ -312,3 +312,76 @@ div.errori { padding-left: 16px; }
 .biglietti-guida { color: var(--blu); font-size: .9rem; text-decoration: underline; text-underline-offset: 3px; justify-self: start; }
 @media (prefers-color-scheme: dark) { .biglietti-guida { color: var(--giallo); } }
 .sezione > .biglietti { margin-top: 0; }
+
+/* card preventivo in evidenza */
+.card-preventivo { margin: 16px 18px 0; padding: 18px; border-radius: 14px; background: linear-gradient(135deg, #020a5d 0%, #1E5BB8 100%); color: #fff; display: grid; gap: 14px; box-shadow: 0 6px 18px rgba(2, 10, 93, .25); }
+.cp-testo { display: grid; gap: 4px; }
+.cp-etichetta { color: var(--giallo); font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .5px; }
+.cp-testo strong { font-family: var(--cond); font-size: 1.6rem; line-height: 1.1; }
+.cp-testo span:last-child { color: #d7defa; font-size: .95rem; }
+.cp-bottone { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 10px; background: var(--giallo); color: var(--blu); font-weight: 700; font-size: 1.1rem; text-align: center; }
+.cp-bottone svg { width: 22px; height: 22px; }
+
+/* card Ridola Viaggi */
+.ridola { margin: 16px 18px 0; padding: 16px; border-radius: 14px; background: var(--superficie); border: 2px solid #0E7C86; display: grid; gap: 12px; }
+.ridola-testa { display: flex; align-items: center; gap: 12px; color: #0E7C86; }
+.ridola-testa svg { width: 34px; height: 34px; flex: none; }
+.ridola-testa strong { display: block; font-family: var(--cond); font-size: 1.35rem; color: var(--inchiostro); }
+.ridola-testa small { display: block; color: #0E7C86; font-weight: 600; }
+.ridola-viaggi { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ridola-viaggi a { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 10px; background: rgba(14, 124, 134, .08); color: var(--inchiostro); text-decoration: none; }
+.ridola-data { flex: none; min-width: 58px; text-align: center; font-family: var(--cond); font-weight: 700; color: #0E7C86; font-size: .95rem; line-height: 1.15; }
+.ridola-titolo { font-weight: 600; }
+.ridola-titolo small { display: block; font-weight: 400; color: var(--tenue); font-size: .88rem; }
+.ridola-vuoto { margin: 0; color: var(--tenue); }
+.ridola-azioni { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.ridola-link { display: inline-block; padding: 10px 14px; border-radius: 10px; background: #0E7C86; color: #fff; font-weight: 700; text-decoration: none; }
+.ridola .link.chiaro { color: #0E7C86; }
+.novita-viaggio { border-left-color: #0E7C86; }
+a.ridola { text-decoration: none; color: var(--inchiostro); }
+a.ridola .ridola-link { justify-self: start; }
+
+/* assistente virtuale */
+.fab-assistente { position: fixed; right: 16px; bottom: calc(76px + var(--safe-bottom)); z-index: 20; display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 999px; background: var(--blu); color: #fff; font-weight: 700; box-shadow: 0 6px 18px rgba(2, 10, 93, .35); border: 2px solid var(--giallo); }
+.fab-assistente svg { width: 22px; height: 22px; color: var(--giallo); }
+.schermo { padding-bottom: 90px; }
+.chat-pagina { display: flex; flex-direction: column; min-height: 100%; }
+.chat-lista { flex: 1; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+.chat-benvenuto p { margin: 0 0 8px; }
+.chat-suggerimenti { display: grid; gap: 8px; margin-top: 8px; }
+.chat-suggerimenti button { text-align: left; padding: 10px 12px; border-radius: 10px; background: var(--superficie); border: 1px solid var(--riga); color: var(--blu); font-weight: 600; }
+@media (prefers-color-scheme: dark) { .chat-suggerimenti button { color: var(--giallo); } }
+.bolla { max-width: 86%; padding: 10px 14px; border-radius: 16px; white-space: pre-wrap; line-height: 1.45; }
+.bolla.utente { align-self: flex-end; background: var(--blu); color: #fff; border-bottom-right-radius: 4px; }
+.bolla.assistente { align-self: flex-start; background: var(--superficie); border: 1px solid var(--riga); border-bottom-left-radius: 4px; }
+.bolla.attesa { display: flex; gap: 5px; }
+.bolla.attesa span { width: 8px; height: 8px; border-radius: 50%; background: var(--tenue); animation: puntini 1s infinite ease-in-out; }
+.bolla.attesa span:nth-child(2) { animation-delay: .15s; } .bolla.attesa span:nth-child(3) { animation-delay: .3s; }
+@keyframes puntini { 0%, 80%, 100% { opacity: .3; } 40% { opacity: 1; } }
+.chat-nota { margin: 0 18px 6px; font-size: .78rem; color: var(--tenue); }
+.chat-invio { position: sticky; bottom: 0; display: flex; gap: 8px; padding: 10px 18px 12px; background: var(--carta); border-top: 1px solid var(--riga); }
+.chat-invio input { flex: 1; font: inherit; padding: 12px 14px; border-radius: 999px; border: 2px solid var(--riga); background: var(--superficie); color: var(--inchiostro); }
+.chat-invio button { width: 48px; height: 48px; border-radius: 50%; background: var(--giallo); color: var(--blu); display: grid; place-items: center; flex: none; }
+.chat-invio button:disabled { opacity: .5; }
+.chat-invio svg { width: 22px; height: 22px; }
+.chat-comandi { display: flex; gap: 10px; padding: 0 18px 8px; }
+.chat-comandi button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 10px; background: var(--superficie); border: 2px solid var(--blu); color: var(--blu); font-weight: 700; }
+.chat-comandi button + button { border-color: var(--riga); color: var(--inchiostro); }
+.chat-comandi svg { width: 20px; height: 20px; }
+@media (prefers-color-scheme: dark) { .chat-comandi button:first-child { border-color: var(--giallo); color: var(--giallo); } }
+.chat-comandi button { white-space: nowrap; font-size: .95rem; padding: 10px 8px; }
+
+/* pulsante "Indietro" con scritta, su una riga sopra il titolo */
+.testata:has(> .indietro) { flex-wrap: wrap; row-gap: 6px; }
+.testata > .indietro { width: auto; height: auto; margin: 0 0 0 -6px; padding: 6px 14px 6px 6px; display: inline-flex; align-items: center; gap: 2px; border-radius: 999px; background: rgba(255, 255, 255, .14); color: var(--giallo); font-weight: 700; font-size: 1rem; }
+.testata > .indietro svg { width: 22px; height: 22px; }
+.testata > .indietro + .testata-testo { flex-basis: 100%; }
+/* logo Ridola sempre su fondo bianco (leggibile anche con il tema scuro) */
+.ridola-logo { flex: none; width: 76px; height: 56px; padding: 5px 6px; border-radius: 10px; background: #fff; display: grid; place-items: center; box-shadow: 0 1px 4px rgba(0, 0, 0, .12); }
+.ridola-logo img { width: 100%; height: 100%; object-fit: contain; }
+/* pulsante Esci (solo app Android installata dal Play Store / Android Studio) */
+.testata .esci { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; background: rgba(255, 255, 255, .14); color: #fff; font-weight: 700; }
+.testata .esci svg { width: 20px; height: 20px; color: var(--giallo); }
+/* Esci: in basso a destra nella testata, sulla riga di "Orari e servizi" (non copre il logo) */
+.testata.con-logo { position: relative; }
+.testata.con-logo .esci { position: absolute; right: 14px; bottom: 10px; padding: 6px 12px; font-size: .95rem; }

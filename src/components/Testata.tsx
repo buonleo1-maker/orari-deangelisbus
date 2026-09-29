@@ -9,8 +9,9 @@ export default function Testata({ titolo, sotto, onIndietro, colore, children, c
   return (
     <header className={conLogo ? 'testata con-logo' : 'testata'} style={colore ? { borderBottomColor: colore } : undefined}>
       {onIndietro && (
-        <button className="indietro" onClick={onIndietro} aria-label="Indietro">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
+        <button className="indietro" onClick={onIndietro}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+          <span>Indietro</span>
         </button>
       )}
       <div className="testata-testo">

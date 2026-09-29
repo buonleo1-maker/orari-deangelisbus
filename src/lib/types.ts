@@ -26,8 +26,8 @@ export interface Tariffa {
 }
 export interface Avviso { id: number; titolo: string; testo: string | null; linea_id: string | null; dal: string | null; al: string | null }
 export interface Novita {
-  id: number; tipo: 'novita' | 'evento' | 'variazione'; titolo: string; testo: string | null;
-  data_evento: string | null; link: string | null; in_evidenza: boolean;
+  id: number; tipo: 'novita' | 'evento' | 'variazione' | 'viaggio'; titolo: string; testo: string | null;
+  data_evento: string | null; data_fine?: string | null; link: string | null; in_evidenza: boolean;
   visibile_dal: string; visibile_al: string | null; creato_il: string;
 }
 export interface Periodo { id: number; linea_id: string; dal: string; al: string; note: string | null }

@@ -16,6 +16,8 @@ import Home from './screens/Home';
 import Servizio from './screens/Servizio';
 import NovitaView from './screens/Novita';
 import SegnalazioneView from './screens/Segnalazione';
+import Assistente from './screens/Assistente';
+import BottoneAssistente from './components/BottoneAssistente';
 
 export type Schermata =
   | { tipo: 'tab'; tab: Tab }
@@ -26,7 +28,8 @@ export type Schermata =
   | { tipo: 'categoria'; categoria: 'extraurbano' }
   | { tipo: 'servizio'; id: string }
   | { tipo: 'novita' }
-  | { tipo: 'segnalazione' };
+  | { tipo: 'segnalazione' }
+  | { tipo: 'assistente' };
 
 export interface Nav {
   apri: (s: Schermata) => void;
@@ -101,6 +104,7 @@ export default function App() {
     case 'linea': contenuto = <LineaView orario={orario} id={cima.id} nav={nav} />; break;
     case 'corsa': contenuto = <CorsaView orario={orario} codice={cima.codice} giorno={cima.giorno} nav={nav} />; break;
     case 'categoria': contenuto = <Linee orario={orario} nav={nav} soloExtraurbano />; break;
+    case 'assistente': contenuto = <Assistente orario={orario} nav={nav} />; break;
     case 'segnalazione': contenuto = <SegnalazioneView orario={orario} nav={nav} />; break;
     case 'novita': contenuto = <NovitaView orario={orario} nav={nav} />; break;
     case 'servizio': contenuto = <Servizio id={cima.id} nav={nav} />; break;
@@ -120,6 +124,7 @@ export default function App() {
   return (
     <div className="app">
       <main className="schermo" key={JSON.stringify(cima) + ripresa}>{contenuto}</main>
+      {cima.tipo === 'tab' && cima.tab !== 'mappa' && <BottoneAssistente onApri={() => nav.apri({ tipo: 'assistente' })} />}
       <TabBar attivo={tabAttivo} onCambia={(tab) => nav.apri({ tipo: 'tab', tab })} />
     </div>
   );

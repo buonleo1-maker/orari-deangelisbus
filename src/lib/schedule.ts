@@ -148,6 +148,14 @@ export class Orario {
       .sort((a, b) => Number(b.in_evidenza) - Number(a.in_evidenza) || b.creato_il.localeCompare(a.creato_il));
   }
 
+  /** Viaggi di gruppo Ridola Viaggi ancora da partire, dal più vicino. */
+  viaggiInProgramma(giorno: Date) {
+    const data = isoData(giorno);
+    return this.novitaVisibili(giorno)
+      .filter((n) => n.tipo === 'viaggio' && (!n.data_evento || n.data_evento >= data))
+      .sort((a, b) => (a.data_evento ?? '9999').localeCompare(b.data_evento ?? '9999'));
+  }
+
   avvisiAttivi(giorno: Date) {
     const data = isoData(giorno);
     return this.d.avvisi.filter((a) => (!a.dal || a.dal <= data) && (!a.al || a.al >= data));

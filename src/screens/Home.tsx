@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { Nav } from '../App';
 import Installa from '../components/Installa';
+import { App as CapApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
+import CardPreventivo from '../components/CardPreventivo';
+import CardRidola from '../components/CardRidola';
 import LinkBiglietti from '../components/LinkBiglietti';
 import LinkSito from '../components/LinkSito';
 import SchedaNovita from '../components/SchedaNovita';
@@ -15,7 +19,8 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
   const fermata = casa != null ? orario.fermate.get(casa) : undefined;
   const prossimo = fermata ? orario.partenze(fermata.id, oggi()).find((p) => p.passaggio.minuto >= ora) : undefined;
 
-  const novita = orario.novitaVisibili(oggi());
+  const tutte = orario.novitaVisibili(oggi());
+  const novita = tutte.filter((n) => n.tipo !== 'viaggio');
 
   const apri = (v: VoceServizio) => {
     if (v.tipo === 'categoria') nav.apri({ tipo: 'categoria', categoria: 'extraurbano' });
@@ -25,7 +30,14 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
 
   return (
     <>
-      <Testata titolo="Orari e servizi" conLogo />
+      <Testata titolo="Orari e servizi" conLogo>
+        {Capacitor.isNativePlatform() && (
+          <button className="esci" onClick={() => CapApp.exitApp()} aria-label="Esci dall'app">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 17l5-5-5-5M20 12H9M12 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" /></svg>
+            <span>Esci</span>
+          </button>
+        )}
+      </Testata>
       <p className="saluto-home">Benvenuti! Ecco gli orari delle corse esercitate dalla Deangelisbus S.r.l.:</p>
 
       <button className="mini-partenza" onClick={() => nav.apri({ tipo: 'tab', tab: 'partenze' })}>
@@ -50,7 +62,11 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
         )}
       </button>
 
+      <CardPreventivo onApri={() => nav.apri({ tipo: 'preventivo' })} />
+
       <LinkBiglietti compatto />
+
+      <CardRidola />
 
       {novita.length > 0 && (
         <section className="sezione">
@@ -83,10 +99,6 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
         </li>
       </ul>
 
-      <button className="richiesta" onClick={() => nav.apri({ tipo: 'preventivo' })}>
-        <strong>Richiesta trasferimenti e noleggio con conducente</strong>
-        <span>Compila la richiesta: ti ricontattiamo noi con il preventivo.</span>
-      </button>
       <button className="card-segnala" onClick={() => nav.apri({ tipo: 'segnalazione' })}>
         <strong>Feedback, reclami e segnalazioni</strong>
         <span>Un ritardo, un problema a bordo o un suggerimento? Scrivici.</span>

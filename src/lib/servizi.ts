@@ -30,3 +30,6 @@ export const URL_FLOTTA = 'https://www.deangelisbus.it/parco-macchine/';
 export const URL_BIGLIETTERIA = 'https://biglietteria.cotrab.it/';
 /** Guida Cotrab all'acquisto online. */
 export const URL_GUIDA_BIGLIETTI = 'https://www.cotrab.it/biglietti-e-abbonamenti-online/';
+
+/** Agenzia viaggi Ridola Viaggi (viaggi di gruppo). */
+export const URL_RIDOLA = 'https://www.ridolaviaggi.com';
