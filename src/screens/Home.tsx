@@ -22,6 +22,16 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
   const tutte = orario.novitaVisibili(oggi());
   const novita = tutte.filter((n) => n.tipo !== 'viaggio');
 
+  // "Esci": nell'app Android chiude davvero; nell'app web installata prova a chiudere la finestra
+  // e, se il telefono non lo consente, spiega come chiuderla.
+  const installataWeb = typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches;
+  const [aiutoEsci, setAiutoEsci] = useState(false);
+  const esci = () => {
+    if (Capacitor.isNativePlatform()) { CapApp.exitApp(); return; }
+    window.close();
+    setTimeout(() => { if (!document.hidden) setAiutoEsci(true); }, 400);
+  };
+
   const apri = (v: VoceServizio) => {
     if (v.tipo === 'categoria') nav.apri({ tipo: 'categoria', categoria: 'extraurbano' });
     else if (orario.linee.has(v.linea)) nav.apri({ tipo: 'linea', id: v.linea });
@@ -31,13 +41,19 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
   return (
     <>
       <Testata titolo="Orari e servizi" conLogo>
-        {Capacitor.isNativePlatform() && (
-          <button className="esci" onClick={() => CapApp.exitApp()} aria-label="Esci dall'app">
+        {(Capacitor.isNativePlatform() || installataWeb) && (
+          <button className="esci" onClick={esci} aria-label="Esci dall'app">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 17l5-5-5-5M20 12H9M12 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" /></svg>
             <span>Esci</span>
           </button>
         )}
       </Testata>
+      {aiutoEsci && (
+        <div className="aiuto-esci" role="status">
+          <span>Per chiudere l'app usa il tasto <strong>Home</strong> del telefono oppure scorri via l'app dalle app recenti.</span>
+          <button onClick={() => setAiutoEsci(false)} aria-label="Chiudi messaggio">✕</button>
+        </div>
+      )}
       <p className="saluto-home">Benvenuti! Ecco gli orari delle corse esercitate dalla Deangelisbus S.r.l.:</p>
 
       <button className="mini-partenza" onClick={() => nav.apri({ tipo: 'tab', tab: 'partenze' })}>
