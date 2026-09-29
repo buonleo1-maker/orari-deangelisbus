@@ -4,3 +4,5 @@ dist
 android/app/build
 
 android/.idea/
+
+.wrangler/
