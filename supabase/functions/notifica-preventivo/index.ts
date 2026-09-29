@@ -69,22 +69,25 @@ Deno.serve(async (req) => {
     testo = righe.map(([k, v]) => `${k}: ${v}`).join('\n') + '\n\nMessaggio automatico dell\'app Orari Deangelisbus S.r.l.';
     replyTo = r.email || undefined;
   } else {
+    const cliente = [r.nome, r.cognome].filter(Boolean).join(' ');
     const righe: [string, unknown][] = [
-      ['Servizio', TIPI_PREVENTIVO[r.tipo] ?? r.tipo],
-      ['Partenza', r.partenza],
-      ['Destinazione', r.destinazione],
-      ['Andata', `${dataIt(r.data_andata)} ${ora(r.ora_andata)}`.trim()],
-      ['Ritorno', r.ritorno ? `${dataIt(r.data_ritorno)} ${ora(r.ora_ritorno)}`.trim() : 'Solo andata'],
-      ['Passeggeri', r.passeggeri ?? '—'],
-      ['Nome', r.nome],
+      ['Nome e cognome', cliente],
+      ['Azienda', r.azienda ?? '—'],
       ['Telefono', r.telefono],
       ['Email', r.email ?? '—'],
-      ['Note', r.note ?? '—'],
+      ['Data di partenza', `${dataIt(r.data_andata)} ${ora(r.ora_andata)}`.trim()],
+      ['Data di rientro', r.data_ritorno ? `${dataIt(r.data_ritorno)} ${ora(r.ora_ritorno)}`.trim() : '—'],
+      ['Luogo di partenza', r.partenza],
+      ['Luogo di destinazione', r.destinazione],
+      ['Partecipanti', r.passeggeri ?? '—'],
+      ['Itinerario', r.itinerario ?? '—'],
+      ['Ulteriori informazioni', r.note ?? '—'],
     ];
-    oggetto = `Preventivo app: ${TIPI_PREVENTIVO[r.tipo] ?? r.tipo} ${r.partenza} → ${r.destinazione} (${dataIt(r.data_andata)})`;
+    if (r.tipo) righe.unshift(['Servizio', TIPI_PREVENTIVO[r.tipo] ?? r.tipo]);
+    oggetto = `Preventivo app: ${r.partenza} → ${r.destinazione} (${dataIt(r.data_andata)}) – ${cliente}${r.azienda ? `, ${r.azienda}` : ''}`;
     html = tabellaHtml(`Nuova richiesta di preventivo n. ${r.id}`, `Inviata dall'app Orari il ${quando(r.creata_il)}`, righe,
       { href: `tel:${String(r.telefono).replace(/\s/g, '')}`, testo: 'Chiama il cliente' });
-    testo = righe.map(([k, v]) => `${k}: ${v}`).join('\n');
+    testo = righe.map(([k, v]) => `${k}: ${v}`).join('\n') + '\n\nMessaggio automatico dell\'app Orari Deangelisbus S.r.l.';
     replyTo = r.email || undefined;
   }
 

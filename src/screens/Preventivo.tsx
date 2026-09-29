@@ -3,17 +3,12 @@ import type { Nav } from '../App';
 import Testata from '../components/Testata';
 import { inviaRichiesta, type Richiesta } from '../lib/data';
 
-const TIPI: { v: Richiesta['tipo']; label: string }[] = [
-  { v: 'trasferimento', label: 'Trasferimento' },
-  { v: 'noleggio', label: 'Noleggio con autista' },
-  { v: 'gita', label: 'Gita o viaggio di gruppo' },
-  { v: 'altro', label: 'Altro' },
-];
-
+// Stessi campi, ordine e obbligatorietà del modulo "Richiedi un preventivo" di www.deangelisbus.it
 const vuoto: Richiesta = {
-  tipo: 'trasferimento', data_andata: null, ora_andata: null, partenza: '', destinazione: '',
-  ritorno: false, data_ritorno: null, ora_ritorno: null, passeggeri: null,
-  nome: '', telefono: '', email: null, note: null, consenso_privacy: false,
+  tipo: null, nome: '', cognome: '', azienda: null, telefono: '',
+  data_andata: null, data_ritorno: null, ritorno: true, ora_andata: null, ora_ritorno: null,
+  partenza: '', destinazione: '', passeggeri: null, email: '',
+  itinerario: null, note: null, consenso_privacy: false,
 };
 
 export default function Preventivo({ nav }: { nav: Nav }) {
@@ -24,13 +19,16 @@ export default function Preventivo({ nav }: { nav: Nav }) {
 
   const controlla = () => {
     const e: string[] = [];
-    if (r.partenza.trim().length < 2) e.push('Scrivi da dove si parte.');
-    if (r.destinazione.trim().length < 2) e.push('Scrivi la destinazione.');
-    if (!r.data_andata) e.push('Indica la data di partenza.');
-    if (r.nome.trim().length < 2) e.push('Scrivi nome e cognome.');
+    if (r.nome.trim().length < 2) e.push('Scrivi il nome.');
+    if (r.cognome.trim().length < 2) e.push('Scrivi il cognome.');
     if (r.telefono.replace(/\D/g, '').length < 6) e.push('Scrivi un numero di telefono valido.');
-    if (r.email && !/^\S+@\S+\.\S+$/.test(r.email)) e.push('L\u2019email non sembra corretta.');
-    if (!r.consenso_privacy) e.push('Per inviare la richiesta serve il consenso al trattamento dei dati.');
+    if (!r.data_andata) e.push('Indica la data di partenza.');
+    if (!r.data_ritorno) e.push('Indica la data di rientro.');
+    if (r.data_andata && r.data_ritorno && r.data_ritorno < r.data_andata) e.push('La data di rientro non può essere prima della partenza.');
+    if (r.partenza.trim().length < 2) e.push('Scrivi il luogo di partenza.');
+    if (r.destinazione.trim().length < 2) e.push('Scrivi il luogo di destinazione.');
+    if (!r.email || !/^\S+@\S+\.\S+$/.test(r.email.trim())) e.push('Scrivi un recapito email valido.');
+    if (!r.consenso_privacy) e.push('Per inviare la richiesta serve il consenso al trattamento dei dati personali.');
     setErrori(e);
     return e.length === 0;
   };
@@ -38,26 +36,30 @@ export default function Preventivo({ nav }: { nav: Nav }) {
   const invia = async () => {
     if (!controlla()) return;
     setStato('invio');
-    const pulita: Richiesta = { ...r, partenza: r.partenza.trim(), destinazione: r.destinazione.trim(), nome: r.nome.trim(),
-      telefono: r.telefono.trim(), email: r.email?.trim() || null, note: r.note?.trim() || null,
-      data_ritorno: r.ritorno ? r.data_ritorno : null, ora_ritorno: r.ritorno ? r.ora_ritorno : null };
+    const pulita: Richiesta = {
+      ...r,
+      nome: r.nome.trim(), cognome: r.cognome.trim(), azienda: r.azienda?.trim() || null,
+      telefono: r.telefono.trim(), partenza: r.partenza.trim(), destinazione: r.destinazione.trim(),
+      email: r.email?.trim() || null, itinerario: r.itinerario?.trim() || null, note: r.note?.trim() || null,
+      ritorno: Boolean(r.data_ritorno),
+    };
     setStato((await inviaRichiesta(pulita)) ? 'inviata' : 'errore');
   };
 
   const testoEmail = () => encodeURIComponent(
-    `Richiesta di preventivo – ${TIPI.find((t) => t.v === r.tipo)?.label}\n` +
-    `Partenza: ${r.partenza} il ${r.data_andata ?? ''} ${r.ora_andata ?? ''}\nDestinazione: ${r.destinazione}\n` +
-    (r.ritorno ? `Ritorno: ${r.data_ritorno ?? ''} ${r.ora_ritorno ?? ''}\n` : 'Solo andata\n') +
-    `Passeggeri: ${r.passeggeri ?? ''}\nNome: ${r.nome}\nTelefono: ${r.telefono}\n${r.note ? `Note: ${r.note}\n` : ''}`);
+    `Richiesta di preventivo\nNome: ${r.nome} ${r.cognome}\n${r.azienda ? `Azienda: ${r.azienda}\n` : ''}Telefono: ${r.telefono}\n` +
+    `Partenza: ${r.partenza} il ${r.data_andata ?? ''}\nDestinazione: ${r.destinazione}\nRientro: ${r.data_ritorno ?? ''}\n` +
+    `Partecipanti: ${r.passeggeri ?? ''}\n${r.itinerario ? `Itinerario: ${r.itinerario}\n` : ''}${r.note ? `Ulteriori informazioni: ${r.note}\n` : ''}`);
 
   if (stato === 'inviata') {
     return (
       <>
         <Testata titolo="Richiesta inviata" onIndietro={nav.indietro} />
         <div className="conferma">
-          <p><strong>Grazie, {r.nome.split(' ')[0]}.</strong></p>
-          <p>Abbiamo ricevuto la tua richiesta. Ti ricontattiamo al numero {r.telefono} negli orari d'ufficio: dal lunedì al venerdì, 8:30–13:30 e 15:30–19:00.</p>
-          <button className="primario" onClick={nav.indietro}>Torna alle informazioni</button>
+          <p><strong>Grazie, {r.nome}.</strong></p>
+          <p>Abbiamo ricevuto la tua richiesta di preventivo. Solitamente rispondiamo entro 48 ore; nei periodi di alta stagione potrebbe volerci un po' di più.</p>
+          <p>Il preventivo non è vincolante: potrai decidere liberamente se accettarlo.</p>
+          <button className="primario" onClick={nav.indietro}>Torna indietro</button>
         </div>
       </>
     );
@@ -65,48 +67,39 @@ export default function Preventivo({ nav }: { nav: Nav }) {
 
   return (
     <>
-      <Testata titolo="Richiedi un preventivo" sotto="Trasferimenti, noleggi e gite" onIndietro={nav.indietro} />
+      <Testata titolo="Richiedi un preventivo" sotto="Noleggio bus, minibus e auto con conducente" onIndietro={nav.indietro} />
       <form className="modulo" onSubmit={(e) => { e.preventDefault(); invia(); }} noValidate>
+        <p className="nota" style={{ margin: '12px 0 0' }}>I campi con * sono obbligatori.</p>
         <fieldset>
-          <legend>Che servizio ti serve?</legend>
-          <div className="scelte">
-            {TIPI.map((t) => (
-              <label key={t.v} className={r.tipo === t.v ? 'scelta attiva' : 'scelta'}>
-                <input type="radio" name="tipo" checked={r.tipo === t.v} onChange={() => set('tipo', t.v)} />{t.label}
-              </label>
-            ))}
+          <legend>I tuoi dati</legend>
+          <div className="coppia">
+            <label>Nome *<input autoComplete="given-name" value={r.nome} onChange={(e) => set('nome', e.target.value)} /></label>
+            <label>Cognome *<input autoComplete="family-name" value={r.cognome} onChange={(e) => set('cognome', e.target.value)} /></label>
           </div>
+          <label>Azienda<input autoComplete="organization" value={r.azienda ?? ''} onChange={(e) => set('azienda', e.target.value)} /></label>
+          <label>Telefono *<input type="tel" autoComplete="tel" value={r.telefono} onChange={(e) => set('telefono', e.target.value)} /></label>
         </fieldset>
 
         <fieldset>
           <legend>Il viaggio</legend>
-          <label>Partenza<input value={r.partenza} onChange={(e) => set('partenza', e.target.value)} placeholder="Es. Grottole, Piazza Vittoria" /></label>
-          <label>Destinazione<input value={r.destinazione} onChange={(e) => set('destinazione', e.target.value)} placeholder="Es. Aeroporto di Bari" /></label>
           <div className="coppia">
-            <label>Data<input type="date" value={r.data_andata ?? ''} onChange={(e) => set('data_andata', e.target.value || null)} /></label>
-            <label>Ora<input type="time" value={r.ora_andata ?? ''} onChange={(e) => set('ora_andata', e.target.value || null)} /></label>
+            <label>Data di partenza *<input type="date" value={r.data_andata ?? ''} onChange={(e) => set('data_andata', e.target.value || null)} /></label>
+            <label>Data di rientro *<input type="date" value={r.data_ritorno ?? ''} min={r.data_andata ?? undefined} onChange={(e) => set('data_ritorno', e.target.value || null)} /></label>
           </div>
-          <label className="spunta"><input type="checkbox" checked={r.ritorno} onChange={(e) => set('ritorno', e.target.checked)} />Serve anche il ritorno</label>
-          {r.ritorno && (
-            <div className="coppia">
-              <label>Data ritorno<input type="date" value={r.data_ritorno ?? ''} onChange={(e) => set('data_ritorno', e.target.value || null)} /></label>
-              <label>Ora ritorno<input type="time" value={r.ora_ritorno ?? ''} onChange={(e) => set('ora_ritorno', e.target.value || null)} /></label>
-            </div>
-          )}
-          <label>Numero di passeggeri<input type="number" inputMode="numeric" min={1} max={90} value={r.passeggeri ?? ''}
+          <label>Luogo di partenza *<input value={r.partenza} onChange={(e) => set('partenza', e.target.value)} placeholder="Es. Grottole" /></label>
+          <label>Luogo di destinazione *<input value={r.destinazione} onChange={(e) => set('destinazione', e.target.value)} placeholder="Es. Roma" /></label>
+          <label>Numero di partecipanti<input type="number" inputMode="numeric" min={1} max={90} value={r.passeggeri ?? ''}
             onChange={(e) => set('passeggeri', e.target.value ? Math.min(90, Math.max(1, Number(e.target.value))) : null)} /></label>
-          <label>Note<textarea rows={3} value={r.note ?? ''} onChange={(e) => set('note', e.target.value)} placeholder="Bagagli, soste, esigenze particolari" /></label>
+          <label>Recapito email *<input type="email" autoComplete="email" value={r.email ?? ''} onChange={(e) => set('email', e.target.value)} /></label>
+          <label>Itinerario<textarea rows={3} value={r.itinerario ?? ''} onChange={(e) => set('itinerario', e.target.value)} placeholder="Fermate intermedie, tappe, orari indicativi" /></label>
+          <label>Ulteriori informazioni<textarea rows={3} value={r.note ?? ''} onChange={(e) => set('note', e.target.value)} placeholder="Bagagli, esigenze particolari, richieste speciali" /></label>
         </fieldset>
 
         <fieldset>
-          <legend>I tuoi contatti</legend>
-          <label>Nome e cognome<input autoComplete="name" value={r.nome} onChange={(e) => set('nome', e.target.value)} /></label>
-          <label>Telefono<input type="tel" autoComplete="tel" value={r.telefono} onChange={(e) => set('telefono', e.target.value)} /></label>
-          <label>Email (facoltativa)<input type="email" autoComplete="email" value={r.email ?? ''} onChange={(e) => set('email', e.target.value)} /></label>
           <label className="spunta">
             <input type="checkbox" checked={r.consenso_privacy} onChange={(e) => set('consenso_privacy', e.target.checked)} />
-            <span>Acconsento al trattamento dei miei dati da parte di Deangelisbus S.r.l. solo per rispondere a questa richiesta.{' '}
-              <a href="https://www.deangelisbus.it/privacy-policy/" target="_blank" rel="noreferrer">Informativa privacy</a></span>
+            <span>Ho letto e acconsento al trattamento dei dati personali secondo l'{' '}
+              <a href="https://www.deangelisbus.it/privacy-policy/" target="_blank" rel="noreferrer">informativa sulla privacy</a>.</span>
           </label>
         </fieldset>
 
@@ -114,12 +107,10 @@ export default function Preventivo({ nav }: { nav: Nav }) {
         {stato === 'errore' && (
           <div className="errori" role="alert">
             <p>Non siamo riusciti a inviare la richiesta: controlla la connessione e riprova.</p>
-            <p>In alternativa puoi <a href={`mailto:info@deangelisbus.it?subject=Richiesta%20preventivo&body=${testoEmail()}`}>inviarla per email</a> o chiamare lo 0835 758126.</p>
+            <p>In alternativa puoi <a href={`mailto:commerciale@deangelisbus.it?subject=Richiesta%20preventivo&body=${testoEmail()}`}>inviarla per email</a> o chiamare lo 0835 758126.</p>
           </div>
         )}
-        <button type="submit" className="primario pieno" disabled={stato === 'invio'}>
-          {stato === 'invio' ? 'Invio in corso' : 'Invia richiesta'}
-        </button>
+        <button type="submit" className="primario pieno" disabled={stato === 'invio'}>{stato === 'invio' ? 'Invio in corso' : 'Invia la richiesta'}</button>
       </form>
     </>
   );

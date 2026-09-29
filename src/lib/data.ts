@@ -53,12 +53,13 @@ export async function aggiornaDati(): Promise<Dati | null> {
 export const onlineConfigurato = Boolean(supabase);
 
 export interface Richiesta {
-  tipo: 'trasferimento' | 'noleggio' | 'gita' | 'altro';
-  data_andata: string | null; ora_andata: string | null;
+  tipo: 'trasferimento' | 'noleggio' | 'gita' | 'altro' | null;
+  nome: string; cognome: string; azienda: string | null; telefono: string;
+  data_andata: string | null; data_ritorno: string | null; ritorno: boolean;
+  ora_andata: string | null; ora_ritorno: string | null;
   partenza: string; destinazione: string;
-  ritorno: boolean; data_ritorno: string | null; ora_ritorno: string | null;
-  passeggeri: number | null; nome: string; telefono: string; email: string | null;
-  note: string | null; consenso_privacy: boolean;
+  passeggeri: number | null; email: string | null;
+  itinerario: string | null; note: string | null; consenso_privacy: boolean;
 }
 
 /** Invia la richiesta di preventivo. Restituisce true se salvata. */
