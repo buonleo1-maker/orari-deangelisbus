@@ -28,7 +28,7 @@ export default function LineaView({ orario, id, nav }: { orario: Orario; id: str
 
   return (
     <>
-      <Testata titolo={linea.nome} sotto={linea.subappalto ? `Servizio ${linea.committente ?? ''} svolto da Deangelisbus S.r.l.` : linea.comune ?? undefined}
+      <Testata titolo={linea.nome} sotto={linea.alternanza_con ? `Servizio ${linea.committente ?? ''} a mesi alterni Deangelisbus / ${linea.alternanza_con}` : linea.subappalto ? `Servizio ${linea.committente ?? ''} svolto da Deangelisbus S.r.l.` : linea.comune ?? undefined}
         onIndietro={nav.indietro} colore={linea.colore} />
 
       {!orario.d.corse.some((c) => c.linea_id === id && c.attiva) ? (
@@ -45,10 +45,19 @@ export default function LineaView({ orario, id, nav }: { orario: Orario; id: str
         </div>
       )}
       <Giorni valore={giorno} onCambia={setGiorno} />
+      {(() => {
+        const t = orario.turno(id, giorno);
+        if (!t) return null;
+        const mese = new Date(giorno + 'T12:00:00').toLocaleDateString('it-IT', { month: 'long' });
+        return t.nostro
+          ? <p className="turno nostro">A {mese} le corse sono effettuate da <strong>Deangelisbus</strong>.</p>
+          : <p className="turno altro">A {mese} le corse sono effettuate da <strong>{t.altro}</strong> (consorzio Cotrab), con gli stessi orari.
+              {t.prossimo && <> Deangelisbus torna in servizio dal {new Date(t.prossimo + 'T12:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })}.</>}</p>;
+      })()}
 
       {corse.length === 0 ? (
         (() => {
-          const periodi = orario.d.periodi.filter((p) => p.linea_id === id).sort((a, b) => a.dal.localeCompare(b.dal));
+          const periodi = orario.d.periodi.filter((p) => p.linea_id === id && !p.solo_informativo).sort((a, b) => a.dal.localeCompare(b.dal));
           const fuoriTurno = periodi.length > 0 && !periodi.some((p) => giorno >= p.dal && giorno <= p.al);
           const prossimo = periodi.find((p) => p.dal > giorno);
           return fuoriTurno ? (

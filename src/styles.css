@@ -389,3 +389,6 @@ a.ridola .ridola-link { justify-self: start; }
 .aiuto-esci button { flex: none; font-weight: 700; color: #3a3000; }
 .scuola-tipo { display: block; color: var(--blu); font-family: var(--cond); font-size: 1.05rem; }
 @media (prefers-color-scheme: dark) { .scuola-tipo { color: var(--giallo); } }
+.turno { margin: 10px 18px 0; padding: 10px 14px; border-radius: 10px; font-size: .95rem; }
+.turno.nostro { background: #e8f5ec; border: 1px solid #2E9E5B; color: #14532d; }
+.turno.altro { background: #fff7d6; border: 1px solid var(--giallo); color: #3a3000; }

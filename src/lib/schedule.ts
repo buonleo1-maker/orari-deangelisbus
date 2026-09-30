@@ -57,7 +57,7 @@ export class Orario {
     if (!c.giorni.includes(isoDow(giorno))) return false;
     if (c.valido_dal && data < c.valido_dal) return false;
     if (c.valido_al && data > c.valido_al) return false;
-    const periodi = this.d.periodi.filter((p) => p.linea_id === c.linea_id);
+    const periodi = this.d.periodi.filter((p) => p.linea_id === c.linea_id && !p.solo_informativo);
     if (periodi.length && !periodi.some((p) => data >= p.dal && data <= p.al)) return false;
     const sosp = this.d.sospensioni.filter((s) =>
       data >= s.dal && data <= s.al && (!s.linea_id || s.linea_id === c.linea_id));
@@ -154,6 +154,16 @@ export class Orario {
     return this.novitaVisibili(giorno)
       .filter((n) => n.tipo === 'viaggio' && (!n.data_evento || n.data_evento >= data))
       .sort((a, b) => (a.data_evento ?? '9999').localeCompare(b.data_evento ?? '9999'));
+  }
+
+  /** Per le linee a mesi alterni: chi effettua il servizio in quel giorno. */
+  turno(lineaId: string, data: string): { nostro: boolean; altro: string | null; prossimo: string | null } | null {
+    const linea = this.linee.get(lineaId);
+    const periodi = this.d.periodi.filter((p) => p.linea_id === lineaId && p.solo_informativo).sort((a, b) => a.dal.localeCompare(b.dal));
+    if (!linea?.alternanza_con || !periodi.length) return null;
+    const nostro = periodi.some((p) => data >= p.dal && data <= p.al);
+    const prossimo = periodi.find((p) => p.dal > data)?.dal ?? null;
+    return { nostro, altro: linea.alternanza_con, prossimo };
   }
 
   avvisiAttivi(giorno: Date) {

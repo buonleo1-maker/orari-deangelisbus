@@ -4,6 +4,7 @@ export interface Linea {
   id: string; nome: string; colore: string | null; ordine: number; attiva: boolean;
   categoria: Categoria; comune: string | null; esercente: string | null;
   committente: string | null; subappalto: boolean; info_pubblico: string | null;
+  alternanza_con?: string | null;
 }
 export interface Fermata {
   id: number; nome: string; comune: string; zona_tariffaria: string | null;
@@ -30,7 +31,7 @@ export interface Novita {
   data_evento: string | null; data_fine?: string | null; link: string | null; in_evidenza: boolean;
   visibile_dal: string; visibile_al: string | null; creato_il: string;
 }
-export interface Periodo { id: number; linea_id: string; dal: string; al: string; note: string | null }
+export interface Periodo { id: number; linea_id: string; dal: string; al: string; note: string | null; solo_informativo?: boolean }
 export interface Sospensione { id: number; dal: string; al: string; ambito: 'tutti' | 'scolastico'; linea_id: string | null; descrizione: string | null }
 
 export interface Dati {

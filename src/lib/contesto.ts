@@ -18,7 +18,10 @@ export function contestoOrari(orario: Orario): string {
     righe.push(`LINEA: ${l.nome} (${l.categoria}${l.comune ? `, ${l.comune}` : ''}${l.subappalto ? `, servizio ${l.committente ?? ''} svolto da Deangelisbus` : ''})`);
     if (l.info_pubblico) righe.push(`Info: ${l.info_pubblico}`);
     const periodi = orario.d.periodi.filter((p) => p.linea_id === l.id);
-    if (periodi.length) righe.push(`Attiva solo nei periodi: ${periodi.map((p) => `${p.dal} → ${p.al}`).join('; ')} (negli altri mesi la svolge un'altra azienda Cotrab).`);
+    const turni = periodi.filter((p) => p.solo_informativo);
+    const limiti = periodi.filter((p) => !p.solo_informativo);
+    if (limiti.length) righe.push(`Attiva solo nei periodi: ${limiti.map((p) => `${p.dal} → ${p.al}`).join('; ')}.`);
+    if (turni.length && l.alternanza_con) righe.push(`Corse attive tutti i mesi con gli stessi orari. Mesi effettuati da Deangelisbus: ${turni.map((p) => `${p.dal} → ${p.al}`).join('; ')}; negli altri mesi le effettua ${l.alternanza_con} (consorzio Cotrab).`);
     if (!corse.length) { righe.push('Orari non ancora disponibili: contattare l\u2019ufficio.'); continue; }
     for (const c of corse) {
       const ps = orario.passaggi(c);
