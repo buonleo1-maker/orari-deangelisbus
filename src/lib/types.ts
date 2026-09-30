@@ -35,13 +35,16 @@ export interface Gusto {
   id: number; paese: string; tipo: 'piatto' | 'ristorante'; nome: string; descrizione: string | null;
   indirizzo: string | null; telefono: string | null; link: string | null; ordine: number; visibile: boolean;
 }
+export interface Foto {
+  id: number; paese: string; percorso: string; didascalia: string | null; crediti: string | null; ordine: number; visibile: boolean;
+}
 export interface Periodo { id: number; linea_id: string; dal: string; al: string; note: string | null; solo_informativo?: boolean }
 export interface Sospensione { id: number; dal: string; al: string; ambito: 'tutti' | 'scolastico'; linea_id: string | null; descrizione: string | null }
 
 export interface Dati {
   generato: string;
   linee: Linea[]; fermate: Fermata[]; percorsi: Percorso[]; percorsi_fermate: PercorsoFermata[];
-  corse: Corsa[]; tariffe: Tariffa[]; avvisi: Avviso[]; novita?: Novita[]; gusto?: Gusto[]; periodi: Periodo[]; sospensioni: Sospensione[];
+  corse: Corsa[]; tariffe: Tariffa[]; avvisi: Avviso[]; novita?: Novita[]; gusto?: Gusto[]; foto?: Foto[]; periodi: Periodo[]; sospensioni: Sospensione[];
 }
 
 /** Un passaggio di una corsa a una fermata, già calcolato. */

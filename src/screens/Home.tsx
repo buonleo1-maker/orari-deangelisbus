@@ -6,6 +6,7 @@ import { Capacitor } from '@capacitor/core';
 import CardPreventivo from '../components/CardPreventivo';
 import CardRidola from '../components/CardRidola';
 import CardTerritorio from '../components/CardTerritorio';
+import { fotoOrdinate, urlFoto } from '../lib/foto';
 import LinkBiglietti from '../components/LinkBiglietti';
 import LinkSito from '../components/LinkSito';
 import SchedaNovita from '../components/SchedaNovita';
@@ -122,6 +123,16 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
       <CardPreventivo onApri={() => nav.apri({ tipo: 'preventivo' })} />
 
       <CardRidola />
+      {(() => {
+        const ff = fotoOrdinate(orario.d.foto);
+        if (!ff.length) return null;
+        return (
+          <button className="card-foto" onClick={() => nav.apri({ tipo: 'galleria' })}>
+            <span className="cf-strip">{ff.slice(0, 3).map((f) => <img key={f.id} src={urlFoto(f)} alt="" loading="lazy" />)}</span>
+            <span className="cf-testo"><strong>In giro con noi</strong><small>Le foto dei nostri viaggi, con musica</small></span>
+          </button>
+        );
+      })()}
       <a className="nostri-bus" href={URL_FLOTTA} target="_blank" rel="noreferrer">
         <svg viewBox="0 0 64 40" aria-hidden="true">
           <rect x="2" y="4" width="60" height="26" rx="6" fill="currentColor" />
