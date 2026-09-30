@@ -17,6 +17,7 @@ import Servizio from './screens/Servizio';
 import NovitaView from './screens/Novita';
 import SegnalazioneView from './screens/Segnalazione';
 import Assistente from './screens/Assistente';
+import Territorio from './screens/Territorio';
 import BottoneAssistente from './components/BottoneAssistente';
 
 export type Schermata =
@@ -29,7 +30,8 @@ export type Schermata =
   | { tipo: 'servizio'; id: string }
   | { tipo: 'novita' }
   | { tipo: 'segnalazione' }
-  | { tipo: 'assistente' };
+  | { tipo: 'assistente' }
+  | { tipo: 'territorio' };
 
 export interface Nav {
   apri: (s: Schermata) => void;
@@ -104,6 +106,7 @@ export default function App() {
     case 'linea': contenuto = <LineaView orario={orario} id={cima.id} nav={nav} />; break;
     case 'corsa': contenuto = <CorsaView orario={orario} codice={cima.codice} giorno={cima.giorno} nav={nav} />; break;
     case 'categoria': contenuto = <Linee orario={orario} nav={nav} soloExtraurbano />; break;
+    case 'territorio': contenuto = <Territorio orario={orario} nav={nav} />; break;
     case 'assistente': contenuto = <Assistente orario={orario} nav={nav} />; break;
     case 'segnalazione': contenuto = <SegnalazioneView orario={orario} nav={nav} />; break;
     case 'novita': contenuto = <NovitaView orario={orario} nav={nav} />; break;

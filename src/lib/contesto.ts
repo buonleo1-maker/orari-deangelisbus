@@ -1,4 +1,5 @@
 import { descriviGiorni, hhmm, isoData, type Orario } from './schedule';
+import { PAESI } from './territorio';
 
 const fmtGiorno = new Intl.DateTimeFormat('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -40,6 +41,14 @@ export function contestoOrari(orario: Orario): string {
   if (sosp.length) { righe.push(''); righe.push('SOSPENSIONI: ' + sosp.map((s) => `${s.dal} → ${s.al} ${s.ambito}${s.descrizione ? ` (${s.descrizione})` : ''}`).join('; ')); }
   const avvisi = orario.novitaVisibili(oggi).filter((n) => n.tipo !== 'viaggio');
   if (avvisi.length) { righe.push(''); righe.push('NOVITA E AVVISI: ' + avvisi.map((n) => `${n.titolo}${n.data_evento ? ` (${n.data_evento})` : ''}${n.testo ? `: ${n.testo}` : ''}`).join(' | ')); }
+  righe.push('');
+  righe.push('TERRITORIO (sezione "Scopri il territorio" in Home):');
+  for (const p of PAESI) {
+    const g = (orario.d.gusto ?? []).filter((x) => x.paese === p.id && x.visibile);
+    const piatti = g.filter((x) => x.tipo === 'piatto').map((x) => x.nome).join(', ');
+    const rist = g.filter((x) => x.tipo === 'ristorante').map((x) => `${x.nome}${x.indirizzo ? ` (${x.indirizzo})` : ''}`).join(', ');
+    righe.push(`${p.nome} – ${p.motto}: ${p.luoghi.map((l) => `${l.nome} (${l.testo})`).join('; ')}${p.evento ? `. Evento: ${p.evento}` : ''}${piatti ? `. Piatti tipici: ${piatti}` : ''}${rist ? `. Ristoranti consigliati: ${rist}` : ''}`);
+  }
   return righe.join('\n');
 }
 

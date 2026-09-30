@@ -10,10 +10,10 @@ const supabase = url && key ? createClient(url, key, { auth: { persistSession: f
 const TABELLE = {
   linee: 'orari_linee', fermate: 'orari_fermate', percorsi: 'orari_percorsi',
   percorsi_fermate: 'orari_percorsi_fermate', corse: 'orari_corse', tariffe: 'orari_tariffe',
-  avvisi: 'orari_avvisi', periodi: 'orari_periodi', sospensioni: 'orari_sospensioni', novita: 'orari_novita',
+  avvisi: 'orari_avvisi', periodi: 'orari_periodi', sospensioni: 'orari_sospensioni', novita: 'orari_novita', gusto: 'territorio_gusto',
 } as const;
 /** Tabelle facoltative: se non esistono ancora, l'app funziona lo stesso. */
-const FACOLTATIVE = new Set<string>(['orari_novita']);
+const FACOLTATIVE = new Set<string>(['orari_novita', 'territorio_gusto']);
 
 /** Dati disponibili subito: copia salvata sul telefono, altrimenti quelli inclusi nell'app. */
 export function datiIniziali(): Dati {

@@ -5,6 +5,7 @@ import { App as CapApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import CardPreventivo from '../components/CardPreventivo';
 import CardRidola from '../components/CardRidola';
+import CardTerritorio from '../components/CardTerritorio';
 import LinkBiglietti from '../components/LinkBiglietti';
 import LinkSito from '../components/LinkSito';
 import SchedaNovita from '../components/SchedaNovita';
@@ -81,6 +82,8 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
       <CardPreventivo onApri={() => nav.apri({ tipo: 'preventivo' })} />
 
       <LinkBiglietti compatto />
+
+      <CardTerritorio onApri={() => nav.apri({ tipo: 'territorio' })} />
 
       <CardRidola />
 

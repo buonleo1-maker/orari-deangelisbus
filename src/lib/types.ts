@@ -31,13 +31,17 @@ export interface Novita {
   data_evento: string | null; data_fine?: string | null; link: string | null; in_evidenza: boolean;
   visibile_dal: string; visibile_al: string | null; creato_il: string;
 }
+export interface Gusto {
+  id: number; paese: string; tipo: 'piatto' | 'ristorante'; nome: string; descrizione: string | null;
+  indirizzo: string | null; telefono: string | null; link: string | null; ordine: number; visibile: boolean;
+}
 export interface Periodo { id: number; linea_id: string; dal: string; al: string; note: string | null; solo_informativo?: boolean }
 export interface Sospensione { id: number; dal: string; al: string; ambito: 'tutti' | 'scolastico'; linea_id: string | null; descrizione: string | null }
 
 export interface Dati {
   generato: string;
   linee: Linea[]; fermate: Fermata[]; percorsi: Percorso[]; percorsi_fermate: PercorsoFermata[];
-  corse: Corsa[]; tariffe: Tariffa[]; avvisi: Avviso[]; novita?: Novita[]; periodi: Periodo[]; sospensioni: Sospensione[];
+  corse: Corsa[]; tariffe: Tariffa[]; avvisi: Avviso[]; novita?: Novita[]; gusto?: Gusto[]; periodi: Periodo[]; sospensioni: Sospensione[];
 }
 
 /** Un passaggio di una corsa a una fermata, già calcolato. */
