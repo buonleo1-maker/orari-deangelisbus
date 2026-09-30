@@ -79,14 +79,6 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
         )}
       </button>
 
-      <CardPreventivo onApri={() => nav.apri({ tipo: 'preventivo' })} />
-
-      <LinkBiglietti compatto />
-
-      <CardTerritorio onApri={() => nav.apri({ tipo: 'territorio' })} />
-
-      <CardRidola />
-
       {novita.length > 0 && (
         <section className="sezione">
           <div className="gruppo-riga">
@@ -118,10 +110,18 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
         </li>
       </ul>
 
+      <LinkBiglietti compatto />
+
       <button className="card-segnala" onClick={() => nav.apri({ tipo: 'segnalazione' })}>
         <strong>Feedback, reclami e segnalazioni</strong>
         <span>Un ritardo, un problema a bordo o un suggerimento? Scrivici.</span>
       </button>
+
+      <CardTerritorio onApri={() => nav.apri({ tipo: 'territorio' })} />
+
+      <CardPreventivo onApri={() => nav.apri({ tipo: 'preventivo' })} />
+
+      <CardRidola />
       <a className="nostri-bus" href={URL_FLOTTA} target="_blank" rel="noreferrer">
         <svg viewBox="0 0 64 40" aria-hidden="true">
           <rect x="2" y="4" width="60" height="26" rx="6" fill="currentColor" />

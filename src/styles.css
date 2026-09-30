@@ -427,3 +427,6 @@ a.ridola .ridola-link { justify-self: start; }
 .gusto small { color: #6b4a33; }
 .gusto-azioni { display: flex !important; gap: 12px; margin-top: 4px; }
 .gusto-azioni a { font-weight: 700; color: #9A4A12; }
+/* spaziature dopo il riordino della Home */
+.biglietti.compatto + .card-segnala { margin-top: 14px; }
+.ridola + .nostri-bus { margin-top: 16px; }
