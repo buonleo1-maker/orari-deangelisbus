@@ -25,6 +25,11 @@ COSA FA L'APP (per spiegarne l'uso):
 - Scheda "Da - a": scegli fermata di partenza e di arrivo e il giorno, mostra i bus diretti con durata e prezzo della corsa semplice.
 - Scheda "Mappa": fermate sulla mappa, toccando una fermata si vedono le partenze.
 - Scheda "Info": contatti, biglietti, preventivo, aggiornamento orari, installazione dell'app.
+- "Le mie fermate": aprire una fermata e toccare "Salva tra le mie fermate" (stellina); in Home compaiono fino a 4 fermate salvate con il prossimo bus. Per toglierla si tocca di nuovo la stellina.
+- "Fermate vicino a me" (in Home, sotto il prossimo bus): con il permesso alla posizione mostra le 6 fermate piu' vicine con distanza e prossimo bus. Se il permesso e' stato negato si riattiva dalle impostazioni del telefono (Posizione).
+- "Condividi questo orario": aprire una corsa e toccare il pulsante verde; manda via WhatsApp/SMS un messaggio con linea, giorno, partenza, arrivo e link all'app.
+- "Passa l'app a un amico" (in Home e Info): mostra un QR code da far inquadrare con la fotocamera, oppure invia il link.
+- "Scopri il territorio" e "In giro con noi" (galleria foto con presentazione e musica) sono in Home.
 - Menu servizi in Home: trasporto extraurbano (linee Cotrab da Grottole), scolastici, urbani, trasporto disabili Matera (su prenotazione), navetta Matera - Aeroporto di Bari (a mesi alterni), linea Matera - Policoro.
 - Installare l'app: da Chrome menu (tre puntini) > "Installa app" o "Aggiungi a schermata Home"; su iPhone Condividi > "Aggiungi alla schermata Home".
 - Gli orari preceduti da "~" o "circa" sono stimati: consiglia di essere alla fermata qualche minuto prima.
