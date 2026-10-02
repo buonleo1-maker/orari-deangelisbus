@@ -5,7 +5,7 @@ import type { Dati } from './types';
 const CACHE_KEY = 'orari_dati_v1';
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-const supabase = url && key ? createClient(url, key, { auth: { persistSession: false } }) : null;
+export const supabase = url && key ? createClient(url, key, { auth: { persistSession: false } }) : null;
 
 const TABELLE = {
   linee: 'orari_linee', fermate: 'orari_fermate', percorsi: 'orari_percorsi',

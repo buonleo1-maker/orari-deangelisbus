@@ -55,6 +55,18 @@ export default function App() {
 
   const orario = useMemo(() => new Orario(dati), [dati]);
 
+  // Aperta toccando una notifica: va direttamente alle novita'
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('apri') === 'novita') {
+      setPila([{ tipo: 'tab', tab: 'home' }, { tipo: 'novita' }]);
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+    const daSw = (e: MessageEvent) => { if (e.data?.apri === 'novita') setPila([{ tipo: 'tab', tab: 'home' }, { tipo: 'novita' }]); };
+    navigator.serviceWorker?.addEventListener('message', daSw);
+    return () => navigator.serviceWorker?.removeEventListener('message', daSw);
+  }, []);
+
   const aggiorna = useCallback(async () => {
     setStato('aggiorno');
     const nuovi = await aggiornaDati();

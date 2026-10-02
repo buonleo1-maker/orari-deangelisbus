@@ -1,5 +1,5 @@
 // Service worker: rende l'app installabile e usabile anche senza rete.
-const CACHE = 'orari-v1';
+const CACHE = 'orari-v2';
 const BASE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -33,4 +33,25 @@ self.addEventListener('fetch', (e) => {
       return r;
     })),
   );
+});
+
+// Notifiche push (inviate dal gestionale tramite la funzione "invia-notifica")
+self.addEventListener('push', (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch { d = { body: e.data ? e.data.text() : '' }; }
+  e.waitUntil(self.registration.showNotification(d.title || 'Orari Deangelisbus', {
+    body: d.body || '', icon: './icon-192.png', badge: './icon-192.png',
+    tag: d.tag || 'novita', renotify: true, data: { url: d.url || './?apri=novita' },
+  }));
+});
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || './?apri=novita', self.location.href).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((finestre) => {
+    for (const f of finestre) {
+      if (new URL(f.url).origin === self.location.origin && 'focus' in f) { f.postMessage({ apri: 'novita' }); return f.focus(); }
+    }
+    return self.clients.openWindow(url);
+  }));
 });

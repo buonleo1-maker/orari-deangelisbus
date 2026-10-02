@@ -3,7 +3,10 @@ import type { Nav } from '../App';
 import Installa from '../components/Installa';
 import { App as CapApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
+import AttivaNotifiche from '../components/AttivaNotifiche';
+import AvvisoNovita from '../components/AvvisoNovita';
 import CardPreventivo from '../components/CardPreventivo';
+import { nonLette } from '../lib/lette';
 import { leggiSalvate } from '../lib/preferiti';
 import CardRidola from '../components/CardRidola';
 import CardTerritorio from '../components/CardTerritorio';
@@ -26,6 +29,7 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
 
   const tutte = orario.novitaVisibili(oggi());
   const novita = tutte.filter((n) => n.tipo !== 'viaggio');
+  const daLeggere = nonLette(tutte);
 
   // "Esci": nell'app Android chiude davvero; nell'app web installata prova a chiudere la finestra
   // e, se il telefono non lo consente, spiega come chiuderla.
@@ -59,6 +63,7 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
           <button onClick={() => setAiutoEsci(false)} aria-label="Chiudi messaggio">✕</button>
         </div>
       )}
+      <AvvisoNovita lista={daLeggere} onApri={() => nav.apri({ tipo: 'novita' })} />
       <p className="saluto-home">Benvenuti! Ecco gli orari delle corse esercitate dalla Deangelisbus S.r.l.:</p>
 
       <button className="mini-partenza" onClick={() => nav.apri({ tipo: 'tab', tab: 'partenze' })}>
@@ -107,6 +112,8 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
         <span><strong>Fermate vicino a me</strong><small>Trova la fermata più vicina e il prossimo bus</small></span>
       </button>
 
+      <AttivaNotifiche invito />
+
       {novita.length > 0 && (
         <section className="sezione">
           <div className="gruppo-riga">
@@ -146,6 +153,7 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
           <button onClick={() => nav.apri({ tipo: 'novita' })}>
             <i className="barra" style={{ background: '#E07A1F' }} />
             <span className="nome">Novità ed eventi<small>Eventi, variazioni del servizio e comunicazioni</small></span>
+            {daLeggere.length > 0 && <b className="pallino" aria-label={`${daLeggere.length} da leggere`}>{daLeggere.length}</b>}
             <svg className="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
           </button>
         </li>
