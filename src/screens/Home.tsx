@@ -129,6 +129,19 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
             </button>
           </li>
         ))}
+        {(() => {
+          // linee create dal gestionale che non hanno una voce fissa nel menu (gli extraurbani stanno gia' nella loro voce)
+          const fisse = new Set(SERVIZI.flatMap((v) => (v.tipo === 'linea' ? [v.linea] : [])));
+          return orario.lineeOrdinate().filter((l) => l.categoria !== 'extraurbano' && !fisse.has(l.id)).map((l) => (
+            <li key={l.id}>
+              <button onClick={() => nav.apri({ tipo: 'linea', id: l.id })}>
+                <i className="barra" style={{ background: l.colore ?? '#1E5BB8' }} />
+                <span className="nome">{l.nome}{l.comune && <small>{l.comune}</small>}</span>
+                <svg className="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </li>
+          ));
+        })()}
         <li>
           <button onClick={() => nav.apri({ tipo: 'novita' })}>
             <i className="barra" style={{ background: '#E07A1F' }} />
