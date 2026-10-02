@@ -4,6 +4,7 @@ import Installa from '../components/Installa';
 import LinkSito from '../components/LinkSito';
 import Logo from '../components/Logo';
 import StopPicker from '../components/StopPicker';
+import StellaFermata from '../components/StellaFermata';
 import Testata from '../components/Testata';
 import { addGiorni, hhmm, isoData, minutoAdesso, oggi, type Orario } from '../lib/schedule';
 
@@ -44,6 +45,8 @@ export default function Partenze({ orario, fermataId, nav, onScegli, dettaglio, 
       <Testata titolo={fermata.nome} sotto={fermata.comune} onIndietro={dettaglio ? nav.indietro : undefined}>
         {!dettaglio && <button className="link chiaro" onClick={() => setPicker(true)}>Cambia</button>}
       </Testata>
+
+      <div className="azioni-fermata"><StellaFermata id={fermata.id} casa={fermata.id === casa} /></div>
 
       <div className="interruttore" role="tablist">
         <button role="tab" aria-selected={!domani} className={!domani ? 'attivo' : ''} onClick={() => setDomani(false)}>Oggi</button>

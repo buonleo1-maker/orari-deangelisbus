@@ -4,6 +4,7 @@ import Installa from '../components/Installa';
 import { App as CapApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import CardPreventivo from '../components/CardPreventivo';
+import { leggiSalvate } from '../lib/preferiti';
 import CardRidola from '../components/CardRidola';
 import CardTerritorio from '../components/CardTerritorio';
 import CondividiApp from '../components/CondividiApp';
@@ -20,6 +21,7 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
   useEffect(() => { const t = setInterval(() => setOra(minutoAdesso()), 30000); return () => clearInterval(t); }, []);
 
   const fermata = casa != null ? orario.fermate.get(casa) : undefined;
+  const salvate = leggiSalvate().filter((id) => id !== casa).map((id) => orario.fermate.get(id)).filter((f) => f != null);
   const prossimo = fermata ? orario.partenze(fermata.id, oggi()).find((p) => p.passaggio.minuto >= ora) : undefined;
 
   const tutte = orario.novitaVisibili(oggi());
@@ -79,6 +81,30 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
             <span className="mp-dest">Scegli la tua fermata e vedi subito quando passa il bus.</span>
           </>
         )}
+      </button>
+
+      {salvate.length > 0 && (
+        <section className="mie-fermate">
+          <h2 className="gruppo">Le mie fermate</h2>
+          <ul>
+            {salvate.map((f) => {
+              const p = orario.partenze(f.id, oggi()).find((x) => x.passaggio.minuto >= ora);
+              return (
+                <li key={f.id}>
+                  <button onClick={() => nav.apri({ tipo: 'fermata', id: f.id })}>
+                    <span className="mf-nome">{f.nome}<small>{f.comune}</small></span>
+                    <span className="mf-bus">{p ? <><b>{!p.passaggio.confermato && '~'}{hhmm(p.passaggio.minuto)}</b><small>per {p.capolinea.comune}</small></> : <small>nessun altro bus oggi</small>}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      <button className="vicino-a-me" onClick={() => nav.apri({ tipo: 'vicine' })}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 22s7-7.5 7-13a7 7 0 0 0-14 0c0 5.5 7 13 7 13z" /><circle cx="12" cy="9" r="2.5" /></svg>
+        <span><strong>Fermate vicino a me</strong><small>Trova la fermata più vicina e il prossimo bus</small></span>
       </button>
 
       {novita.length > 0 && (
