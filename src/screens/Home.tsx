@@ -6,6 +6,7 @@ import { Capacitor } from '@capacitor/core';
 import CardPreventivo from '../components/CardPreventivo';
 import CardRidola from '../components/CardRidola';
 import CardTerritorio from '../components/CardTerritorio';
+import CondividiApp from '../components/CondividiApp';
 import { fotoOrdinate, urlFoto } from '../lib/foto';
 import LinkBiglietti from '../components/LinkBiglietti';
 import LinkSito from '../components/LinkSito';
@@ -147,6 +148,7 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
         <svg className="freccia-esterna" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>
       </a>
       <LinkSito />
+      <CondividiApp />
       <Installa />
     </>
   );

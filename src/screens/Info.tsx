@@ -1,6 +1,7 @@
 import type { Nav } from '../App';
 import Installa from '../components/Installa';
 import LinkBiglietti from '../components/LinkBiglietti';
+import CondividiApp from '../components/CondividiApp';
 import LinkSito from '../components/LinkSito';
 import Logo from '../components/Logo';
 import Testata from '../components/Testata';
@@ -39,6 +40,7 @@ export default function Info({ orario, stato, onAggiorna, nav }: {
         <span>Un ritardo, un problema a bordo o un suggerimento? Scrivici.</span>
       </button>
       <LinkSito />
+      <CondividiApp />
 
       <section className="sezione contatti">
         <h2 className="gruppo">Contatti</h2>

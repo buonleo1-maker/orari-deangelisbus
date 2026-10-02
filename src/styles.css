@@ -467,3 +467,17 @@ a.ridola .ridola-link { justify-self: start; }
 .lb-freccia { position: absolute; top: 45%; width: 44px; height: 60px; border-radius: 10px; background: rgba(255, 255, 255, .15); color: #fff; font-size: 2rem; }
 .lb-freccia.sx { left: 8px; } .lb-freccia.dx { right: 8px; }
 .pr-comandi button { display: grid; place-items: center; }
+
+/* passa l'app a un amico (QR code) */
+.card-condividi { display: flex; align-items: center; gap: 12px; margin: 12px 18px 0; width: calc(100% - 36px); padding: 14px 16px; border-radius: 10px; background: var(--superficie); border: 2px dashed var(--blu); color: var(--inchiostro); text-align: left; }
+.card-condividi svg { width: 34px; height: 34px; color: var(--blu); flex: none; }
+.card-condividi strong { display: block; font-family: var(--cond); font-size: 1.25rem; }
+.card-condividi small { display: block; color: var(--tenue); }
+@media (prefers-color-scheme: dark) { .card-condividi { border-color: var(--giallo); } .card-condividi svg { color: var(--giallo); } }
+.qr-schermo { position: fixed; inset: 0; z-index: 120; background: #fff; color: #020a5d; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: calc(20px + var(--safe-top)) 24px calc(20px + var(--safe-bottom)); text-align: center; }
+.qr-schermo img { width: min(78vw, 360px); height: auto; image-rendering: pixelated; }
+.qr-titolo { margin: 0 0 14px; font-family: var(--cond); font-size: 1.6rem; font-weight: 700; }
+.qr-link { margin: 12px 0 4px; font-weight: 700; font-size: 1.1rem; }
+.qr-aiuto { margin: 0 0 18px; color: #4b5563; max-width: 34ch; }
+.qr-invia { padding: 12px 18px; border-radius: 10px; background: #25D366; color: #fff; font-weight: 700; }
+.qr-chiudi { position: absolute; top: calc(12px + var(--safe-top)); right: 14px; width: 46px; height: 46px; border-radius: 50%; background: #eef1f6; color: #020a5d; font-size: 1.3rem; }
