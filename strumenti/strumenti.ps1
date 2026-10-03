@@ -299,6 +299,12 @@ function Scarica-Backup([switch]$Silenzioso) {
     if ((Test-Path $dest) -and ((Get-Item $dest).Length -eq [int64]$c.dimensione)) { continue }
     try { Invoke-WebRequest -Uri $c.url -OutFile $dest -UseBasicParsing -TimeoutSec 300; $nuove++ } catch { Avviso "Non scaricato: $($c.file)" }
   }
+  foreach ($c in $r.copie) {   # struttura del database (file .sql) di ogni copia
+    if (-not $c.struttura -or -not $c.struttura.url) { continue }
+    $dest = Join-Path $BACKUP_DIR $c.struttura.file
+    if (Test-Path $dest) { continue }
+    try { Invoke-WebRequest -Uri $c.struttura.url -OutFile $dest -UseBasicParsing -TimeoutSec 120 } catch { Avviso "Non scaricato: $($c.struttura.file)" }
+  }
   $tot = (Get-ChildItem $BACKUP_DIR -Filter '*.json.gz' -ErrorAction SilentlyContinue).Count
   Ok "Backup database: $nuove copie nuove scaricate, $tot copie in $BACKUP_DIR"
   if (-not $Silenzioso -and $r.copie.Count -gt 0) { Write-Host "  Ultima copia: $($r.copie[0].creato_il) ($([math]::Round($r.copie[0].dimensione/1KB)) KB)" }

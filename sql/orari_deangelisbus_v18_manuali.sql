@@ -24,6 +24,7 @@ grant select, insert, update, delete on manuali to authenticated;
 
 
 
+
 insert into manuali (slug, titolo, categoria, ordine, contenuto) values ('manuale-gestionale', 'Manuale del Gestionale', 'manuale', 1, $md$# Manuale del Gestionale Deangelisbus
 
 Versione 5.0 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
@@ -339,7 +340,67 @@ Tutti i dati del gestionale (turni, presenze, ferie, autisti, veicoli, noleggi, 
 
 Il menu Strumenti scarica le copie sul PC e sulla chiavetta, nella cartella **BACKUP-DATABASE**: in automatico con la voce 2 (Aggiorna tutto) e quando si apre il menu dalla chiavetta, oppure a mano con la voce **9**. La prima volta su ogni postazione la voce 9 chiede la chiave dei backup, che si legge su Supabase (SQL Editor) con: `select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';`
 
-I file sono in formato aperto (JSON compresso): anche senza il gestionale si possono aprire e i dati restano leggibili. Le foto (galleria, scontrini) sono conservate a parte nello spazio file e non fanno parte di questo backup.
+I file sono in formato aperto (JSON compresso): anche senza il gestionale si possono aprire e i dati restano leggibili. Insieme a ogni copia viene salvata anche la **struttura del database** (file `struttura-….sql`), che serve a ricostruirlo da zero (capitolo 18). Le foto (galleria, scontrini) sono conservate a parte nello spazio file e non fanno parte di questo backup.
+
+## 18. Cosa fare in caso di emergenza
+
+I dati non vivono sul PC né sulla chiavetta: stanno nel database su internet (Supabase), con una copia completa ogni notte. Ogni copia contiene **tutti i dati** e anche la **struttura del database** (tabelle, funzioni, regole di accesso), e viene scaricata anche su PC e chiavetta nella cartella **BACKUP-DATABASE** (file `.json.gz` con i dati e file `struttura-….sql` con la struttura).
+
+| Dove sta | Cosa |
+| --- | --- |
+| Supabase (database) | Tutti i dati, sempre aggiornati |
+| Supabase (spazio privato "backup") | Copie complete: ultimi 30 giorni e una per mese, per sempre |
+| PC e chiavetta, cartella BACKUP-DATABASE | Le stesse copie, scaricate dal menu Strumenti |
+| GitHub | Il codice del gestionale e dell'app Orari |
+| Cloudflare | Gestionale e app pubblicati online |
+
+### 18.1 Si rompe un PC
+
+Gestionale e app continuano a funzionare online e nessun dato è perso.
+
+1. Su un PC nuovo installa **Git** e **Node.js**.
+2. Avvia il menu Strumenti dalla chiavetta (oppure scaricandolo da GitHub) e usa la **voce 1 – Prima installazione**: riscarica gestionale e app Orari. Le chiavi del database si leggono su Supabase → Project Settings → API.
+3. Per pubblicare: `npx.cmd wrangler login` (Cloudflare) e `npx.cmd supabase login` (Supabase).
+4. **Voce 9** con la chiave dei backup: il PC nuovo riscarica tutte le copie.
+
+### 18.2 Si perde la chiavetta
+
+Non si perdono dati, ma la chiavetta contiene le copie del database e la chiave per scaricarle: va resa inutile.
+
+1. Su Supabase, SQL Editor, cambia la chiave dei backup:
+
+```sql
+select vault.update_secret((select id from vault.secrets where name = 'backup_download_key'), encode(extensions.gen_random_bytes(24), 'hex'));
+select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';
+```
+
+2. Sul PC cancella `BACKUP-DATABASE\chiave-backup.txt` e rifai la **voce 9** con la chiave nuova.
+3. Prepara una chiavetta nuova con la **voce 6**.
+
+Per prevenire: cifrare la chiavetta con **BitLocker** (tasto destro sull'unità → Attiva BitLocker → password). Senza password chi la trova non legge niente.
+
+### 18.3 Dati cancellati o modificati per errore
+
+Pagina **Backup e ripristino** → copia di un giorno in cui i dati erano giusti → **Consulta** → tabella → spunta i record → **Ripristina selezionati** (vedi capitolo 17). Prima di ogni ripristino viene salvato un backup di sicurezza.
+
+### 18.4 Il database su internet non è più disponibile
+
+È il caso più improbabile (Supabase ha anche i suoi backup), ma le copie in nostro possesso bastano a ricostruire tutto:
+
+1. Crea un nuovo progetto Supabase.
+2. Nello SQL Editor esegui il file `struttura-….sql` più recente della cartella BACKUP-DATABASE: ricrea tabelle, funzioni e regole di accesso.
+3. Carica i dati dal file `backup-….json.gz` della stessa data: è un'operazione tecnica, da fare con l'assistenza di chi segue il gestionale, ma il file contiene tutti i record di tutte le tabelle in formato aperto.
+4. Aggiorna le chiavi del nuovo progetto nei file `.env` e su Cloudflare, poi ripubblica gestionale e app (voci 4 e 5).
+
+### 18.5 Cose da custodire a parte
+
+Alcune credenziali, per sicurezza, non stanno su GitHub. Conservarne una copia in un gestore di password o in un documento custodito:
+
+- accesso a Supabase, Cloudflare, GitHub e Google (account aziendale);
+- password della posta Aruba usata per le email automatiche (SMTP);
+- chiavi delle notifiche (VAPID), eventuale chiave Anthropic, credenziali del service account Google per le sincronizzazioni;
+- la chiave dei backup (si può sempre rileggere da Supabase);
+- in futuro, la chiave di firma dell'app per il Play Store.
 $md$)
 on conflict (slug) do nothing;
 
@@ -1220,7 +1281,67 @@ Tutti i dati del gestionale (turni, presenze, ferie, autisti, veicoli, noleggi, 
 
 Il menu Strumenti scarica le copie sul PC e sulla chiavetta, nella cartella **BACKUP-DATABASE**: in automatico con la voce 2 (Aggiorna tutto) e quando si apre il menu dalla chiavetta, oppure a mano con la voce **9**. La prima volta su ogni postazione la voce 9 chiede la chiave dei backup, che si legge su Supabase (SQL Editor) con: `select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';`
 
-I file sono in formato aperto (JSON compresso): anche senza il gestionale si possono aprire e i dati restano leggibili. Le foto (galleria, scontrini) sono conservate a parte nello spazio file e non fanno parte di questo backup.
+I file sono in formato aperto (JSON compresso): anche senza il gestionale si possono aprire e i dati restano leggibili. Insieme a ogni copia viene salvata anche la **struttura del database** (file `struttura-….sql`), che serve a ricostruirlo da zero (capitolo 18). Le foto (galleria, scontrini) sono conservate a parte nello spazio file e non fanno parte di questo backup.
+
+## 18. Cosa fare in caso di emergenza
+
+I dati non vivono sul PC né sulla chiavetta: stanno nel database su internet (Supabase), con una copia completa ogni notte. Ogni copia contiene **tutti i dati** e anche la **struttura del database** (tabelle, funzioni, regole di accesso), e viene scaricata anche su PC e chiavetta nella cartella **BACKUP-DATABASE** (file `.json.gz` con i dati e file `struttura-….sql` con la struttura).
+
+| Dove sta | Cosa |
+| --- | --- |
+| Supabase (database) | Tutti i dati, sempre aggiornati |
+| Supabase (spazio privato "backup") | Copie complete: ultimi 30 giorni e una per mese, per sempre |
+| PC e chiavetta, cartella BACKUP-DATABASE | Le stesse copie, scaricate dal menu Strumenti |
+| GitHub | Il codice del gestionale e dell'app Orari |
+| Cloudflare | Gestionale e app pubblicati online |
+
+### 18.1 Si rompe un PC
+
+Gestionale e app continuano a funzionare online e nessun dato è perso.
+
+1. Su un PC nuovo installa **Git** e **Node.js**.
+2. Avvia il menu Strumenti dalla chiavetta (oppure scaricandolo da GitHub) e usa la **voce 1 – Prima installazione**: riscarica gestionale e app Orari. Le chiavi del database si leggono su Supabase → Project Settings → API.
+3. Per pubblicare: `npx.cmd wrangler login` (Cloudflare) e `npx.cmd supabase login` (Supabase).
+4. **Voce 9** con la chiave dei backup: il PC nuovo riscarica tutte le copie.
+
+### 18.2 Si perde la chiavetta
+
+Non si perdono dati, ma la chiavetta contiene le copie del database e la chiave per scaricarle: va resa inutile.
+
+1. Su Supabase, SQL Editor, cambia la chiave dei backup:
+
+```sql
+select vault.update_secret((select id from vault.secrets where name = 'backup_download_key'), encode(extensions.gen_random_bytes(24), 'hex'));
+select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';
+```
+
+2. Sul PC cancella `BACKUP-DATABASE\chiave-backup.txt` e rifai la **voce 9** con la chiave nuova.
+3. Prepara una chiavetta nuova con la **voce 6**.
+
+Per prevenire: cifrare la chiavetta con **BitLocker** (tasto destro sull'unità → Attiva BitLocker → password). Senza password chi la trova non legge niente.
+
+### 18.3 Dati cancellati o modificati per errore
+
+Pagina **Backup e ripristino** → copia di un giorno in cui i dati erano giusti → **Consulta** → tabella → spunta i record → **Ripristina selezionati** (vedi capitolo 17). Prima di ogni ripristino viene salvato un backup di sicurezza.
+
+### 18.4 Il database su internet non è più disponibile
+
+È il caso più improbabile (Supabase ha anche i suoi backup), ma le copie in nostro possesso bastano a ricostruire tutto:
+
+1. Crea un nuovo progetto Supabase.
+2. Nello SQL Editor esegui il file `struttura-….sql` più recente della cartella BACKUP-DATABASE: ricrea tabelle, funzioni e regole di accesso.
+3. Carica i dati dal file `backup-….json.gz` della stessa data: è un'operazione tecnica, da fare con l'assistenza di chi segue il gestionale, ma il file contiene tutti i record di tutte le tabelle in formato aperto.
+4. Aggiorna le chiavi del nuovo progetto nei file `.env` e su Cloudflare, poi ripubblica gestionale e app (voci 4 e 5).
+
+### 18.5 Cose da custodire a parte
+
+Alcune credenziali, per sicurezza, non stanno su GitHub. Conservarne una copia in un gestore di password o in un documento custodito:
+
+- accesso a Supabase, Cloudflare, GitHub e Google (account aziendale);
+- password della posta Aruba usata per le email automatiche (SMTP);
+- chiavi delle notifiche (VAPID), eventuale chiave Anthropic, credenziali del service account Google per le sincronizzazioni;
+- la chiave dei backup (si può sempre rileggere da Supabase);
+- in futuro, la chiave di firma dell'app per il Play Store.
 $md$, aggiornato_il = now() where slug = 'manuale-gestionale';
 
 update manuali set titolo = 'Manuale App Autisti', contenuto = $md$# Manuale App Autisti

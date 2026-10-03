@@ -19,7 +19,7 @@ const env = (k: string) => Deno.env.get(k) ?? '';
 const BUCKET = 'backup';
 const GIORNI_TENUTI = 30;
 
-type Backup = { versione: number; creato_il: string; tabelle: Record<string, { chiave: string[]; righe: Record<string, unknown>[] }> };
+type Backup = { versione: number; creato_il: string; struttura?: string; tabelle: Record<string, { chiave: string[]; righe: Record<string, unknown>[] }> };
 
 async function comprimi(testo: string): Promise<Uint8Array> {
   const s = new Blob([testo]).stream().pipeThrough(new CompressionStream('gzip'));
@@ -51,13 +51,21 @@ async function eseguiBackup(db: SupabaseClient, tipo: string, note?: string) {
     backup.tabelle[r.tabella] = { chiave: r.chiave ?? [], righe };
     conteggi[r.tabella] = righe.length;
   }
+  const { data: struttura } = await db.rpc('backup_schema');
+  if (typeof struttura === 'string') backup.struttura = struttura;
   const file = await comprimi(JSON.stringify(backup));
   const d = new Date(); const p2 = (n: number) => String(n).padStart(2, '0');
   const percorso = `${d.getUTCFullYear()}/${p2(d.getUTCMonth() + 1)}/backup-${d.getUTCFullYear()}-${p2(d.getUTCMonth() + 1)}-${p2(d.getUTCDate())}-${p2(d.getUTCHours())}${p2(d.getUTCMinutes())}-${tipo}.json.gz`;
   const up = await db.storage.from(BUCKET).upload(percorso, file, { contentType: 'application/gzip', upsert: true });
   if (up.error) throw new Error(`Salvataggio file: ${up.error.message}`);
+  let percorsoStruttura: string | null = null;
+  if (backup.struttura) {
+    percorsoStruttura = percorso.replace(/backup-([^/]+)\.json\.gz$/, 'struttura-$1.sql');
+    const us = await db.storage.from(BUCKET).upload(percorsoStruttura, new Blob([backup.struttura], { type: 'text/plain' }), { contentType: 'text/plain; charset=utf-8', upsert: true });
+    if (us.error) percorsoStruttura = null;
+  }
   const { data: reg } = await db.from('backup_registro').insert({
-    tipo, percorso, dimensione: file.length, tabelle: conteggi, durata_ms: Date.now() - inizio, note: note ?? null,
+    tipo, percorso, percorso_struttura: percorsoStruttura, dimensione: file.length, tabelle: conteggi, durata_ms: Date.now() - inizio, note: note ?? null,
   }).select().single();
   await pulisci(db);
   return reg;
@@ -66,15 +74,15 @@ async function eseguiBackup(db: SupabaseClient, tipo: string, note?: string) {
 /** Tiene le copie degli ultimi 30 giorni e, per i mesi precedenti, la prima copia di ogni mese. */
 async function pulisci(db: SupabaseClient) {
   const limite = new Date(Date.now() - GIORNI_TENUTI * 86400000).toISOString();
-  const { data } = await db.from('backup_registro').select('id, creato_il, percorso').eq('esito', 'ok').lt('creato_il', limite).order('creato_il');
-  const tenutiMese = new Set<string>(); const via: { id: number; percorso: string }[] = [];
-  for (const r of (data ?? []) as { id: number; creato_il: string; percorso: string }[]) {
+  const { data } = await db.from('backup_registro').select('id, creato_il, percorso, percorso_struttura').eq('esito', 'ok').lt('creato_il', limite).order('creato_il');
+  const tenutiMese = new Set<string>(); const via: { id: number; percorso: string; percorso_struttura: string | null }[] = [];
+  for (const r of (data ?? []) as { id: number; creato_il: string; percorso: string; percorso_struttura: string | null }[]) {
     const mese = r.creato_il.slice(0, 7);
     if (!tenutiMese.has(mese)) { tenutiMese.add(mese); continue; }
     via.push(r);
   }
   if (via.length) {
-    await db.storage.from(BUCKET).remove(via.map((v) => v.percorso).filter(Boolean));
+    await db.storage.from(BUCKET).remove(via.flatMap((v) => [v.percorso, v.percorso_struttura]).filter(Boolean) as string[]);
     await db.from('backup_registro').delete().in('id', via.map((v) => v.id));
   }
 }
@@ -121,8 +129,10 @@ async function gestisci(req: Request): Promise<Response> {
       }
     }
     if (azione === 'link') {
-      const { data: reg } = await db.from('backup_registro').select('percorso').eq('id', Number(corpo.id)).single();
-      const { data, error } = await db.storage.from(BUCKET).createSignedUrl(reg?.percorso ?? '', 3600, { download: true });
+      const { data: reg } = await db.from('backup_registro').select('percorso, percorso_struttura').eq('id', Number(corpo.id)).single();
+      const quale = corpo.struttura ? reg?.percorso_struttura : reg?.percorso;
+      if (!quale) throw new Error('File non disponibile per questa copia');
+      const { data, error } = await db.storage.from(BUCKET).createSignedUrl(quale, 3600, { download: true });
       if (error) throw error;
       return json({ url: data.signedUrl });
     }
@@ -151,11 +161,16 @@ async function gestisci(req: Request): Promise<Response> {
       return json({ ok: true, ripristinate: righe.length, backup_sicurezza: sicurezza?.id });
     }
     if (azione === 'elenco-pc') {
-      const { data } = await db.from('backup_registro').select('id, creato_il, tipo, percorso, dimensione').eq('esito', 'ok').order('creato_il', { ascending: false });
+      const { data } = await db.from('backup_registro').select('id, creato_il, tipo, percorso, percorso_struttura, dimensione').eq('esito', 'ok').order('creato_il', { ascending: false });
       const out = [];
-      for (const r of (data ?? []) as { id: number; creato_il: string; tipo: string; percorso: string; dimensione: number }[]) {
+      for (const r of (data ?? []) as { id: number; creato_il: string; tipo: string; percorso: string; percorso_struttura: string | null; dimensione: number }[]) {
         const { data: s } = await db.storage.from(BUCKET).createSignedUrl(r.percorso, 3600, { download: true });
-        out.push({ ...r, file: r.percorso.split('/').pop(), url: s?.signedUrl });
+        let struttura: { file: string; url?: string } | null = null;
+        if (r.percorso_struttura) {
+          const { data: ss } = await db.storage.from(BUCKET).createSignedUrl(r.percorso_struttura, 3600, { download: true });
+          struttura = { file: r.percorso_struttura.split('/').pop() ?? '', url: ss?.signedUrl };
+        }
+        out.push({ ...r, file: r.percorso.split('/').pop(), url: s?.signedUrl, struttura });
       }
       return json({ copie: out });
     }
