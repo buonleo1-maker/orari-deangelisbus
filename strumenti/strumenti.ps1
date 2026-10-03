@@ -1,5 +1,5 @@
 ﻿# =====================================================================
-#  STRUMENTI DEANGELISBUS - lavorare da qualsiasi PC (casa, ufficio) + copia su USB
+#  STRUMENTI DEANGELISBUS - lavorare da qualsiasi PC + copia su USB
 #  Progetti: app Orari (repo orari-deangelisbus, ramo main)
 #            gestionale (repo deangelisbus-gestionale, ramo master)
 #  Avvio: doppio clic su "DeAngelisBus-Strumenti.bat"
@@ -41,6 +41,7 @@ function Trova-RepoGestionale {
     if (-not (Test-Path (Join-Path $d '.git'))) { continue }
     $url = (git -C $d remote get-url origin 2>$null)
     if ($url -notmatch 'deangelisbus-gestionale') { continue }
+    # deve contenere davvero l'app (in radice o nella sottocartella 2-SORGENTE-APP)
     if ((Test-Path "$d\2-SORGENTE-APP\src\components\AdminShell.tsx") -or (Test-Path "$d\src\components\AdminShell.tsx")) { return $d }
   }
   return $null
@@ -74,13 +75,14 @@ function Controlla-Programmi {
   return $ok
 }
 function Controlla-Env($cartella, $nome) {
+  # accetta .env, .env.local o .env.production (Vite li legge tutti)
   $f = @('.env', '.env.local', '.env.production') | ForEach-Object { Join-Path $cartella $_ } | Where-Object { Test-Path $_ } | Select-Object -First 1
-  if (-not $f) { Errore "$nome - manca il file .env in $cartella"; return $false }
+  if (-not $f) { Errore "$nome - manca il file .env (o .env.local) in $cartella"; return $false }
   $t = Get-Content $f -Raw
   if ($t -notmatch 'VITE_SUPABASE_URL\s*=\s*["'']?https://' -or $t -notmatch 'VITE_SUPABASE_ANON_KEY\s*=\s*["'']?(eyJ|sb_publishable_)' -or $t -notmatch $PROGETTO_SB) {
-    Errore "$nome - il file .env non e' completo (servono VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY del progetto $PROGETTO_SB)"; return $false
+    Errore "$nome - il file $(Split-Path $f -Leaf) non e' completo (servono VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY del progetto $PROGETTO_SB)"; return $false
   }
-  Ok "$nome - file .env presente e corretto"; return $true
+  Ok "$nome - file $(Split-Path $f -Leaf) presente e corretto"; return $true
 }
 function Scrivi-Env($cartella, $chiave) {
   $testo = "VITE_SUPABASE_URL=https://$PROGETTO_SB.supabase.co`r`nVITE_SUPABASE_ANON_KEY=$chiave`r`n"
@@ -159,6 +161,7 @@ function Aggiorna-Tutto {
   Stato-Postazione
   Aggiorna-Repo $ORARI 'App Orari'
   Aggiorna-Repo $script:REPO_GEST 'Gestionale'
+  Scarica-Backup -Silenzioso
 }
 
 # ---------- 3. salva (fine lavoro) ----------
@@ -171,12 +174,12 @@ function Salva-Repo($cartella, $nome) {
   }
   Write-Host "  $nome - file modificati:" -ForegroundColor White
   $modifiche | ForEach-Object { Write-Host "     $_" }
-  if ($modifiche -match '(^|[\\/ ])\.env$') { Errore "$nome - c'e' un file .env nell'elenco: NON lo carico. Controlla il .gitignore."; return }
+  if ($modifiche -match '(^|[\\/ ])\.env(\.local|\.production)?$') { Errore "$nome - c'e' un file .env nell'elenco: NON lo carico. Controlla il .gitignore."; return }
   if (-not (SiNo "Salvo queste modifiche su GitHub")) { return }
   $msg = Chiedi "Descrizione breve (es. nuovi orari Montescaglioso)"
   if (-not $msg) { $msg = "Aggiornamento del " + (Get-Date -Format 'dd/MM/yyyy HH:mm') }
   git -C $cartella add -A
-  $env_in = git -C $cartella diff --cached --name-only | Where-Object { $_ -match '(^|/)\.env$' }
+  $env_in = git -C $cartella diff --cached --name-only | Where-Object { $_ -match '(^|/)\.env(\.local|\.production)?$' }
   if ($env_in) { git -C $cartella reset -q; Errore "$nome - un .env stava per essere caricato: annullato. Aggiungi .env al .gitignore."; return }
   git -C $cartella commit -m $msg
   git -C $cartella push
@@ -256,6 +259,50 @@ function Collegamento-Desktop {
   Ok "Creato il collegamento sul Desktop: 'DeAngelisBus Strumenti'"
 }
 
+
+# ---------- 9. backup del database su PC/chiavetta ----------
+$BACKUP_DIR = Join-Path $BASE 'BACKUP-DATABASE'
+$BACKUP_KEY = Join-Path $BACKUP_DIR '.chiave-backup'
+function Leggi-Env($chiave) {
+  foreach ($f in @("$ORARI\.env", "$ORARI\.env.local")) {
+    if (Test-Path $f) { $r = Get-Content $f | Where-Object { $_ -like "$chiave=*" } | Select-Object -First 1; if ($r) { return ($r -replace "^$chiave=", '').Trim() } }
+  }
+  return $null
+}
+function Scarica-Backup([switch]$Silenzioso) {
+  if (-not $Silenzioso) { Titolo "SCARICA I BACKUP DEL DATABASE ($BACKUP_DIR)" }
+  New-Item -ItemType Directory -Force $BACKUP_DIR | Out-Null
+  if (-not (Test-Path $BACKUP_KEY)) {
+    if ($Silenzioso) { return }
+    Write-Host "  Serve la chiave dei backup (una volta sola per postazione). Su Supabase, SQL Editor, esegui:"
+    Write-Host "    select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';" -ForegroundColor Cyan
+    $k = (Chiedi "Incolla qui la chiave").Trim()
+    if (-not $k) { Avviso "Nessuna chiave: annullato"; return }
+    Set-Content -Path $BACKUP_KEY -Value $k -Encoding ASCII
+    (Get-Item $BACKUP_KEY -Force).Attributes = 'Hidden'
+  }
+  $url = Leggi-Env 'VITE_SUPABASE_URL'; $anon = Leggi-Env 'VITE_SUPABASE_ANON_KEY'
+  if (-not $url) { $url = "https://$PROGETTO_SB.supabase.co" }
+  $chiave = (Get-Content $BACKUP_KEY -Raw).Trim()
+  $h = @{ 'x-backup-key' = $chiave }; if ($anon) { $h['apikey'] = $anon }
+  try { $r = Invoke-RestMethod -Method Post -Uri "$url/functions/v1/backup-dati" -Headers $h -ContentType 'application/json' -Body '{"azione":"elenco-pc"}' -TimeoutSec 120 }
+  catch {
+    if ($Silenzioso) { Avviso "Backup database: copie non scaricate ($($_.Exception.Message))"; return }
+    Errore "Impossibile leggere l'elenco dei backup: $($_.Exception.Message)"
+    if ("$($_.Exception.Message)" -match '403') { Avviso "Chiave non valida: la cancello, riprova con la voce 9."; Remove-Item $BACKUP_KEY -Force }
+    return
+  }
+  $nuove = 0
+  foreach ($c in $r.copie) {
+    $dest = Join-Path $BACKUP_DIR $c.file
+    if ((Test-Path $dest) -and ((Get-Item $dest).Length -eq [int64]$c.dimensione)) { continue }
+    try { Invoke-WebRequest -Uri $c.url -OutFile $dest -UseBasicParsing -TimeoutSec 300; $nuove++ } catch { Avviso "Non scaricato: $($c.file)" }
+  }
+  $tot = (Get-ChildItem $BACKUP_DIR -Filter '*.json.gz' -ErrorAction SilentlyContinue).Count
+  Ok "Backup database: $nuove copie nuove scaricate, $tot copie in $BACKUP_DIR"
+  if (-not $Silenzioso -and $r.copie.Count -gt 0) { Write-Host "  Ultima copia: $($r.copie[0].creato_il) ($([math]::Round($r.copie[0].dimensione/1KB)) KB)" }
+}
+
 # ---------- avvio ----------
 $sd = git config --global --get-all safe.directory 2>$null
 if (-not ($sd -contains '*')) { git config --global --add safe.directory '*' }   # evita il blocco di Git su chiavette
@@ -278,6 +325,7 @@ while ($true) {
   Write-Host "   6) Copia di sicurezza su chiavetta USB"
   Write-Host "   7) Controllo di questa postazione"
   Write-Host "   8) Crea collegamento sul Desktop"
+  Write-Host "   9) Scarica i backup del database (copie su questo PC/chiavetta)"
   Write-Host "   0) Esci"
   $scelta = Chiedi "Scelta"
   switch ($scelta) {
@@ -289,6 +337,7 @@ while ($true) {
     '6' { Copia-Usb }
     '7' { Controllo }
     '8' { Collegamento-Desktop }
+    '9' { Scarica-Backup }
     '0' {
       if ($SU_USB) {
         Stato-Postazione

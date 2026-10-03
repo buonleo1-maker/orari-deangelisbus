@@ -23,6 +23,7 @@ grant select, insert, update, delete on manuali to authenticated;
 
 
 
+
 insert into manuali (slug, titolo, categoria, ordine, contenuto) values ('manuale-gestionale', 'Manuale del Gestionale', 'manuale', 1, $md$# Manuale del Gestionale Deangelisbus
 
 Versione 5.0 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
@@ -315,6 +316,30 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | Tecnologia | React + TypeScript + Vite, database Supabase (PostgreSQL), Cloudflare Pages, notifiche Firebase, email Resend, assistente Claude (Anthropic), app Android con Capacitor |
 
 Aggiornamenti e pubblicazione si fanno dal **menu Strumenti**: sempre voce 2 all'inizio, voce 3 alla fine, e voce 2 prima della voce 5 (pubblica il gestionale).
+
+## 17. Backup e ripristino
+
+Tutti i dati del gestionale (turni, presenze, ferie, autisti, veicoli, noleggi, preventivi, fogli di viaggio, scadenze, orari dell'app e ogni altra tabella) vengono copiati **ogni notte** in un file compresso, in uno spazio privato visibile solo agli amministratori. Si conservano le copie degli **ultimi 30 giorni** e **una copia per ogni mese, per sempre**. Le tabelle nuove entrano nel backup da sole.
+
+**Pagina Backup e ripristino**
+
+1. In alto il riquadro **verde** indica la data dell'ultimo backup, quanti record contiene e quante copie sono conservate. Se diventa **giallo**, l'ultimo backup ha più di un giorno: premere **Fai un backup adesso** e avvisare chi segue la parte tecnica.
+2. **Fai un backup adesso**: copia immediata, utile prima di un'operazione importante (per esempio un caricamento grosso di dati).
+3. **Scarica**: salva sul computer il file della copia.
+4. **Consulta**: si sceglie una tabella e si vedono i dati **com'erano in quella data**, con la ricerca e il pulsante **Scarica per Excel**. Consultare non modifica niente.
+
+**Ripristinare dati cancellati o modificati per errore**
+
+1. Apri la copia di una data in cui i dati erano giusti → **Consulta** → scegli la tabella.
+2. Cerca i record, spunta quelli da recuperare → **Ripristina selezionati**. In alternativa **Ripristina tutta la tabella** (chiede di scrivere RIPRISTINA).
+3. I record vengono riportati com'erano in quella data; gli altri dati non vengono toccati e i record creati dopo restano.
+4. **Prima di ogni ripristino il sistema salva da solo un backup di sicurezza**: se il ripristino non era quello giusto, si torna indietro ripristinando da quella copia.
+
+**Copie in nostro possesso, fuori da internet**
+
+Il menu Strumenti scarica le copie sul PC e sulla chiavetta, nella cartella **BACKUP-DATABASE**: in automatico con la voce 2 (Aggiorna tutto) e quando si apre il menu dalla chiavetta, oppure a mano con la voce **9**. La prima volta su ogni postazione la voce 9 chiede la chiave dei backup, che si legge su Supabase (SQL Editor) con: `select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';`
+
+I file sono in formato aperto (JSON compresso): anche senza il gestionale si possono aprire e i dati restano leggibili. Le foto (galleria, scontrini) sono conservate a parte nello spazio file e non fanno parte di questo backup.
 $md$)
 on conflict (slug) do nothing;
 
@@ -1172,6 +1197,30 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | Tecnologia | React + TypeScript + Vite, database Supabase (PostgreSQL), Cloudflare Pages, notifiche Firebase, email Resend, assistente Claude (Anthropic), app Android con Capacitor |
 
 Aggiornamenti e pubblicazione si fanno dal **menu Strumenti**: sempre voce 2 all'inizio, voce 3 alla fine, e voce 2 prima della voce 5 (pubblica il gestionale).
+
+## 17. Backup e ripristino
+
+Tutti i dati del gestionale (turni, presenze, ferie, autisti, veicoli, noleggi, preventivi, fogli di viaggio, scadenze, orari dell'app e ogni altra tabella) vengono copiati **ogni notte** in un file compresso, in uno spazio privato visibile solo agli amministratori. Si conservano le copie degli **ultimi 30 giorni** e **una copia per ogni mese, per sempre**. Le tabelle nuove entrano nel backup da sole.
+
+**Pagina Backup e ripristino**
+
+1. In alto il riquadro **verde** indica la data dell'ultimo backup, quanti record contiene e quante copie sono conservate. Se diventa **giallo**, l'ultimo backup ha più di un giorno: premere **Fai un backup adesso** e avvisare chi segue la parte tecnica.
+2. **Fai un backup adesso**: copia immediata, utile prima di un'operazione importante (per esempio un caricamento grosso di dati).
+3. **Scarica**: salva sul computer il file della copia.
+4. **Consulta**: si sceglie una tabella e si vedono i dati **com'erano in quella data**, con la ricerca e il pulsante **Scarica per Excel**. Consultare non modifica niente.
+
+**Ripristinare dati cancellati o modificati per errore**
+
+1. Apri la copia di una data in cui i dati erano giusti → **Consulta** → scegli la tabella.
+2. Cerca i record, spunta quelli da recuperare → **Ripristina selezionati**. In alternativa **Ripristina tutta la tabella** (chiede di scrivere RIPRISTINA).
+3. I record vengono riportati com'erano in quella data; gli altri dati non vengono toccati e i record creati dopo restano.
+4. **Prima di ogni ripristino il sistema salva da solo un backup di sicurezza**: se il ripristino non era quello giusto, si torna indietro ripristinando da quella copia.
+
+**Copie in nostro possesso, fuori da internet**
+
+Il menu Strumenti scarica le copie sul PC e sulla chiavetta, nella cartella **BACKUP-DATABASE**: in automatico con la voce 2 (Aggiorna tutto) e quando si apre il menu dalla chiavetta, oppure a mano con la voce **9**. La prima volta su ogni postazione la voce 9 chiede la chiave dei backup, che si legge su Supabase (SQL Editor) con: `select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';`
+
+I file sono in formato aperto (JSON compresso): anche senza il gestionale si possono aprire e i dati restano leggibili. Le foto (galleria, scontrini) sono conservate a parte nello spazio file e non fanno parte di questo backup.
 $md$, aggiornato_il = now() where slug = 'manuale-gestionale';
 
 update manuali set titolo = 'Manuale App Autisti', contenuto = $md$# Manuale App Autisti
