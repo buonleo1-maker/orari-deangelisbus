@@ -262,7 +262,7 @@ function Collegamento-Desktop {
 
 # ---------- 9. backup del database su PC/chiavetta ----------
 $BACKUP_DIR = Join-Path $BASE 'BACKUP-DATABASE'
-$BACKUP_KEY = Join-Path $BACKUP_DIR '.chiave-backup'
+$BACKUP_KEY = Join-Path $BACKUP_DIR 'chiave-backup.txt'
 function Leggi-Env($chiave) {
   foreach ($f in @("$ORARI\.env", "$ORARI\.env.local")) {
     if (Test-Path $f) { $r = Get-Content $f | Where-Object { $_ -like "$chiave=*" } | Select-Object -First 1; if ($r) { return ($r -replace "^$chiave=", '').Trim() } }
@@ -276,20 +276,21 @@ function Scarica-Backup([switch]$Silenzioso) {
     if ($Silenzioso) { return }
     Write-Host "  Serve la chiave dei backup (una volta sola per postazione). Su Supabase, SQL Editor, esegui:"
     Write-Host "    select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';" -ForegroundColor Cyan
-    $k = (Chiedi "Incolla qui la chiave").Trim()
+    $sec = Read-Host "  Incolla qui la chiave (non viene mostrata)" -AsSecureString
+    $k = ([Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec))).Trim()
     if (-not $k) { Avviso "Nessuna chiave: annullato"; return }
-    Set-Content -Path $BACKUP_KEY -Value $k -Encoding ASCII
-    (Get-Item $BACKUP_KEY -Force).Attributes = 'Hidden'
+    [IO.File]::WriteAllText($BACKUP_KEY, $k)
+    if (Test-Path $BACKUP_KEY) { Ok "Chiave salvata in $BACKUP_KEY (non verra' piu' chiesta)" } else { Avviso "Non riesco a salvare la chiave: la chiedero' di nuovo la prossima volta" }
   }
   $url = Leggi-Env 'VITE_SUPABASE_URL'; $anon = Leggi-Env 'VITE_SUPABASE_ANON_KEY'
   if (-not $url) { $url = "https://$PROGETTO_SB.supabase.co" }
-  $chiave = (Get-Content $BACKUP_KEY -Raw).Trim()
+  $chiave = if (Test-Path $BACKUP_KEY) { ([IO.File]::ReadAllText($BACKUP_KEY)).Trim() } else { $k }
   $h = @{ 'x-backup-key' = $chiave }; if ($anon) { $h['apikey'] = $anon }
   try { $r = Invoke-RestMethod -Method Post -Uri "$url/functions/v1/backup-dati" -Headers $h -ContentType 'application/json' -Body '{"azione":"elenco-pc"}' -TimeoutSec 120 }
   catch {
     if ($Silenzioso) { Avviso "Backup database: copie non scaricate ($($_.Exception.Message))"; return }
     Errore "Impossibile leggere l'elenco dei backup: $($_.Exception.Message)"
-    if ("$($_.Exception.Message)" -match '403') { Avviso "Chiave non valida: la cancello, riprova con la voce 9."; Remove-Item $BACKUP_KEY -Force }
+    if ("$($_.Exception.Message)" -match '403') { Avviso "Chiave non valida: la cancello, riprova con la voce 9."; Remove-Item $BACKUP_KEY -Force -ErrorAction SilentlyContinue }
     return
   }
   $nuove = 0
