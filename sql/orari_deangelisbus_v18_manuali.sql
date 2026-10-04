@@ -25,9 +25,10 @@ grant select, insert, update, delete on manuali to authenticated;
 
 
 
+
 insert into manuali (slug, titolo, categoria, ordine, contenuto) values ('manuale-gestionale', 'Manuale del Gestionale', 'manuale', 1, $md$# Manuale del Gestionale Deangelisbus
 
-Versione 5.0 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
+Versione 5.1 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
 
 ## 1. Introduzione
 
@@ -63,17 +64,24 @@ La dashboard è la schermata principale; il menu laterale porta a tutte le sezio
 
 La ricerca trova cognome dell'autista, targa, nome del committente, numero del foglio o del preventivo e oggetto del servizio.
 
+**Ricerca nel menu (Ctrl+K)**
+
+1. In cima al menu laterale c'è il campo **Cerca nel menu**; da qualsiasi pagina ci si arriva con **Ctrl+K** (sul telefono si apre anche il menu).
+2. Scrivendo, il menu mostra solo le voci che corrispondono (es. "fer" mostra Richieste Ferie, Gestione Ferie, Fermate); si può cercare anche il nome di un gruppo, es. "app orari". Accenti e maiuscole non contano.
+3. **Invio** apre la prima voce trovata; **Esc** o la ✕ tornano al menu completo.
+
+In fondo al menu, sempre visibili, ci sono i pulsanti **App Autista** e **App Orari** (quest'ultimo apre l'app dei passeggeri in una nuova scheda).
+
 **Aree del menu**
 
 | Area | Sezioni |
 | --- | --- |
-| Autisti e turni | Autisti, Presenze, Richieste, Report autista, Calendario turni, Carica turni, Turni TPL, Turni ricorrenti, Planning turni, Riposi, Gestione ferie, Scadenze autisti |
-| Veicoli e operatività | Veicoli, Rifornimenti, Carichi serbatoio, Manutenzioni, Anomalie, Report veicolo, Fogli di viaggio, Archivio |
-| Commerciale | Committenti, Preventivi, Fatture proforma, Feedback clienti, Biglietti, Report incassi, Noleggi |
-| Amministrazione | Scadenzario, Report ed export, Statistiche, Impostazioni |
-| Comunicazioni | Chat, notifiche agli autisti |
-| App Orari | Linee e orari, Novità, Notifiche, Richieste preventivo, Segnalazioni, Territorio, Foto, Fermate |
-| Manuali e operatività | Manuali e procedure operative |
+| Autisti e turni | Carica turni, Calendario turni, Turni ricorrenti, Turni TPL, Planning turni, Presenze, Registri settimanali, Autisti, Richieste ferie, Report autista, Report ed export, Archivio registri, Riposi e conformità, Gestione ferie |
+| Veicoli e operatività | Veicoli, Manutenzioni, Report veicolo, Km veicoli, Fogli di viaggio, Fogli viaggio CRM, Archivio fogli, Rifornimenti, Registro rifornimenti, Carichi serbatoio, Checklist veicoli, Anomalie veicoli |
+| Commerciale e fatturazione | Committenti, Noleggi, Preventivi, Fatture proforma, Biglietti TPL, Report incassi |
+| Report e comunicazioni | **ANAV: circolari e news**, Statistiche, Chat aziendale, Scadenze autisti, Feedback clienti, Scadenzario |
+| App Orari | Linee e orari, Novità app, Notifiche app, Richieste preventivo, Segnalazioni app, Territorio: cosa mangiare, Foto: in giro con noi, Fermate: posizione |
+| Strumenti | Manuali e operatività, Backup e ripristino, Impostazioni |
 
 ## 3. Turni
 
@@ -255,6 +263,18 @@ Gli autisti registrano le vendite per comune e tipo di biglietto; **Report incas
 
 **Notifiche push agli autisti**: ogni messaggio, turno assegnato, foglio di viaggio e risposta a una richiesta genera una notifica sul telefono dell'autista, anche ad app chiusa. Ogni autista riceve le notifiche su un solo telefono: l'ultimo da cui ha fatto l'accesso.
 
+**ANAV: circolari e news** (prima voce di Report e comunicazioni)
+
+Ogni mattina alle 8:30 il gestionale legge dal sito dell'ANAV le nuove **circolari** e **news** (numero, data, protocollo, titolo, collegamento): solo i dati pubblici, il testo resta nell'area riservata agli associati. Un **pallino rosso** sulla voce del menu indica quante sono da leggere.
+
+1. Apri la pagina: filtri **Da leggere**, **Circolari**, **News**, **Tutte** e ricerca (es. "accise", "TFR"); **Aggiorna da ANAV** legge subito le novità.
+2. **Apri su ANAV** porta alla circolare sul sito: si entra con il login dell'azienda.
+3. Il cerchio a sinistra segna la voce come **letta** (con chi e quando); **Segna tutte come lette** per svuotare l'elenco.
+4. In **Dettagli**: **Carica il PDF della circolare** (scaricato dall'area riservata) e **Riassunto AI**, che spiega cosa dice, cosa deve fare l'azienda, entro quando e se ci riguarda; la data trovata viene proposta per la scadenza.
+5. **Crea scadenza** inserisce la circolare nello **Scadenzario** con l'avviso nei giorni scelti; **Note interne** per annotare a chi è stata girata o cosa si è fatto.
+
+Il riassunto AI usa la chiave `ANTHROPIC_API_KEY` salvata nei Secrets di Supabase; tutto il resto funziona anche senza.
+
 ## 11. Report, export e impostazioni
 
 - **Report autista**: export in Excel separati per autista, **PRESENZE1** (tutti gli autisti in un file) e **CSV consulente**. Il calcolo delle indennità TPL/NCC usa gli orari effettivi se inseriti, altrimenti quelli programmati.
@@ -289,6 +309,7 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | Noleggi | File Excel su Google Drive | Pulsante Sincronizza da Drive |
 | Km dei veicoli | Export di Golia nella cartella Drive "Golia – Export" | Ogni giorno |
 | Avvisi dello Scadenzario | Scadenze inserite | Ogni giorno |
+| Circolari e news ANAV | Sito anav.it (dati pubblici) | Ogni mattina alle 8:30, oppure Aggiorna da ANAV |
 
 ## 15. Problemi frequenti
 
@@ -306,6 +327,9 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | Il caricamento turni rifiuta il file | Il PDF deve avere il testo selezionabile, non essere una scansione o una foto |
 | Upload foto scontrino fallisce | Controlla la connessione; foto JPG/PNG sotto i 5 MB |
 | Il gestionale non salva | L'utente non è amministratore |
+| ANAV: "0 elementi letti dal sito" | Il sito ANAV ha cambiato struttura o non risponde: riprovare più tardi e, se persiste, segnalarlo a chi segue la parte tecnica |
+| ANAV: il riassunto AI dà errore | Manca o è scaduta la chiave ANTHROPIC_API_KEY nei Secrets di Supabase, oppure il PDF non è stato caricato |
+| Non trovo una pagina nel menu | Ctrl+K e scrivere parte del nome |
 
 ## 16. Requisiti tecnici
 
@@ -728,7 +752,7 @@ La card verde con il logo Ridola porta al sito ridolaviaggi.com, dove sono pubbl
 
 ## 8. Gestione dal gestionale
 
-Nel menu del gestionale, sezione App Orari, ci sono otto pagine; ogni modifica salvata compare nell'app alla riapertura successiva, senza pubblicare nulla. Servono le credenziali di amministratore.
+Nel menu del gestionale, gruppo **App Orari**, ci sono otto pagine; ogni modifica salvata compare nell'app alla riapertura successiva, senza pubblicare nulla. Servono le credenziali di amministratore. Il pulsante **App Orari** in fondo al menu apre l'app dei passeggeri in una nuova scheda, per controllare subito il risultato; **Ctrl+K** cerca una pagina per nome.
 
 | Pagina del gestionale | Cosa gestisce | Effetto nell'app |
 | --- | --- | --- |
@@ -852,7 +876,7 @@ Linee, fermate, percorsi, corse e calendario si gestiscono dal gestionale, pagin
 2. **Vacanze scolastiche**: Linee e orari → Calendario → Sospensioni, "solo corse scolastiche", per tutte le linee. Le corse "solo giorni di scuola" spariscono in quei giorni.
 3. **Nuovi orari di un servizio**: dalla pagina Linee e orari (8.7). Per un orario lungo da PDF o Excel conviene farsi preparare il file SQL e incollarlo nello SQL Editor, come per lo scolastico di Grottole.
 
-**File SQL già eseguiti** (cartella `orari-deangelisbus\sql`, nell'ordine): v1 dati Cotrab, v2 servizi e calendario, v3 nuovi servizi, v4 colori e preventivi, v5 email, v6 novità, v7 permessi gestionale, v8 collegamento noleggi, v9 navetta e segnalazioni, v10 preventivo come il sito, v11 viaggi (non usata), v12 scolastico Grottole, v13 navetta corse 3 e 5, v14 navetta mesi alterni, v15 cosa mangiare, v16 foto, v17 notifiche push, v18 manuali. Si possono rieseguire senza danni.
+**File SQL già eseguiti** (cartella `orari-deangelisbus\sql`, nell'ordine): v1 dati Cotrab, v2 servizi e calendario, v3 nuovi servizi, v4 colori e preventivi, v5 email, v6 novità, v7 permessi gestionale, v8 collegamento noleggi, v9 navetta e segnalazioni, v10 preventivo come il sito, v11 viaggi (non usata), v12 scolastico Grottole, v13 navetta corse 3 e 5, v14 navetta mesi alterni, v15 cosa mangiare, v16 foto, v17 notifiche push, v18 manuali, v19 backup, v20 struttura nei backup, v21 circolari ANAV. Si possono rieseguire senza danni.
 
 ## 10. Pubblicazione e manutenzione
 
@@ -968,7 +992,7 @@ on conflict (slug) do nothing;
 -- le procedure di Operatività non vengono toccate).
 update manuali set titolo = 'Manuale del Gestionale', contenuto = $md$# Manuale del Gestionale Deangelisbus
 
-Versione 5.0 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
+Versione 5.1 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
 
 ## 1. Introduzione
 
@@ -1004,17 +1028,24 @@ La dashboard è la schermata principale; il menu laterale porta a tutte le sezio
 
 La ricerca trova cognome dell'autista, targa, nome del committente, numero del foglio o del preventivo e oggetto del servizio.
 
+**Ricerca nel menu (Ctrl+K)**
+
+1. In cima al menu laterale c'è il campo **Cerca nel menu**; da qualsiasi pagina ci si arriva con **Ctrl+K** (sul telefono si apre anche il menu).
+2. Scrivendo, il menu mostra solo le voci che corrispondono (es. "fer" mostra Richieste Ferie, Gestione Ferie, Fermate); si può cercare anche il nome di un gruppo, es. "app orari". Accenti e maiuscole non contano.
+3. **Invio** apre la prima voce trovata; **Esc** o la ✕ tornano al menu completo.
+
+In fondo al menu, sempre visibili, ci sono i pulsanti **App Autista** e **App Orari** (quest'ultimo apre l'app dei passeggeri in una nuova scheda).
+
 **Aree del menu**
 
 | Area | Sezioni |
 | --- | --- |
-| Autisti e turni | Autisti, Presenze, Richieste, Report autista, Calendario turni, Carica turni, Turni TPL, Turni ricorrenti, Planning turni, Riposi, Gestione ferie, Scadenze autisti |
-| Veicoli e operatività | Veicoli, Rifornimenti, Carichi serbatoio, Manutenzioni, Anomalie, Report veicolo, Fogli di viaggio, Archivio |
-| Commerciale | Committenti, Preventivi, Fatture proforma, Feedback clienti, Biglietti, Report incassi, Noleggi |
-| Amministrazione | Scadenzario, Report ed export, Statistiche, Impostazioni |
-| Comunicazioni | Chat, notifiche agli autisti |
-| App Orari | Linee e orari, Novità, Notifiche, Richieste preventivo, Segnalazioni, Territorio, Foto, Fermate |
-| Manuali e operatività | Manuali e procedure operative |
+| Autisti e turni | Carica turni, Calendario turni, Turni ricorrenti, Turni TPL, Planning turni, Presenze, Registri settimanali, Autisti, Richieste ferie, Report autista, Report ed export, Archivio registri, Riposi e conformità, Gestione ferie |
+| Veicoli e operatività | Veicoli, Manutenzioni, Report veicolo, Km veicoli, Fogli di viaggio, Fogli viaggio CRM, Archivio fogli, Rifornimenti, Registro rifornimenti, Carichi serbatoio, Checklist veicoli, Anomalie veicoli |
+| Commerciale e fatturazione | Committenti, Noleggi, Preventivi, Fatture proforma, Biglietti TPL, Report incassi |
+| Report e comunicazioni | **ANAV: circolari e news**, Statistiche, Chat aziendale, Scadenze autisti, Feedback clienti, Scadenzario |
+| App Orari | Linee e orari, Novità app, Notifiche app, Richieste preventivo, Segnalazioni app, Territorio: cosa mangiare, Foto: in giro con noi, Fermate: posizione |
+| Strumenti | Manuali e operatività, Backup e ripristino, Impostazioni |
 
 ## 3. Turni
 
@@ -1196,6 +1227,18 @@ Gli autisti registrano le vendite per comune e tipo di biglietto; **Report incas
 
 **Notifiche push agli autisti**: ogni messaggio, turno assegnato, foglio di viaggio e risposta a una richiesta genera una notifica sul telefono dell'autista, anche ad app chiusa. Ogni autista riceve le notifiche su un solo telefono: l'ultimo da cui ha fatto l'accesso.
 
+**ANAV: circolari e news** (prima voce di Report e comunicazioni)
+
+Ogni mattina alle 8:30 il gestionale legge dal sito dell'ANAV le nuove **circolari** e **news** (numero, data, protocollo, titolo, collegamento): solo i dati pubblici, il testo resta nell'area riservata agli associati. Un **pallino rosso** sulla voce del menu indica quante sono da leggere.
+
+1. Apri la pagina: filtri **Da leggere**, **Circolari**, **News**, **Tutte** e ricerca (es. "accise", "TFR"); **Aggiorna da ANAV** legge subito le novità.
+2. **Apri su ANAV** porta alla circolare sul sito: si entra con il login dell'azienda.
+3. Il cerchio a sinistra segna la voce come **letta** (con chi e quando); **Segna tutte come lette** per svuotare l'elenco.
+4. In **Dettagli**: **Carica il PDF della circolare** (scaricato dall'area riservata) e **Riassunto AI**, che spiega cosa dice, cosa deve fare l'azienda, entro quando e se ci riguarda; la data trovata viene proposta per la scadenza.
+5. **Crea scadenza** inserisce la circolare nello **Scadenzario** con l'avviso nei giorni scelti; **Note interne** per annotare a chi è stata girata o cosa si è fatto.
+
+Il riassunto AI usa la chiave `ANTHROPIC_API_KEY` salvata nei Secrets di Supabase; tutto il resto funziona anche senza.
+
 ## 11. Report, export e impostazioni
 
 - **Report autista**: export in Excel separati per autista, **PRESENZE1** (tutti gli autisti in un file) e **CSV consulente**. Il calcolo delle indennità TPL/NCC usa gli orari effettivi se inseriti, altrimenti quelli programmati.
@@ -1230,6 +1273,7 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | Noleggi | File Excel su Google Drive | Pulsante Sincronizza da Drive |
 | Km dei veicoli | Export di Golia nella cartella Drive "Golia – Export" | Ogni giorno |
 | Avvisi dello Scadenzario | Scadenze inserite | Ogni giorno |
+| Circolari e news ANAV | Sito anav.it (dati pubblici) | Ogni mattina alle 8:30, oppure Aggiorna da ANAV |
 
 ## 15. Problemi frequenti
 
@@ -1247,6 +1291,9 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | Il caricamento turni rifiuta il file | Il PDF deve avere il testo selezionabile, non essere una scansione o una foto |
 | Upload foto scontrino fallisce | Controlla la connessione; foto JPG/PNG sotto i 5 MB |
 | Il gestionale non salva | L'utente non è amministratore |
+| ANAV: "0 elementi letti dal sito" | Il sito ANAV ha cambiato struttura o non risponde: riprovare più tardi e, se persiste, segnalarlo a chi segue la parte tecnica |
+| ANAV: il riassunto AI dà errore | Manca o è scaduta la chiave ANTHROPIC_API_KEY nei Secrets di Supabase, oppure il PDF non è stato caricato |
+| Non trovo una pagina nel menu | Ctrl+K e scrivere parte del nome |
 
 ## 16. Requisiti tecnici
 
@@ -1667,7 +1714,7 @@ La card verde con il logo Ridola porta al sito ridolaviaggi.com, dove sono pubbl
 
 ## 8. Gestione dal gestionale
 
-Nel menu del gestionale, sezione App Orari, ci sono otto pagine; ogni modifica salvata compare nell'app alla riapertura successiva, senza pubblicare nulla. Servono le credenziali di amministratore.
+Nel menu del gestionale, gruppo **App Orari**, ci sono otto pagine; ogni modifica salvata compare nell'app alla riapertura successiva, senza pubblicare nulla. Servono le credenziali di amministratore. Il pulsante **App Orari** in fondo al menu apre l'app dei passeggeri in una nuova scheda, per controllare subito il risultato; **Ctrl+K** cerca una pagina per nome.
 
 | Pagina del gestionale | Cosa gestisce | Effetto nell'app |
 | --- | --- | --- |
@@ -1791,7 +1838,7 @@ Linee, fermate, percorsi, corse e calendario si gestiscono dal gestionale, pagin
 2. **Vacanze scolastiche**: Linee e orari → Calendario → Sospensioni, "solo corse scolastiche", per tutte le linee. Le corse "solo giorni di scuola" spariscono in quei giorni.
 3. **Nuovi orari di un servizio**: dalla pagina Linee e orari (8.7). Per un orario lungo da PDF o Excel conviene farsi preparare il file SQL e incollarlo nello SQL Editor, come per lo scolastico di Grottole.
 
-**File SQL già eseguiti** (cartella `orari-deangelisbus\sql`, nell'ordine): v1 dati Cotrab, v2 servizi e calendario, v3 nuovi servizi, v4 colori e preventivi, v5 email, v6 novità, v7 permessi gestionale, v8 collegamento noleggi, v9 navetta e segnalazioni, v10 preventivo come il sito, v11 viaggi (non usata), v12 scolastico Grottole, v13 navetta corse 3 e 5, v14 navetta mesi alterni, v15 cosa mangiare, v16 foto, v17 notifiche push, v18 manuali. Si possono rieseguire senza danni.
+**File SQL già eseguiti** (cartella `orari-deangelisbus\sql`, nell'ordine): v1 dati Cotrab, v2 servizi e calendario, v3 nuovi servizi, v4 colori e preventivi, v5 email, v6 novità, v7 permessi gestionale, v8 collegamento noleggi, v9 navetta e segnalazioni, v10 preventivo come il sito, v11 viaggi (non usata), v12 scolastico Grottole, v13 navetta corse 3 e 5, v14 navetta mesi alterni, v15 cosa mangiare, v16 foto, v17 notifiche push, v18 manuali, v19 backup, v20 struttura nei backup, v21 circolari ANAV. Si possono rieseguire senza danni.
 
 ## 10. Pubblicazione e manutenzione
 
