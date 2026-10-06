@@ -12,7 +12,7 @@ import CardRidola from '../components/CardRidola';
 import CardTerritorio from '../components/CardTerritorio';
 import CondividiApp from '../components/CondividiApp';
 import { fotoOrdinate, urlFoto } from '../lib/foto';
-import LinkBiglietti from '../components/LinkBiglietti';
+import CardBiglietterie from '../components/CardBiglietterie';
 import LinkSito from '../components/LinkSito';
 import SchedaNovita from '../components/SchedaNovita';
 import Testata from '../components/Testata';
@@ -49,7 +49,7 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
 
   return (
     <>
-      <Testata titolo="Orari e servizi" conLogo>
+      <Testata titolo="Deangelisbus S.r.l." sotto="Insieme in viaggio" conLogo>
         {(Capacitor.isNativePlatform() || installataWeb) && (
           <button className="esci" onClick={esci} aria-label="Esci dall'app">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 17l5-5-5-5M20 12H9M12 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" /></svg>
@@ -159,14 +159,12 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
         </li>
       </ul>
 
-      <LinkBiglietti compatto />
+      <CardBiglietterie />
 
       <button className="card-segnala" onClick={() => nav.apri({ tipo: 'segnalazione' })}>
-        <strong>Feedback, reclami e segnalazioni</strong>
-        <span>Un ritardo, un problema a bordo o un suggerimento? Scrivici.</span>
+        <strong>Scrivici</strong>
+        <span>Per eventuali reclami, segnalazioni e consigli che possano migliorare il nostro servizio.</span>
       </button>
-
-      <CardTerritorio onApri={() => nav.apri({ tipo: 'territorio' })} />
 
       <CardPreventivo onApri={() => nav.apri({ tipo: 'preventivo' })} />
 
@@ -195,6 +193,7 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
         <svg className="freccia-esterna" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>
       </a>
       <LinkSito />
+      <CardTerritorio onApri={() => nav.apri({ tipo: 'territorio' })} />
       <CondividiApp />
       <Installa />
     </>

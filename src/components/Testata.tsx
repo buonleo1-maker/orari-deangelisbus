@@ -19,7 +19,7 @@ export default function Testata({ titolo, sotto, onIndietro, colore, children, c
           <>
             <h1 className="nascosto">{titolo}</h1>
             <Logo variante="chiaro" />
-            <p>{titolo}</p>
+            <p className={sotto ? 'slogan' : undefined}>{sotto ?? titolo}</p>
           </>
         ) : (
           <>

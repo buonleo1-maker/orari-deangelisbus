@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'it.deangelisbus.orari',
-  appName: 'Orari De Angelis Bus',
+  appName: 'Deangelisbus S.r.l.',
   webDir: 'dist',
   android: {
     backgroundColor: '#020a5d',

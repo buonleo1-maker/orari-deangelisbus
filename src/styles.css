@@ -532,3 +532,25 @@ a.ridola .ridola-link { justify-self: start; }
 .notifiche-azioni button { padding: 9px 14px; border-radius: 10px; border: 1px solid var(--riga); background: var(--superficie); color: var(--inchiostro); font-weight: 700; }
 .notifiche-azioni button.pieno { background: var(--blu); color: #fff; border-color: var(--blu); }
 @media (prefers-color-scheme: dark) { .notifiche { border-color: var(--giallo); } .notifiche > svg { color: var(--giallo); } .notifiche-azioni button.pieno { background: var(--giallo); color: var(--blu); border-color: var(--giallo); } }
+
+/* Le nostre biglietterie */
+.card-biglietterie { margin: 14px 18px 12px; padding: 14px 16px 10px; background: var(--superficie); border: 2px solid var(--giallo); border-radius: 12px; color: var(--inchiostro); }
+.card-biglietterie h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-family: var(--cond); font-size: 1.3rem; color: var(--blu); }
+.card-biglietterie h2 svg { width: 28px; height: 28px; flex: none; }
+.card-biglietterie h3 { margin: 14px 0 4px; font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: var(--tenue); }
+.cb-online { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--giallo); color: var(--blu); border-radius: 10px; text-decoration: none; }
+.cb-online span { flex: 1; }
+.cb-online strong { display: block; font-family: var(--cond); font-size: 1.15rem; }
+.cb-online small { display: block; font-size: .85rem; }
+.cb-online svg { width: 22px; height: 22px; flex: none; }
+.card-biglietterie ul { list-style: none; margin: 0; padding: 0; }
+.card-biglietterie li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--riga); }
+.card-biglietterie li:last-child { border-bottom: 0; }
+.card-biglietterie li > span { flex: 1; }
+.card-biglietterie li strong { display: block; }
+.card-biglietterie li small { display: block; color: var(--tenue); font-size: .88rem; }
+.card-biglietterie li a { display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--riga); color: var(--blu); font-weight: 600; font-size: .9rem; text-decoration: none; }
+.card-biglietterie li a svg { width: 16px; height: 16px; }
+@media (prefers-color-scheme: dark) { .card-biglietterie h2, .card-biglietterie li a { color: var(--giallo); } }
+/* slogan sotto il logo */
+.testata.con-logo p.slogan { font-style: italic; letter-spacing: .3px; }

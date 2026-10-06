@@ -7,8 +7,8 @@ const LINK = 'https://orari.deangelisbus.it';
 export default function CondividiApp() {
   const [aperto, setAperto] = useState(false);
   const inviaLink = async () => {
-    const testo = 'Orari dei bus Deangelisbus sempre a portata di mano: apri il link e aggiungi l\u2019app alla schermata Home.';
-    if (navigator.share) { try { await navigator.share({ title: 'Orari Deangelisbus', text: testo, url: LINK }); } catch { /* annullato */ } return; }
+    const testo = 'L\u2019app Deangelisbus S.r.l. \u2013 Insieme in viaggio: orari, fermate e servizi sempre a portata di mano. Apri il link e aggiungi l\u2019app alla schermata Home.';
+    if (navigator.share) { try { await navigator.share({ title: 'Deangelisbus S.r.l.', text: testo, url: LINK }); } catch { /* annullato */ } return; }
     window.open(`https://wa.me/?text=${encodeURIComponent(`${testo} ${LINK}`)}`, '_blank');
   };
   return (
@@ -23,7 +23,7 @@ export default function CondividiApp() {
         <div className="qr-schermo" role="dialog" aria-modal="true" aria-label="QR code dell'app">
           <button className="qr-chiudi" onClick={() => setAperto(false)} aria-label="Chiudi">✕</button>
           <p className="qr-titolo">Inquadra con la fotocamera</p>
-          <img src={qr} alt="QR code per aprire l'app Orari Deangelisbus" />
+          <img src={qr} alt="QR code per aprire l'app Deangelisbus" />
           <p className="qr-link">orari.deangelisbus.it</p>
           <p className="qr-aiuto">Apri la fotocamera del telefono, punta il QR code e tocca il link che compare.</p>
           <button className="qr-invia" onClick={inviaLink}>Oppure invia il link (WhatsApp, SMS…)</button>
