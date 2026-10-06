@@ -1,7 +1,7 @@
 {
   "name": "Deangelisbus S.r.l. – Insieme in viaggio",
-  "short_name": "Deangelisbus",
-  "description": "Orari, fermate e tariffe dei servizi Deangelisbus S.r.l.",
+  "short_name": "Deangelisbus Insieme in viaggio",
+  "description": "Deangelisbus S.r.l. – Insieme in viaggio: orari, fermate, biglietterie e servizi.",
   "lang": "it",
   "start_url": "./",
   "scope": "./",
