@@ -1,12 +1,13 @@
 import { URL_BIGLIETTERIA } from '../lib/servizi';
 
 /** Le nostre biglietterie: online (Cotrab) e a terra (punti vendita sul territorio). */
+// "dove" compare sotto il nome; "cerca" e' il testo usato per la mappa
 const A_TERRA = [
-  { nome: 'Deangelisbus S.r.l.', paese: 'Grottole' },
-  { nome: 'Tabaccheria Faniello Antonio', paese: 'Miglionico' },
-  { nome: 'Bar Tabaccheria Speranza Francesco', paese: 'Grottole' },
+  { nome: 'Deangelisbus S.r.l.', dove: 'Via Arcioni, 6 – Grottole', cerca: 'Via Arcioni 6, 75010 Grottole MT' },
+  { nome: 'Tabaccheria Faniello Antonio', dove: 'Miglionico', cerca: 'Tabaccheria Faniello Antonio Miglionico MT' },
+  { nome: 'Bar Tabaccheria Speranza Francesco', dove: 'Grottole', cerca: 'Bar Tabaccheria Speranza Francesco Grottole MT' },
 ];
-const mappa = (nome: string, paese: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${nome} ${paese} MT`)}`;
+const mappa = (cerca: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cerca)}`;
 
 export default function CardBiglietterie() {
   return (
@@ -30,8 +31,8 @@ export default function CardBiglietterie() {
       <ul>
         {A_TERRA.map((b) => (
           <li key={b.nome}>
-            <span><strong>{b.nome}</strong><small>{b.paese}</small></span>
-            <a href={mappa(b.nome, b.paese)} target="_blank" rel="noreferrer" aria-label={`Indicazioni per ${b.nome}, ${b.paese}`}>
+            <span><strong>{b.nome}</strong><small>{b.dove}</small></span>
+            <a href={mappa(b.cerca)} target="_blank" rel="noreferrer" aria-label={`Indicazioni per ${b.nome}, ${b.dove}`}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 22s7-7.5 7-13a7 7 0 0 0-14 0c0 5.5 7 13 7 13zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" /></svg>
               Mappa
             </a>

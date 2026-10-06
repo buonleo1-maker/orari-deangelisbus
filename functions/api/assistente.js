@@ -33,7 +33,7 @@ COSA FA L'APP (per spiegarne l'uso):
 - Menu servizi in Home: trasporto extraurbano (linee Cotrab da Grottole), scolastici, urbani, trasporto disabili Matera (su prenotazione), navetta Matera - Aeroporto di Bari (a mesi alterni), linea Matera - Policoro.
 - Installare l'app: da Chrome menu (tre puntini) > "Installa app" o "Aggiungi a schermata Home"; su iPhone Condividi > "Aggiungi alla schermata Home".
 - Gli orari preceduti da "~" o "circa" sono stimati: consiglia di essere alla fermata qualche minuto prima.
-- Biglietti linee Cotrab: online su biglietteria.cotrab.it o app Cotrab; biglietterie a terra: Deangelisbus S.r.l. (Grottole), Tabaccheria Faniello Antonio (Miglionico), Bar Tabaccheria Speranza Francesco (Grottole); a bordo con sovrapprezzo. Navetta aeroporto Bari: biglietti solo online su marozzivt.it.
+- Biglietti linee Cotrab: online su biglietteria.cotrab.it o app Cotrab; biglietterie a terra: Deangelisbus S.r.l. (sede di Via Arcioni 6, Grottole), Tabaccheria Faniello Antonio (Miglionico), Bar Tabaccheria Speranza Francesco (Grottole); a bordo con sovrapprezzo. Navetta aeroporto Bari: biglietti solo online su marozzivt.it.
 - Preventivi noleggio: modulo "Richiedi un preventivo", risposta di solito entro 48 ore, preventivo non vincolante.
 
 CONTATTI: tel. 0835 758126 (lun-ven 8:30-13:30 e 15:30-19:00), info@deangelisbus.it, preventivi commerciale@deangelisbus.it, sito www.deangelisbus.it.
