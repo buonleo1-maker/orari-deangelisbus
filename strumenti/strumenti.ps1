@@ -19,6 +19,9 @@ $URL_GEST    = 'https://github.com/buonleo1-maker/deangelisbus-gestionale.git'
 $PROGETTO_SB = 'hmdpaypyljdgoehztbvi'
 $PAGES_ORARI = 'orari-deangelisbus'
 $PAGES_GEST  = 'amministrazione-deangelisbus-v2'
+$PAGES_AUTISTI = 'deangelisbussrl-app'   # app autisti: stessa versione del gestionale, ramo di produzione 'main'
+$env:GIT_MERGE_AUTOEDIT = 'no'           # le unioni non aprono la finestra della descrizione
+$BACKUP_DA_TENERE = 1                    # copie del database tenute su PC/chiavetta (online restano 30 giorni + una al mese)
 
 function Titolo($t) { Write-Host ''; Write-Host ('=' * 64) -ForegroundColor DarkCyan; Write-Host "  $t" -ForegroundColor Cyan; Write-Host ('=' * 64) -ForegroundColor DarkCyan }
 function Ok($t)     { Write-Host "  [OK] $t" -ForegroundColor Green }
@@ -150,7 +153,7 @@ function Aggiorna-Repo($cartella, $nome) {
   $prima = ($lock | ForEach-Object { (Get-FileHash $_.FullName).Hash }) -join ''
   $modifiche = git -C $cartella status --porcelain
   if ($modifiche) { Avviso "$nome ha modifiche non salvate: le salvo prima di aggiornare? (altrimenti il pull potrebbe fermarsi)"; if (SiNo "Salvo ora") { Salva-Repo $cartella $nome } }
-  git -C $cartella pull
+  git -C $cartella pull --no-edit
   if ($LASTEXITCODE -ne 0) { Errore "$nome - aggiornamento non riuscito: leggi il messaggio qui sopra"; return }
   $dopo = ($lock | ForEach-Object { (Get-FileHash $_.FullName).Hash }) -join ''
   if ($prima -ne $dopo) { Write-Host "  Librerie cambiate: reinstallo..."; foreach ($l in $lock) { Push-Location $l.DirectoryName; npm.cmd install --no-audit --no-fund; Pop-Location } }
@@ -204,6 +207,12 @@ function Pubblica($cartella, $nome, $progetto, $ramo) {
   if ($ramo) { npx.cmd wrangler pages deploy dist --project-name=$progetto --branch=$ramo --commit-dirty=true }
   else       { npx.cmd wrangler pages deploy dist --project-name=$progetto --commit-dirty=true }
   $esito = $LASTEXITCODE
+  if ($esito -eq 0 -and $progetto -eq $PAGES_GEST) {
+    # l'app autisti e' la stessa versione: la pubblico anche li', sul ramo di produzione
+    Write-Host "  Pubblico anche l'APP AUTISTI ($PAGES_AUTISTI)..." -ForegroundColor Cyan
+    npx.cmd wrangler pages deploy dist --project-name=$PAGES_AUTISTI --branch=main --commit-dirty=true
+    if ($LASTEXITCODE -eq 0) { Ok "APP AUTISTI pubblicata" } else { Errore "App autisti non pubblicata: leggi il messaggio qui sopra" }
+  }
   Pop-Location
   if ($esito -eq 0) { Ok "$nome pubblicato. Ricorda di salvare su GitHub (voce 3)." } else { Errore "Pubblicazione non riuscita: leggi il messaggio qui sopra" }
 }
@@ -294,19 +303,29 @@ function Scarica-Backup([switch]$Silenzioso) {
     return
   }
   $nuove = 0
-  foreach ($c in $r.copie) {
+  # solo le copie piu' recenti (le precedenti restano online su Supabase)
+  $tenere = @($r.copie | Sort-Object { [datetime]$_.creato_il } -Descending | Select-Object -First $BACKUP_DA_TENERE)
+  foreach ($c in $tenere) {
     $dest = Join-Path $BACKUP_DIR $c.file
     if ((Test-Path $dest) -and ((Get-Item $dest).Length -eq [int64]$c.dimensione)) { continue }
     try { Invoke-WebRequest -Uri $c.url -OutFile $dest -UseBasicParsing -TimeoutSec 300; $nuove++ } catch { Avviso "Non scaricato: $($c.file)" }
   }
-  foreach ($c in $r.copie) {   # struttura del database (file .sql) di ogni copia
+  foreach ($c in $tenere) {   # struttura del database (file .sql) delle copie tenute
     if (-not $c.struttura -or -not $c.struttura.url) { continue }
     $dest = Join-Path $BACKUP_DIR $c.struttura.file
     if (Test-Path $dest) { continue }
     try { Invoke-WebRequest -Uri $c.struttura.url -OutFile $dest -UseBasicParsing -TimeoutSec 120 } catch { Avviso "Non scaricato: $($c.struttura.file)" }
   }
+  # cancello dal PC/chiavetta le copie precedenti (solo se quella nuova c'e' davvero)
+  $daTenere = @($tenere | ForEach-Object { $_.file; if ($_.struttura) { $_.struttura.file } })
+  $presenti = @($tenere | Where-Object { Test-Path (Join-Path $BACKUP_DIR $_.file) })
+  $tolte = 0
+  if ($presenti.Count -eq $tenere.Count -and $tenere.Count -gt 0) {
+    Get-ChildItem $BACKUP_DIR -File | Where-Object { ($_.Name -like 'backup-*.json.gz' -or $_.Name -like 'struttura-*.sql') -and ($daTenere -notcontains $_.Name) } |
+      ForEach-Object { Remove-Item $_.FullName -Force; $tolte++ }
+  }
   $tot = (Get-ChildItem $BACKUP_DIR -Filter '*.json.gz' -ErrorAction SilentlyContinue).Count
-  Ok "Backup database: $nuove copie nuove scaricate, $tot copie in $BACKUP_DIR"
+  Ok "Backup database: $nuove copie nuove scaricate, $tolte file vecchi tolti, $tot copia in $BACKUP_DIR"
   if (-not $Silenzioso -and $r.copie.Count -gt 0) { Write-Host "  Ultima copia: $($r.copie[0].creato_il) ($([math]::Round($r.copie[0].dimensione/1KB)) KB)" }
 }
 
@@ -328,7 +347,7 @@ while ($true) {
   Write-Host "   2) Aggiorna tutto          (INIZIO lavoro: scarica le modifiche da GitHub)"
   Write-Host "   3) Salva tutto su GitHub   (FINE lavoro, prima di cambiare PC)"
   Write-Host "   4) Pubblica l'app Orari    (orari.deangelisbus.it)"
-  Write-Host "   5) Pubblica il gestionale  (amministrazione)"
+  Write-Host "   5) Pubblica il gestionale  (amministrazione + app autisti)"
   Write-Host "   6) Copia di sicurezza su chiavetta USB"
   Write-Host "   7) Controllo di questa postazione"
   Write-Host "   8) Crea collegamento sul Desktop"
