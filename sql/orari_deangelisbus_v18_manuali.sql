@@ -26,9 +26,11 @@ grant select, insert, update, delete on manuali to authenticated;
 
 
 
+
+
 insert into manuali (slug, titolo, categoria, ordine, contenuto) values ('manuale-gestionale', 'Manuale del Gestionale', 'manuale', 1, $md$# Manuale del Gestionale Deangelisbus
 
-Versione 5.1 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
+Versione 5.3 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
 
 ## 1. Introduzione
 
@@ -76,8 +78,8 @@ In fondo al menu, sempre visibili, ci sono i pulsanti **App Autista** e **App Or
 
 | Area | Sezioni |
 | --- | --- |
-| Autisti e turni | Carica turni, Calendario turni, Turni ricorrenti, Turni TPL, Planning turni, Presenze, Registri settimanali, Autisti, Richieste ferie, Report autista, Report ed export, Archivio registri, Riposi e conformità, Gestione ferie |
-| Veicoli e operatività | Veicoli, Manutenzioni, Report veicolo, Km veicoli, Fogli di viaggio, Fogli viaggio CRM, Archivio fogli, Rifornimenti, Registro rifornimenti, Carichi serbatoio, Checklist veicoli, Anomalie veicoli |
+| Autisti e turni | Carica turni (con archivio dei turni salvati), Calendario turni, Turni ricorrenti, Turni TPL, Planning turni, Presenze, Registri settimanali, Autisti, Richieste ferie, Report autista, Report ed export, Archivio registri, Riposi e conformità, Gestione ferie |
+| Veicoli e operatività | Veicoli, **Scadenze mezzi**, Manutenzioni, Report veicolo, Km veicoli, Fogli di viaggio, Fogli viaggio CRM, Archivio fogli, Rifornimenti, Registro rifornimenti, Carichi serbatoio, Checklist veicoli, Anomalie veicoli |
 | Commerciale e fatturazione | Committenti, Noleggi, Preventivi, Fatture proforma, Biglietti TPL, Report incassi |
 | Report e comunicazioni | **ANAV: circolari e news**, Statistiche, Chat aziendale, Scadenze autisti, Feedback clienti, Scadenzario |
 | App Orari | Linee e orari, Novità app, Notifiche app, Richieste preventivo, Segnalazioni app, Territorio: cosa mangiare, Foto: in giro con noi, Fermate: posizione |
@@ -95,12 +97,36 @@ In fondo al menu, sempre visibili, ci sono i pulsanti **App Autista** e **App Or
 
 I turni "Vuoto" (Disposizione, Garage, Scuole) non generano presenza e non compaiono nel report autista.
 
-### 3.2 Caricare i turni della settimana da file
+### 3.2 Carica turni: da file, griglia manuale, stampa, condivisione e archivio
 
-1. La Titolare prepara i turni in Word e li salva in **PDF** (2 pagine A4 orizzontali; la seconda pagina senza intestazione).
-2. Menu → **Carica turni** → carica il PDF. Il PDF deve avere il **testo selezionabile**: immagini, foto e screenshot vengono rifiutati.
-3. Controlla l'anteprima: verifica che i nomi degli autisti siano abbinati correttamente.
-4. **Importa**: i turni vengono salvati senza cancellare le presenze dei giorni passati, e ogni autista riceve la notifica del turno assegnato.
+La pagina **Carica turni** gestisce tutto il ciclo dei turni settimanali. I turni si possono caricare da un PDF oppure **creare direttamente nel gestionale**.
+
+**A. Da file PDF**
+
+1. Il foglio turni preparato in Word va salvato in **PDF** (2 pagine A4 orizzontali; la seconda senza intestazione). Il PDF deve avere il **testo selezionabile**: foto e screenshot vengono rifiutati (in Word: File → Salva con nome → PDF).
+2. Menu → **Carica turni** → carica il PDF e controlla l'anteprima, soprattutto l'abbinamento dei nomi degli autisti.
+3. **Salva e Assegna**.
+
+**B. Griglia manuale (senza Word)**
+
+1. **Inserimento manuale** → **Crea griglia**: scegli il periodo (o *Settimana prossima*) e, se vuoi, gli autisti.
+2. Clicca il **+** di una cella per aggiungere un turno: **Tipo**, **Descrizione** (si può scegliere dall'elenco dei turni già usati, che compila anche gli orari) e orari.
+3. Tipi disponibili: **TPL** (compreso lo scalo), **NCC**, **ALTRO** (disposizione, garage, manutenzione), **RIPOSO**, **FERIE**, **PERMESSO**, **MALATTIA**, **INFORTUNIO**, **FESTIVO**. Per RIPOSO, FERIE e simili la descrizione può restare vuota: nella casella compare il tipo. Per TPL, NCC e ALTRO la descrizione è obbligatoria.
+4. Senza orari il turno viene salvato 06:00–14:00, come nel caricamento da PDF.
+5. Strumenti della griglia: **Copia dal giorno precedente**, **Ripeti nei giorni successivi ancora vuoti**, **Copia questo turno** e incolla con un clic su altre celle.
+6. **Salva e Assegna**.
+
+**Salva e Assegna** salva i turni e crea le presenze, senza cancellare le presenze dei giorni passati; gli autisti con turni nuovi o modificati ricevono la notifica (chi non ha attivato le notifiche sul telefono non la riceve, e non è un errore). Dopo il salvataggio, ogni correzione nella griglia riattiva il pulsante.
+
+**C. Stampa e condivisione**
+
+- **Stampa PDF**: crea il foglio **Turno di lavoro** come il modello (intestazione, Mod. 02 MOV PR 01, tabella degli autisti, seconda pagina con Nobile, De Ruvo, Masellis ed Eramo). Chiede il numero della settimana, già proposto secondo la numerazione aziendale. Il foglio mostra **tutti i giorni**, anche quelli senza turni (riquadri vuoti), e almeno 5 colonne. Nella finestra di stampa: **Salva come PDF**, orientamento **Orizzontale**.
+- **Condividi**: crea il PDF del foglio e apre la condivisione del telefono o del PC: **WhatsApp** → gruppo. Dove la condivisione diretta non è possibile, il PDF viene scaricato, pronto da allegare.
+
+**D. Turni salvati e archivio**
+
+- **Apri turni salvati** (nel riquadro Inserimento manuale): scegli le date e la griglia mostra i turni come sono salvati nel database.
+- **Archivio turni salvati** → **Apri archivio**: elenco delle settimane salvate (ultime 16 e prossime 8) con numero di settimana, periodo, numero di turni e autisti e **ultima modifica**. **Apri** porta direttamente alla griglia di quella settimana, con le ultime correzioni: da lì si può correggere, salvare, stampare e condividere.
 
 ### 3.3 Turni TPL e turni ricorrenti
 
@@ -187,6 +213,20 @@ I fogli di viaggio del CRM vtenext vengono sincronizzati nel gestionale in sola 
 - **Km da Golia**: le letture dei km arrivano ogni giorno dagli export del portale Golia (cartella Drive "Golia – Export").
 - Veicoli, rifornimenti, carichi serbatoio e manutenzioni del CRM vtenext si sincronizzano ogni notte.
 
+### 6.1 Scadenze mezzi e verifica sul Portale
+
+La pagina **Scadenze mezzi** (Veicoli e operatività) riunisce revisioni, polizze e tutte le scadenze della flotta.
+
+1. In alto: revisioni **scadute o senza data**, revisioni **entro 60 giorni**, **polizze scadute o senza data** e mezzi **dismessi** (nascosti).
+2. Filtri: **Revisioni da fare (60 gg)** (si apre per primo), **Polizze da verificare**, **Qualsiasi scadenza scaduta**, **Tutti i mezzi**; ricerca per targa, nome o tipologia; **mostra dismessi**. Colori: rosso scaduta, arancione entro 60 giorni, verde in regola.
+3. **Revisione → Verifica sul Portale**: copia la targa e apre il servizio ufficiale *Verifica revisioni effettuate* del Portale dell'Automobilista (gratuito, senza credenziali). Se la pagina resta bianca premere **F5**. Scegliere **Autoveicolo**, incollare la targa con **Ctrl+V**, inserire il codice di sicurezza e leggere la data dell'ultima revisione; nel gestionale scriverla accanto al mezzo e premere **Registra**: la scadenza (ultima revisione + 1 anno, revisione annuale per autobus e mezzi a noleggio) si calcola da sola.
+4. **Polizza RCA → Verifica RCA**: stesso procedimento con il servizio *Verifica copertura RCA* (Veicolo, Autoveicolo, targa, codice, Ricerca): mostra compagnia e scadenza; scrivere la scadenza e premere **Registra**. Se il risultato è vuoto subito dopo un rinnovo, chiedere conferma alla compagnia o al broker.
+5. **Tutte le scadenze**: modulo con tutte le date del mezzo (revisione, polizza, bollo, tachigrafo, scarico, estintore, ZTL, FL) da modificare e salvare insieme; da qui anche **Segna come dismesso** (o **Rimetti in flotta**).
+
+Il codice di sicurezza del Portale impedisce le verifiche automatiche: il controllo va fatto da una persona, circa 30 secondi per targa. La revisione vale fino alla fine del mese di scadenza; se il Portale conferma una revisione scaduta, **il mezzo non deve circolare** finché non viene revisionato.
+
+Le scadenze dei mezzi si gestiscono **solo nel gestionale**: il CRM serve unicamente fino alla messa a regime e non va aggiornato. Ogni data salvata entra da sola nello **Scadenzario** (capitolo 9).
+
 ## 7. Autisti
 
 **Creare un autista**
@@ -249,9 +289,11 @@ Gli autisti registrano le vendite per comune e tipo di biglietto; **Report incas
 
 ## 9. Scadenzario
 
-1. Menu → **Scadenzario** → nuova scadenza: categoria (fiscale, gara, assicurazione, contratto, altro), data, giorni di preavviso, eventuale ricorrenza, responsabile.
-2. Le scadenze in arrivo vengono segnalate ogni giorno in automatico.
+1. Menu → **Scadenzario** → nuova scadenza: categoria (fiscale, gara, assicurazione, contratto, **mezzi**, altro), data, giorni di preavviso, eventuale ricorrenza, responsabile.
+2. Ogni giorno le scadenze **da fare** o **in corso** che entrano nei giorni di preavviso (o già superate) generano **una** notifica nella campanella del gestionale.
 3. A cosa fatta, aggiorna lo stato.
+
+**Scadenze dei mezzi.** Revisione, polizza, bollo, tachigrafo, scarico scheda, estintore, ZTL e FL di ogni mezzo entrano **da sole** nello Scadenzario, categoria **Mezzi** (es. "Revisione – GV266ML"), con 30 giorni di preavviso (15 per bollo, scarico, ZTL e FL). Quando una data viene rinnovata in Scadenze mezzi, la voce si aggiorna e torna "da fare", così l'avviso riparte per la scadenza successiva. I mezzi dismessi o esclusi dagli avvisi spariscono dallo Scadenzario. Le scadenze delle circolari ANAV entrano con **Crea scadenza** (capitolo 10).
 
 ## 10. Comunicazioni
 
@@ -297,7 +339,7 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 
 ## 13. App Orari e Manuali
 
-- **App Orari**: le otto pagine (Linee e orari, Novità app, Notifiche app, Richieste preventivo, Segnalazioni app, Territorio: cosa mangiare, Foto: in giro con noi, Fermate: posizione) sono descritte nel **Manuale App Orari**.
+- **App Orari**: l'app dei passeggeri si chiama **Deangelisbus S.r.l. – Insieme in viaggio** (orari.deangelisbus.it). Le otto pagine (Linee e orari, Novità app, Notifiche app, Richieste preventivo, Segnalazioni app, Territorio: cosa mangiare, Foto: in giro con noi, Fermate: posizione) sono descritte nel **Manuale App Orari**.
 - **Manuali e operatività**: questa sezione. Gli amministratori possono modificare i manuali (**Modifica**, con anteprima) e aggiungere procedure operative (**Nuovo documento**); **Stampa / PDF** stampa il documento aperto.
 
 ## 14. Sincronizzazioni automatiche
@@ -330,6 +372,7 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | ANAV: "0 elementi letti dal sito" | Il sito ANAV ha cambiato struttura o non risponde: riprovare più tardi e, se persiste, segnalarlo a chi segue la parte tecnica |
 | ANAV: il riassunto AI dà errore | Manca o è scaduta la chiave ANTHROPIC_API_KEY nei Secrets di Supabase, oppure il PDF non è stato caricato |
 | Non trovo una pagina nel menu | Ctrl+K e scrivere parte del nome |
+| La verifica revisioni del Portale resta bianca | Premere F5; se non basta, finestra in incognito o altro browser, oppure l'app iPatente |
 
 ## 16. Requisiti tecnici
 
@@ -340,7 +383,7 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | Connessione | Necessaria per tutte le funzioni |
 | Tecnologia | React + TypeScript + Vite, database Supabase (PostgreSQL), Cloudflare Pages, notifiche Firebase, email Resend, assistente Claude (Anthropic), app Android con Capacitor |
 
-Aggiornamenti e pubblicazione si fanno dal **menu Strumenti**: sempre voce 2 all'inizio, voce 3 alla fine, e voce 2 prima della voce 5 (pubblica il gestionale).
+Aggiornamenti e pubblicazione si fanno dal **menu Strumenti**: sempre voce 2 all'inizio, voce 3 alla fine, e voce 2 prima della voce 5. La **voce 5** pubblica insieme il gestionale e l'**app autisti** (stessa versione, due indirizzi).
 
 ## 17. Backup e ripristino
 
@@ -362,7 +405,7 @@ Tutti i dati del gestionale (turni, presenze, ferie, autisti, veicoli, noleggi, 
 
 **Copie in nostro possesso, fuori da internet**
 
-Il menu Strumenti scarica le copie sul PC e sulla chiavetta, nella cartella **BACKUP-DATABASE**: in automatico con la voce 2 (Aggiorna tutto) e quando si apre il menu dalla chiavetta, oppure a mano con la voce **9**. La prima volta su ogni postazione la voce 9 chiede la chiave dei backup, che si legge su Supabase (SQL Editor) con: `select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';`
+Il menu Strumenti scarica la copia **più recente** sul PC e sulla chiavetta, nella cartella **BACKUP-DATABASE**, e toglie le precedenti (solo dopo aver verificato che quella nuova sia arrivata), così il disco non si riempie: in automatico con la voce 2 (Aggiorna tutto) e quando si apre il menu dalla chiavetta, oppure a mano con la voce **9**. Tutte le copie restano comunque online su Supabase. La prima volta su ogni postazione la voce 9 chiede la chiave dei backup, che si legge su Supabase (SQL Editor) con: `select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';`
 
 I file sono in formato aperto (JSON compresso): anche senza il gestionale si possono aprire e i dati restano leggibili. Insieme a ogni copia viene salvata anche la **struttura del database** (file `struttura-….sql`), che serve a ricostruirlo da zero (capitolo 18). Le foto (galleria, scontrini) sono conservate a parte nello spazio file e non fanno parte di questo backup.
 
@@ -374,7 +417,7 @@ I dati non vivono sul PC né sulla chiavetta: stanno nel database su internet (S
 | --- | --- |
 | Supabase (database) | Tutti i dati, sempre aggiornati |
 | Supabase (spazio privato "backup") | Copie complete: ultimi 30 giorni e una per mese, per sempre |
-| PC e chiavetta, cartella BACKUP-DATABASE | Le stesse copie, scaricate dal menu Strumenti |
+| PC e chiavetta, cartella BACKUP-DATABASE | La copia più recente, scaricata dal menu Strumenti |
 | GitHub | Il codice del gestionale e dell'app Orari |
 | Cloudflare | Gestionale e app pubblicati online |
 
@@ -553,11 +596,11 @@ Per qualsiasi problema contatta l'ufficio — De Angelis Bus S.r.l., Grottole (M
 $md$)
 on conflict (slug) do nothing;
 
-insert into manuali (slug, titolo, categoria, ordine, contenuto) values ('manuale-app-orari', 'Manuale App Orari', 'manuale', 3, $md$# Manuale App Orari Deangelisbus
+insert into manuali (slug, titolo, categoria, ordine, contenuto) values ('manuale-app-orari', 'Manuale App Deangelisbus – Insieme in viaggio', 'manuale', 3, $md$# Manuale App Deangelisbus S.r.l. – Insieme in viaggio
 
 ## 1. Introduzione
 
-L'app **Orari De Angelis Bus** ha due anime. È prima di tutto uno strumento **informativo**: orari, fermate e prossimi bus di tutte le corse esercitate da De Angelis Bus S.r.l., con biglietti, segnalazioni e assistente. Ma è anche una **vetrina del territorio** in cui viaggia: i Sassi di Matera, i borghi di Grottole, Miglionico e Montescaglioso, i loro monumenti, eventi, piatti tipici e ristoranti, le foto dei nostri viaggi, e l'invito a organizzare una gita con i nostri bus.
+L'app dei passeggeri **Deangelisbus S.r.l. – Insieme in viaggio** (prima chiamata "Orari") ha due anime. È prima di tutto uno strumento **informativo**: orari, fermate e prossimi bus di tutte le corse esercitate da De Angelis Bus S.r.l., con biglietti, segnalazioni e assistente. Ma è anche una **vetrina del territorio** in cui viaggia: i Sassi di Matera, i borghi di Grottole, Miglionico e Montescaglioso, i loro monumenti, eventi, piatti tipici e ristoranti, le foto dei nostri viaggi, e l'invito a organizzare una gita con i nostri bus.
 
 Così chi apre l'app per sapere quando passa il bus scopre anche cosa vedere e dove mangiare, e il turista che cerca un transfer trova un motivo in più per fermarsi. Tutti i contenuti che cambiano (orari, novità, foto, piatti, ristoranti, posizione delle fermate) si gestiscono dal **gestionale** o dal **database**, senza ripubblicare l'app.
 
@@ -582,7 +625,7 @@ Oggi l'app si installa dal **QR code** o dal link https://orari.deangelisbus.it:
 
 1. Inquadra il QR code con la fotocamera (locandina sui bus, oppure "Passa l'app a un amico" dal telefono di un altro utente) e tocca il link.
 2. Si apre l'app nel browser. In fondo alla Home c'è il riquadro **"Installa l'app sul telefono"**: tocca **Installa**. In alternativa: menu di Chrome (tre puntini) → **Aggiungi a schermata Home**.
-3. Sulla schermata del telefono compare l'icona **Orari**: da quel momento l'app si apre a tutto schermo come le altre.
+3. Sulla schermata del telefono compare l'icona **Deangelisbus Insieme in viaggio** (sui telefoni il nome può apparire accorciato): da quel momento l'app si apre a tutto schermo come le altre. Chi aveva installato l'app con il vecchio nome "Orari" vede il nome nuovo togliendo e reinstallando l'icona.
 
 **Su iPhone (Safari)**
 
@@ -593,7 +636,7 @@ Oggi l'app si installa dal **QR code** o dal link https://orari.deangelisbus.it:
 
 **App Android (Play Store).** La versione nativa `it.deangelisbus.orari` esiste ed è provata con Android Studio, ma non è ancora pubblicata. Rispetto all'app web ha in più il pulsante **Esci** che chiude davvero l'app; in futuro le notifiche. Per la pubblicazione servono account sviluppatore aziendale (D-U-N-S), aggiornamento ad Android 16 (API 36), chiave di firma e informativa privacy.
 
-**Locandina.** Per i bus e le fermate c'è la locandina A4 con il QR: `stampa\locandina-orari-A4.pdf` (il QR da solo: `stampa\qr-orari-deangelisbus.png`).
+**Locandina.** Per i bus e le fermate c'è la locandina A4 con il QR: `stampa\locandina-deangelisbus-A4.pdf` (il QR da solo: `stampa\qr-orari-deangelisbus.png`).
 
 ## 3. Primo avvio e Home
 
@@ -603,6 +646,8 @@ Al primo avvio conviene scegliere la **fermata principale**: da quel momento la 
 2. Cerca la fermata per nome o paese e scegli **"Usa come mia fermata"**.
 3. Il riquadro mostra l'orario del prossimo bus, i minuti che mancano e la destinazione.
 
+In alto, sotto il logo, c'è lo slogan **"Insieme in viaggio"**.
+
 **Ordine della Home, dall'alto in basso**
 
 1. Eventuale **avviso di novità da leggere** (banner rosso o giallo).
@@ -610,12 +655,12 @@ Al primo avvio conviene scegliere la **fermata principale**: da quel momento la 
 3. **Le mie fermate** (se ne hai salvate), **Fermate vicino a me** e l'invito ad attivare le notifiche.
 4. **Novità ed eventi**.
 5. **Menu dei servizi**: trasporto extraurbano, scolastici (Grottole, Miglionico, Montescaglioso), urbani, disabili Matera, navetta Matera – Aeroporto di Bari, linea Matera – Policoro, più le linee nuove create dal gestionale.
-6. **Acquista biglietti e abbonamenti** (biglietteria Cotrab).
-7. **Feedback, reclami e segnalazioni**.
-8. **Scopri il territorio**.
-9. **Noleggio con conducente** (richiesta preventivo).
-10. **Viaggi di gruppo** con Ridola Viaggi.
-11. **In giro con noi** (galleria foto), **I nostri bus**, **Visita il nostro sito**, **Passa l'app a un amico**, **Installa l'app**.
+6. **Le nostre biglietterie**: biglietteria online (sito Cotrab) e biglietterie a terra con il pulsante **Mappa**: Deangelisbus S.r.l. (Via Arcioni, 6 – Grottole), Tabaccheria Faniello Antonio (Miglionico), Bar Tabaccheria Speranza Francesco (Grottole).
+7. **Scrivici**: reclami, segnalazioni e consigli per migliorare il servizio.
+8. **Noleggio con conducente** (richiesta preventivo).
+9. **Viaggi di gruppo** con Ridola Viaggi.
+10. **In giro con noi** (galleria foto), **I nostri bus**, **Visita il nostro sito**.
+11. **Scopri il territorio**, **Passa l'app a un amico**, **Installa l'app**.
 
 **Comandi sempre presenti**
 
@@ -700,9 +745,9 @@ Ogni servizio dell'app porta a un'azione concreta; quelli che inviano dati arriv
 
 | Servizio | Cosa fa il passeggero | Dove arriva |
 | --- | --- | --- |
-| Acquista biglietti e abbonamenti | Apre la biglietteria online Cotrab (biglietteria.cotrab.it): paga con carta e ha il titolo sul telefono | Sito Cotrab |
+| Le nostre biglietterie | Biglietteria online Cotrab (paga con carta e ha il titolo sul telefono) e biglietterie a terra con la mappa | Sito Cotrab, punti vendita |
 | Richiedi un preventivo (Noleggio con conducente) | Compila il modulo, uguale a quello del sito | Email a info@ e tiziana@ + gestionale → Richieste preventivo |
-| Feedback, reclami e segnalazioni | Sceglie il tipo, descrive, può restare anonimo | Email + gestionale → Segnalazioni app |
+| Scrivici | Reclami, segnalazioni e consigli: sceglie il tipo, descrive, può restare anonimo | Email + gestionale → Segnalazioni app |
 | Assistente | Fa domande in linguaggio naturale su orari, fermate, biglietti, uso dell'app | Risponde l'intelligenza artificiale |
 | Novità ed eventi | Legge avvisi, eventi e variazioni del servizio | Gestite dal gestionale → Novità app |
 
@@ -714,7 +759,7 @@ Ogni servizio dell'app porta a un'azione concreta; quelli che inviano dati arriv
 
 **Segnalazione, passo passo**
 
-1. Home → **"Feedback, reclami e segnalazioni"**.
+1. Home → card **"Scrivici"**.
 2. Scegli: Reclamo, Segnalazione, Suggerimento o Complimento; indica linea, data e ora se servono; descrivi.
 3. Lascia nome e contatto per ricevere risposta, oppure invia **in forma anonima**.
 
@@ -876,7 +921,7 @@ Linee, fermate, percorsi, corse e calendario si gestiscono dal gestionale, pagin
 2. **Vacanze scolastiche**: Linee e orari → Calendario → Sospensioni, "solo corse scolastiche", per tutte le linee. Le corse "solo giorni di scuola" spariscono in quei giorni.
 3. **Nuovi orari di un servizio**: dalla pagina Linee e orari (8.7). Per un orario lungo da PDF o Excel conviene farsi preparare il file SQL e incollarlo nello SQL Editor, come per lo scolastico di Grottole.
 
-**File SQL già eseguiti** (cartella `orari-deangelisbus\sql`, nell'ordine): v1 dati Cotrab, v2 servizi e calendario, v3 nuovi servizi, v4 colori e preventivi, v5 email, v6 novità, v7 permessi gestionale, v8 collegamento noleggi, v9 navetta e segnalazioni, v10 preventivo come il sito, v11 viaggi (non usata), v12 scolastico Grottole, v13 navetta corse 3 e 5, v14 navetta mesi alterni, v15 cosa mangiare, v16 foto, v17 notifiche push, v18 manuali, v19 backup, v20 struttura nei backup, v21 circolari ANAV. Si possono rieseguire senza danni.
+**File SQL già eseguiti** (cartella `orari-deangelisbus\sql`, nell'ordine): v1 dati Cotrab, v2 servizi e calendario, v3 nuovi servizi, v4 colori e preventivi, v5 email, v6 novità, v7 permessi gestionale, v8 collegamento noleggi, v9 navetta e segnalazioni, v10 preventivo come il sito, v11 viaggi (non usata), v12 scolastico Grottole, v13 navetta corse 3 e 5, v14 navetta mesi alterni, v15 cosa mangiare, v16 foto, v17 notifiche push, v18 manuali, v19 backup, v20 struttura nei backup, v21 circolari ANAV, v22–v23 manuali aggiornati, v24 scadenze dei mezzi nello Scadenzario, v25 categoria Mezzi, v26 tipo di turno ALTRO, v27 manuali aggiornati. Si possono rieseguire senza danni.
 
 ## 10. Pubblicazione e manutenzione
 
@@ -992,7 +1037,7 @@ on conflict (slug) do nothing;
 -- le procedure di Operatività non vengono toccate).
 update manuali set titolo = 'Manuale del Gestionale', contenuto = $md$# Manuale del Gestionale Deangelisbus
 
-Versione 5.1 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
+Versione 5.3 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
 
 ## 1. Introduzione
 
@@ -1040,8 +1085,8 @@ In fondo al menu, sempre visibili, ci sono i pulsanti **App Autista** e **App Or
 
 | Area | Sezioni |
 | --- | --- |
-| Autisti e turni | Carica turni, Calendario turni, Turni ricorrenti, Turni TPL, Planning turni, Presenze, Registri settimanali, Autisti, Richieste ferie, Report autista, Report ed export, Archivio registri, Riposi e conformità, Gestione ferie |
-| Veicoli e operatività | Veicoli, Manutenzioni, Report veicolo, Km veicoli, Fogli di viaggio, Fogli viaggio CRM, Archivio fogli, Rifornimenti, Registro rifornimenti, Carichi serbatoio, Checklist veicoli, Anomalie veicoli |
+| Autisti e turni | Carica turni (con archivio dei turni salvati), Calendario turni, Turni ricorrenti, Turni TPL, Planning turni, Presenze, Registri settimanali, Autisti, Richieste ferie, Report autista, Report ed export, Archivio registri, Riposi e conformità, Gestione ferie |
+| Veicoli e operatività | Veicoli, **Scadenze mezzi**, Manutenzioni, Report veicolo, Km veicoli, Fogli di viaggio, Fogli viaggio CRM, Archivio fogli, Rifornimenti, Registro rifornimenti, Carichi serbatoio, Checklist veicoli, Anomalie veicoli |
 | Commerciale e fatturazione | Committenti, Noleggi, Preventivi, Fatture proforma, Biglietti TPL, Report incassi |
 | Report e comunicazioni | **ANAV: circolari e news**, Statistiche, Chat aziendale, Scadenze autisti, Feedback clienti, Scadenzario |
 | App Orari | Linee e orari, Novità app, Notifiche app, Richieste preventivo, Segnalazioni app, Territorio: cosa mangiare, Foto: in giro con noi, Fermate: posizione |
@@ -1059,12 +1104,36 @@ In fondo al menu, sempre visibili, ci sono i pulsanti **App Autista** e **App Or
 
 I turni "Vuoto" (Disposizione, Garage, Scuole) non generano presenza e non compaiono nel report autista.
 
-### 3.2 Caricare i turni della settimana da file
+### 3.2 Carica turni: da file, griglia manuale, stampa, condivisione e archivio
 
-1. La Titolare prepara i turni in Word e li salva in **PDF** (2 pagine A4 orizzontali; la seconda pagina senza intestazione).
-2. Menu → **Carica turni** → carica il PDF. Il PDF deve avere il **testo selezionabile**: immagini, foto e screenshot vengono rifiutati.
-3. Controlla l'anteprima: verifica che i nomi degli autisti siano abbinati correttamente.
-4. **Importa**: i turni vengono salvati senza cancellare le presenze dei giorni passati, e ogni autista riceve la notifica del turno assegnato.
+La pagina **Carica turni** gestisce tutto il ciclo dei turni settimanali. I turni si possono caricare da un PDF oppure **creare direttamente nel gestionale**.
+
+**A. Da file PDF**
+
+1. Il foglio turni preparato in Word va salvato in **PDF** (2 pagine A4 orizzontali; la seconda senza intestazione). Il PDF deve avere il **testo selezionabile**: foto e screenshot vengono rifiutati (in Word: File → Salva con nome → PDF).
+2. Menu → **Carica turni** → carica il PDF e controlla l'anteprima, soprattutto l'abbinamento dei nomi degli autisti.
+3. **Salva e Assegna**.
+
+**B. Griglia manuale (senza Word)**
+
+1. **Inserimento manuale** → **Crea griglia**: scegli il periodo (o *Settimana prossima*) e, se vuoi, gli autisti.
+2. Clicca il **+** di una cella per aggiungere un turno: **Tipo**, **Descrizione** (si può scegliere dall'elenco dei turni già usati, che compila anche gli orari) e orari.
+3. Tipi disponibili: **TPL** (compreso lo scalo), **NCC**, **ALTRO** (disposizione, garage, manutenzione), **RIPOSO**, **FERIE**, **PERMESSO**, **MALATTIA**, **INFORTUNIO**, **FESTIVO**. Per RIPOSO, FERIE e simili la descrizione può restare vuota: nella casella compare il tipo. Per TPL, NCC e ALTRO la descrizione è obbligatoria.
+4. Senza orari il turno viene salvato 06:00–14:00, come nel caricamento da PDF.
+5. Strumenti della griglia: **Copia dal giorno precedente**, **Ripeti nei giorni successivi ancora vuoti**, **Copia questo turno** e incolla con un clic su altre celle.
+6. **Salva e Assegna**.
+
+**Salva e Assegna** salva i turni e crea le presenze, senza cancellare le presenze dei giorni passati; gli autisti con turni nuovi o modificati ricevono la notifica (chi non ha attivato le notifiche sul telefono non la riceve, e non è un errore). Dopo il salvataggio, ogni correzione nella griglia riattiva il pulsante.
+
+**C. Stampa e condivisione**
+
+- **Stampa PDF**: crea il foglio **Turno di lavoro** come il modello (intestazione, Mod. 02 MOV PR 01, tabella degli autisti, seconda pagina con Nobile, De Ruvo, Masellis ed Eramo). Chiede il numero della settimana, già proposto secondo la numerazione aziendale. Il foglio mostra **tutti i giorni**, anche quelli senza turni (riquadri vuoti), e almeno 5 colonne. Nella finestra di stampa: **Salva come PDF**, orientamento **Orizzontale**.
+- **Condividi**: crea il PDF del foglio e apre la condivisione del telefono o del PC: **WhatsApp** → gruppo. Dove la condivisione diretta non è possibile, il PDF viene scaricato, pronto da allegare.
+
+**D. Turni salvati e archivio**
+
+- **Apri turni salvati** (nel riquadro Inserimento manuale): scegli le date e la griglia mostra i turni come sono salvati nel database.
+- **Archivio turni salvati** → **Apri archivio**: elenco delle settimane salvate (ultime 16 e prossime 8) con numero di settimana, periodo, numero di turni e autisti e **ultima modifica**. **Apri** porta direttamente alla griglia di quella settimana, con le ultime correzioni: da lì si può correggere, salvare, stampare e condividere.
 
 ### 3.3 Turni TPL e turni ricorrenti
 
@@ -1151,6 +1220,20 @@ I fogli di viaggio del CRM vtenext vengono sincronizzati nel gestionale in sola 
 - **Km da Golia**: le letture dei km arrivano ogni giorno dagli export del portale Golia (cartella Drive "Golia – Export").
 - Veicoli, rifornimenti, carichi serbatoio e manutenzioni del CRM vtenext si sincronizzano ogni notte.
 
+### 6.1 Scadenze mezzi e verifica sul Portale
+
+La pagina **Scadenze mezzi** (Veicoli e operatività) riunisce revisioni, polizze e tutte le scadenze della flotta.
+
+1. In alto: revisioni **scadute o senza data**, revisioni **entro 60 giorni**, **polizze scadute o senza data** e mezzi **dismessi** (nascosti).
+2. Filtri: **Revisioni da fare (60 gg)** (si apre per primo), **Polizze da verificare**, **Qualsiasi scadenza scaduta**, **Tutti i mezzi**; ricerca per targa, nome o tipologia; **mostra dismessi**. Colori: rosso scaduta, arancione entro 60 giorni, verde in regola.
+3. **Revisione → Verifica sul Portale**: copia la targa e apre il servizio ufficiale *Verifica revisioni effettuate* del Portale dell'Automobilista (gratuito, senza credenziali). Se la pagina resta bianca premere **F5**. Scegliere **Autoveicolo**, incollare la targa con **Ctrl+V**, inserire il codice di sicurezza e leggere la data dell'ultima revisione; nel gestionale scriverla accanto al mezzo e premere **Registra**: la scadenza (ultima revisione + 1 anno, revisione annuale per autobus e mezzi a noleggio) si calcola da sola.
+4. **Polizza RCA → Verifica RCA**: stesso procedimento con il servizio *Verifica copertura RCA* (Veicolo, Autoveicolo, targa, codice, Ricerca): mostra compagnia e scadenza; scrivere la scadenza e premere **Registra**. Se il risultato è vuoto subito dopo un rinnovo, chiedere conferma alla compagnia o al broker.
+5. **Tutte le scadenze**: modulo con tutte le date del mezzo (revisione, polizza, bollo, tachigrafo, scarico, estintore, ZTL, FL) da modificare e salvare insieme; da qui anche **Segna come dismesso** (o **Rimetti in flotta**).
+
+Il codice di sicurezza del Portale impedisce le verifiche automatiche: il controllo va fatto da una persona, circa 30 secondi per targa. La revisione vale fino alla fine del mese di scadenza; se il Portale conferma una revisione scaduta, **il mezzo non deve circolare** finché non viene revisionato.
+
+Le scadenze dei mezzi si gestiscono **solo nel gestionale**: il CRM serve unicamente fino alla messa a regime e non va aggiornato. Ogni data salvata entra da sola nello **Scadenzario** (capitolo 9).
+
 ## 7. Autisti
 
 **Creare un autista**
@@ -1213,9 +1296,11 @@ Gli autisti registrano le vendite per comune e tipo di biglietto; **Report incas
 
 ## 9. Scadenzario
 
-1. Menu → **Scadenzario** → nuova scadenza: categoria (fiscale, gara, assicurazione, contratto, altro), data, giorni di preavviso, eventuale ricorrenza, responsabile.
-2. Le scadenze in arrivo vengono segnalate ogni giorno in automatico.
+1. Menu → **Scadenzario** → nuova scadenza: categoria (fiscale, gara, assicurazione, contratto, **mezzi**, altro), data, giorni di preavviso, eventuale ricorrenza, responsabile.
+2. Ogni giorno le scadenze **da fare** o **in corso** che entrano nei giorni di preavviso (o già superate) generano **una** notifica nella campanella del gestionale.
 3. A cosa fatta, aggiorna lo stato.
+
+**Scadenze dei mezzi.** Revisione, polizza, bollo, tachigrafo, scarico scheda, estintore, ZTL e FL di ogni mezzo entrano **da sole** nello Scadenzario, categoria **Mezzi** (es. "Revisione – GV266ML"), con 30 giorni di preavviso (15 per bollo, scarico, ZTL e FL). Quando una data viene rinnovata in Scadenze mezzi, la voce si aggiorna e torna "da fare", così l'avviso riparte per la scadenza successiva. I mezzi dismessi o esclusi dagli avvisi spariscono dallo Scadenzario. Le scadenze delle circolari ANAV entrano con **Crea scadenza** (capitolo 10).
 
 ## 10. Comunicazioni
 
@@ -1261,7 +1346,7 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 
 ## 13. App Orari e Manuali
 
-- **App Orari**: le otto pagine (Linee e orari, Novità app, Notifiche app, Richieste preventivo, Segnalazioni app, Territorio: cosa mangiare, Foto: in giro con noi, Fermate: posizione) sono descritte nel **Manuale App Orari**.
+- **App Orari**: l'app dei passeggeri si chiama **Deangelisbus S.r.l. – Insieme in viaggio** (orari.deangelisbus.it). Le otto pagine (Linee e orari, Novità app, Notifiche app, Richieste preventivo, Segnalazioni app, Territorio: cosa mangiare, Foto: in giro con noi, Fermate: posizione) sono descritte nel **Manuale App Orari**.
 - **Manuali e operatività**: questa sezione. Gli amministratori possono modificare i manuali (**Modifica**, con anteprima) e aggiungere procedure operative (**Nuovo documento**); **Stampa / PDF** stampa il documento aperto.
 
 ## 14. Sincronizzazioni automatiche
@@ -1294,6 +1379,7 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | ANAV: "0 elementi letti dal sito" | Il sito ANAV ha cambiato struttura o non risponde: riprovare più tardi e, se persiste, segnalarlo a chi segue la parte tecnica |
 | ANAV: il riassunto AI dà errore | Manca o è scaduta la chiave ANTHROPIC_API_KEY nei Secrets di Supabase, oppure il PDF non è stato caricato |
 | Non trovo una pagina nel menu | Ctrl+K e scrivere parte del nome |
+| La verifica revisioni del Portale resta bianca | Premere F5; se non basta, finestra in incognito o altro browser, oppure l'app iPatente |
 
 ## 16. Requisiti tecnici
 
@@ -1304,7 +1390,7 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | Connessione | Necessaria per tutte le funzioni |
 | Tecnologia | React + TypeScript + Vite, database Supabase (PostgreSQL), Cloudflare Pages, notifiche Firebase, email Resend, assistente Claude (Anthropic), app Android con Capacitor |
 
-Aggiornamenti e pubblicazione si fanno dal **menu Strumenti**: sempre voce 2 all'inizio, voce 3 alla fine, e voce 2 prima della voce 5 (pubblica il gestionale).
+Aggiornamenti e pubblicazione si fanno dal **menu Strumenti**: sempre voce 2 all'inizio, voce 3 alla fine, e voce 2 prima della voce 5. La **voce 5** pubblica insieme il gestionale e l'**app autisti** (stessa versione, due indirizzi).
 
 ## 17. Backup e ripristino
 
@@ -1326,7 +1412,7 @@ Tutti i dati del gestionale (turni, presenze, ferie, autisti, veicoli, noleggi, 
 
 **Copie in nostro possesso, fuori da internet**
 
-Il menu Strumenti scarica le copie sul PC e sulla chiavetta, nella cartella **BACKUP-DATABASE**: in automatico con la voce 2 (Aggiorna tutto) e quando si apre il menu dalla chiavetta, oppure a mano con la voce **9**. La prima volta su ogni postazione la voce 9 chiede la chiave dei backup, che si legge su Supabase (SQL Editor) con: `select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';`
+Il menu Strumenti scarica la copia **più recente** sul PC e sulla chiavetta, nella cartella **BACKUP-DATABASE**, e toglie le precedenti (solo dopo aver verificato che quella nuova sia arrivata), così il disco non si riempie: in automatico con la voce 2 (Aggiorna tutto) e quando si apre il menu dalla chiavetta, oppure a mano con la voce **9**. Tutte le copie restano comunque online su Supabase. La prima volta su ogni postazione la voce 9 chiede la chiave dei backup, che si legge su Supabase (SQL Editor) con: `select decrypted_secret from vault.decrypted_secrets where name = 'backup_download_key';`
 
 I file sono in formato aperto (JSON compresso): anche senza il gestionale si possono aprire e i dati restano leggibili. Insieme a ogni copia viene salvata anche la **struttura del database** (file `struttura-….sql`), che serve a ricostruirlo da zero (capitolo 18). Le foto (galleria, scontrini) sono conservate a parte nello spazio file e non fanno parte di questo backup.
 
@@ -1338,7 +1424,7 @@ I dati non vivono sul PC né sulla chiavetta: stanno nel database su internet (S
 | --- | --- |
 | Supabase (database) | Tutti i dati, sempre aggiornati |
 | Supabase (spazio privato "backup") | Copie complete: ultimi 30 giorni e una per mese, per sempre |
-| PC e chiavetta, cartella BACKUP-DATABASE | Le stesse copie, scaricate dal menu Strumenti |
+| PC e chiavetta, cartella BACKUP-DATABASE | La copia più recente, scaricata dal menu Strumenti |
 | GitHub | Il codice del gestionale e dell'app Orari |
 | Cloudflare | Gestionale e app pubblicati online |
 
@@ -1515,11 +1601,11 @@ Tocca la notifica per aprire l'app direttamente nella sezione giusta.
 Per qualsiasi problema contatta l'ufficio — De Angelis Bus S.r.l., Grottole (MT).
 $md$, aggiornato_il = now() where slug = 'manuale-app-autisti';
 
-update manuali set titolo = 'Manuale App Orari', contenuto = $md$# Manuale App Orari Deangelisbus
+update manuali set titolo = 'Manuale App Deangelisbus – Insieme in viaggio', contenuto = $md$# Manuale App Deangelisbus S.r.l. – Insieme in viaggio
 
 ## 1. Introduzione
 
-L'app **Orari De Angelis Bus** ha due anime. È prima di tutto uno strumento **informativo**: orari, fermate e prossimi bus di tutte le corse esercitate da De Angelis Bus S.r.l., con biglietti, segnalazioni e assistente. Ma è anche una **vetrina del territorio** in cui viaggia: i Sassi di Matera, i borghi di Grottole, Miglionico e Montescaglioso, i loro monumenti, eventi, piatti tipici e ristoranti, le foto dei nostri viaggi, e l'invito a organizzare una gita con i nostri bus.
+L'app dei passeggeri **Deangelisbus S.r.l. – Insieme in viaggio** (prima chiamata "Orari") ha due anime. È prima di tutto uno strumento **informativo**: orari, fermate e prossimi bus di tutte le corse esercitate da De Angelis Bus S.r.l., con biglietti, segnalazioni e assistente. Ma è anche una **vetrina del territorio** in cui viaggia: i Sassi di Matera, i borghi di Grottole, Miglionico e Montescaglioso, i loro monumenti, eventi, piatti tipici e ristoranti, le foto dei nostri viaggi, e l'invito a organizzare una gita con i nostri bus.
 
 Così chi apre l'app per sapere quando passa il bus scopre anche cosa vedere e dove mangiare, e il turista che cerca un transfer trova un motivo in più per fermarsi. Tutti i contenuti che cambiano (orari, novità, foto, piatti, ristoranti, posizione delle fermate) si gestiscono dal **gestionale** o dal **database**, senza ripubblicare l'app.
 
@@ -1544,7 +1630,7 @@ Oggi l'app si installa dal **QR code** o dal link https://orari.deangelisbus.it:
 
 1. Inquadra il QR code con la fotocamera (locandina sui bus, oppure "Passa l'app a un amico" dal telefono di un altro utente) e tocca il link.
 2. Si apre l'app nel browser. In fondo alla Home c'è il riquadro **"Installa l'app sul telefono"**: tocca **Installa**. In alternativa: menu di Chrome (tre puntini) → **Aggiungi a schermata Home**.
-3. Sulla schermata del telefono compare l'icona **Orari**: da quel momento l'app si apre a tutto schermo come le altre.
+3. Sulla schermata del telefono compare l'icona **Deangelisbus Insieme in viaggio** (sui telefoni il nome può apparire accorciato): da quel momento l'app si apre a tutto schermo come le altre. Chi aveva installato l'app con il vecchio nome "Orari" vede il nome nuovo togliendo e reinstallando l'icona.
 
 **Su iPhone (Safari)**
 
@@ -1555,7 +1641,7 @@ Oggi l'app si installa dal **QR code** o dal link https://orari.deangelisbus.it:
 
 **App Android (Play Store).** La versione nativa `it.deangelisbus.orari` esiste ed è provata con Android Studio, ma non è ancora pubblicata. Rispetto all'app web ha in più il pulsante **Esci** che chiude davvero l'app; in futuro le notifiche. Per la pubblicazione servono account sviluppatore aziendale (D-U-N-S), aggiornamento ad Android 16 (API 36), chiave di firma e informativa privacy.
 
-**Locandina.** Per i bus e le fermate c'è la locandina A4 con il QR: `stampa\locandina-orari-A4.pdf` (il QR da solo: `stampa\qr-orari-deangelisbus.png`).
+**Locandina.** Per i bus e le fermate c'è la locandina A4 con il QR: `stampa\locandina-deangelisbus-A4.pdf` (il QR da solo: `stampa\qr-orari-deangelisbus.png`).
 
 ## 3. Primo avvio e Home
 
@@ -1565,6 +1651,8 @@ Al primo avvio conviene scegliere la **fermata principale**: da quel momento la 
 2. Cerca la fermata per nome o paese e scegli **"Usa come mia fermata"**.
 3. Il riquadro mostra l'orario del prossimo bus, i minuti che mancano e la destinazione.
 
+In alto, sotto il logo, c'è lo slogan **"Insieme in viaggio"**.
+
 **Ordine della Home, dall'alto in basso**
 
 1. Eventuale **avviso di novità da leggere** (banner rosso o giallo).
@@ -1572,12 +1660,12 @@ Al primo avvio conviene scegliere la **fermata principale**: da quel momento la 
 3. **Le mie fermate** (se ne hai salvate), **Fermate vicino a me** e l'invito ad attivare le notifiche.
 4. **Novità ed eventi**.
 5. **Menu dei servizi**: trasporto extraurbano, scolastici (Grottole, Miglionico, Montescaglioso), urbani, disabili Matera, navetta Matera – Aeroporto di Bari, linea Matera – Policoro, più le linee nuove create dal gestionale.
-6. **Acquista biglietti e abbonamenti** (biglietteria Cotrab).
-7. **Feedback, reclami e segnalazioni**.
-8. **Scopri il territorio**.
-9. **Noleggio con conducente** (richiesta preventivo).
-10. **Viaggi di gruppo** con Ridola Viaggi.
-11. **In giro con noi** (galleria foto), **I nostri bus**, **Visita il nostro sito**, **Passa l'app a un amico**, **Installa l'app**.
+6. **Le nostre biglietterie**: biglietteria online (sito Cotrab) e biglietterie a terra con il pulsante **Mappa**: Deangelisbus S.r.l. (Via Arcioni, 6 – Grottole), Tabaccheria Faniello Antonio (Miglionico), Bar Tabaccheria Speranza Francesco (Grottole).
+7. **Scrivici**: reclami, segnalazioni e consigli per migliorare il servizio.
+8. **Noleggio con conducente** (richiesta preventivo).
+9. **Viaggi di gruppo** con Ridola Viaggi.
+10. **In giro con noi** (galleria foto), **I nostri bus**, **Visita il nostro sito**.
+11. **Scopri il territorio**, **Passa l'app a un amico**, **Installa l'app**.
 
 **Comandi sempre presenti**
 
@@ -1662,9 +1750,9 @@ Ogni servizio dell'app porta a un'azione concreta; quelli che inviano dati arriv
 
 | Servizio | Cosa fa il passeggero | Dove arriva |
 | --- | --- | --- |
-| Acquista biglietti e abbonamenti | Apre la biglietteria online Cotrab (biglietteria.cotrab.it): paga con carta e ha il titolo sul telefono | Sito Cotrab |
+| Le nostre biglietterie | Biglietteria online Cotrab (paga con carta e ha il titolo sul telefono) e biglietterie a terra con la mappa | Sito Cotrab, punti vendita |
 | Richiedi un preventivo (Noleggio con conducente) | Compila il modulo, uguale a quello del sito | Email a info@ e tiziana@ + gestionale → Richieste preventivo |
-| Feedback, reclami e segnalazioni | Sceglie il tipo, descrive, può restare anonimo | Email + gestionale → Segnalazioni app |
+| Scrivici | Reclami, segnalazioni e consigli: sceglie il tipo, descrive, può restare anonimo | Email + gestionale → Segnalazioni app |
 | Assistente | Fa domande in linguaggio naturale su orari, fermate, biglietti, uso dell'app | Risponde l'intelligenza artificiale |
 | Novità ed eventi | Legge avvisi, eventi e variazioni del servizio | Gestite dal gestionale → Novità app |
 
@@ -1676,7 +1764,7 @@ Ogni servizio dell'app porta a un'azione concreta; quelli che inviano dati arriv
 
 **Segnalazione, passo passo**
 
-1. Home → **"Feedback, reclami e segnalazioni"**.
+1. Home → card **"Scrivici"**.
 2. Scegli: Reclamo, Segnalazione, Suggerimento o Complimento; indica linea, data e ora se servono; descrivi.
 3. Lascia nome e contatto per ricevere risposta, oppure invia **in forma anonima**.
 
@@ -1838,7 +1926,7 @@ Linee, fermate, percorsi, corse e calendario si gestiscono dal gestionale, pagin
 2. **Vacanze scolastiche**: Linee e orari → Calendario → Sospensioni, "solo corse scolastiche", per tutte le linee. Le corse "solo giorni di scuola" spariscono in quei giorni.
 3. **Nuovi orari di un servizio**: dalla pagina Linee e orari (8.7). Per un orario lungo da PDF o Excel conviene farsi preparare il file SQL e incollarlo nello SQL Editor, come per lo scolastico di Grottole.
 
-**File SQL già eseguiti** (cartella `orari-deangelisbus\sql`, nell'ordine): v1 dati Cotrab, v2 servizi e calendario, v3 nuovi servizi, v4 colori e preventivi, v5 email, v6 novità, v7 permessi gestionale, v8 collegamento noleggi, v9 navetta e segnalazioni, v10 preventivo come il sito, v11 viaggi (non usata), v12 scolastico Grottole, v13 navetta corse 3 e 5, v14 navetta mesi alterni, v15 cosa mangiare, v16 foto, v17 notifiche push, v18 manuali, v19 backup, v20 struttura nei backup, v21 circolari ANAV. Si possono rieseguire senza danni.
+**File SQL già eseguiti** (cartella `orari-deangelisbus\sql`, nell'ordine): v1 dati Cotrab, v2 servizi e calendario, v3 nuovi servizi, v4 colori e preventivi, v5 email, v6 novità, v7 permessi gestionale, v8 collegamento noleggi, v9 navetta e segnalazioni, v10 preventivo come il sito, v11 viaggi (non usata), v12 scolastico Grottole, v13 navetta corse 3 e 5, v14 navetta mesi alterni, v15 cosa mangiare, v16 foto, v17 notifiche push, v18 manuali, v19 backup, v20 struttura nei backup, v21 circolari ANAV, v22–v23 manuali aggiornati, v24 scadenze dei mezzi nello Scadenzario, v25 categoria Mezzi, v26 tipo di turno ALTRO, v27 manuali aggiornati. Si possono rieseguire senza danni.
 
 ## 10. Pubblicazione e manutenzione
 
