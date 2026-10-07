@@ -28,6 +28,7 @@ grant select, insert, update, delete on manuali to authenticated;
 
 
 
+
 insert into manuali (slug, titolo, categoria, ordine, contenuto) values ('manuale-gestionale', 'Manuale del Gestionale', 'manuale', 1, $md$# Manuale del Gestionale Deangelisbus
 
 Versione 5.3 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
@@ -96,6 +97,8 @@ In fondo al menu, sempre visibili, ci sono i pulsanti **App Autista** e **App Or
 5. Salva: la **presenza** viene creata in automatico (il tipo TPL/NCC/assenza deriva dalla descrizione del turno).
 
 I turni "Vuoto" (Disposizione, Garage, Scuole) non generano presenza e non compaiono nel report autista.
+
+**Apri in griglia (correggi, stampa, condividi).** Il pulsante verde nella barra del Calendario apre la settimana visualizzata in **Carica turni**, con i turni come sono salvati: da lì si correggono e si salvano (**Salva e Assegna**), si stampa il foglio **Turno di lavoro** come il modello (**Stampa PDF**) o lo si manda al gruppo WhatsApp (**Condividi**). Vedi il capitolo 3.2.
 
 ### 3.2 Carica turni: da file, griglia manuale, stampa, condivisione e archivio
 
@@ -1103,6 +1106,8 @@ In fondo al menu, sempre visibili, ci sono i pulsanti **App Autista** e **App Or
 5. Salva: la **presenza** viene creata in automatico (il tipo TPL/NCC/assenza deriva dalla descrizione del turno).
 
 I turni "Vuoto" (Disposizione, Garage, Scuole) non generano presenza e non compaiono nel report autista.
+
+**Apri in griglia (correggi, stampa, condividi).** Il pulsante verde nella barra del Calendario apre la settimana visualizzata in **Carica turni**, con i turni come sono salvati: da lì si correggono e si salvano (**Salva e Assegna**), si stampa il foglio **Turno di lavoro** come il modello (**Stampa PDF**) o lo si manda al gruppo WhatsApp (**Condividi**). Vedi il capitolo 3.2.
 
 ### 3.2 Carica turni: da file, griglia manuale, stampa, condivisione e archivio
 
