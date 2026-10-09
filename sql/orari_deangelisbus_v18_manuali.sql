@@ -30,9 +30,11 @@ grant select, insert, update, delete on manuali to authenticated;
 
 
 
+
+
 insert into manuali (slug, titolo, categoria, ordine, contenuto) values ('manuale-gestionale', 'Manuale del Gestionale', 'manuale', 1, $md$# Manuale del Gestionale Deangelisbus
 
-Versione 5.4 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
+Versione 5.5 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
 
 ## 1. Introduzione
 
@@ -80,7 +82,7 @@ In fondo al menu, sempre visibili, ci sono i pulsanti **App Autista** e **App Or
 
 | Area | Sezioni |
 | --- | --- |
-| Autisti e turni | Carica turni (con archivio dei turni salvati), Calendario turni, Turni ricorrenti, Turni TPL, Planning turni, Presenze, Registri settimanali, Autisti, Richieste ferie, Report autista, Report ed export, Archivio registri, Riposi e conformità, Gestione ferie |
+| Autisti e turni | Carica turni (con archivio dei turni salvati), Calendario turni, Turni ricorrenti, Turni TPL, Planning turni, Presenze, Registri settimanali, Personale dipendente, Richieste ferie, Report autista, Report ed export, Archivio registri, Riposi e conformità, Gestione ferie |
 | Veicoli e operatività | Veicoli, **Scadenze mezzi**, Manutenzioni, Report veicolo, Km veicoli, Fogli di viaggio, Fogli viaggio CRM, Archivio fogli, Rifornimenti, Registro rifornimenti, Carichi serbatoio, Checklist veicoli, Anomalie veicoli |
 | Commerciale e fatturazione | Committenti, Noleggi, Preventivi, Fatture proforma, Biglietti TPL, Report incassi |
 | Report e comunicazioni | **ANAV: circolari e news**, Statistiche, Chat aziendale, Scadenze autisti, Feedback clienti, Scadenzario |
@@ -258,13 +260,27 @@ Il codice di sicurezza del Portale impedisce le verifiche automatiche: il contro
 
 Le scadenze dei mezzi si gestiscono **solo nel gestionale**: il CRM serve unicamente fino alla messa a regime e non va aggiornato. Ogni data salvata entra da sola nello **Scadenzario** (capitolo 9).
 
-## 7. Autisti
+## 7. Personale dipendente
 
-**Creare un autista**
+La sezione (prima "Autisti") contiene tutto il personale: autisti, accompagnatori e amministrativi.
 
-1. Menu → **Autisti** → **Nuovo autista**: nome, cognome, email (valida e univoca: serve per login e notifiche), telefono.
-2. Spunta **Crea account**: la password viene generata in automatico.
-3. Annota la password e comunicala all'autista: dopo non è più recuperabile.
+**Inserire un dipendente**
+
+1. Menu → **Personale dipendente** → **Nuovo dipendente**: nome, cognome, email (valida e univoca: serve per login e notifiche), telefono.
+2. **Ruolo** (autista, accompagnatore, amministrativo, admin) e **qualifica**, obbligatoria: Autista TPL, Autista NCC, Accompagnatore o Amministrativo. Per accompagnatori e amministrativi la qualifica si imposta da sola; per gli autisti si sceglie TPL o NCC (guida indennità mensa/ticket e indennità TPL negli export).
+3. Dati contrattuali: tipo di contratto, assunzione, eventuale cessazione, giorni e ore settimanali.
+4. Spunta **Crea account**: la password viene generata e mostrata nella card verde, da copiare o inviare su WhatsApp.
+
+**Dove compare.** Autisti e accompagnatori compaiono in turni, presenze, registri e report; gli amministrativi in Gestione ferie, Report (scheda accompagnatori e amministrativi) e Richieste ferie, ma non in turni, fogli di viaggio e checklist, che riguardano solo chi guida.
+
+**Password dimenticata** (icone nella riga del dipendente):
+- ✉️ **link via email**: il dipendente riceve un'email per scegliersi una nuova password (controllare anche lo spam);
+- 🔑 **nuova password**: l'amministratore imposta una password nuova (proposta o scritta a mano, almeno 6 caratteri) e la condivide dalla card verde. Utile per chi non usa l'email.
+Se è l'amministratore a non poter entrare: Supabase → Authentication → Users → cerca l'email → Send password recovery, oppure un altro amministratore usa la 🔑.
+
+**Amministratori del gestionale.** Nella scheda del dipendente, la casella **🛡️ Amministratore del gestionale** dà i poteri completi (backup e ripristino, password, impostazioni, ANAV, notifiche, manuali) senza cambiare il ruolo: così la persona resta tra gli amministrativi in ferie e report. Vale solo finché la persona è **attiva** e **non cessata**; la casella la può cambiare solo un amministratore. Oggi è attiva per Leo Buonamassa e per la Titolare; per darla a un'altra persona (es. la Resp. Commerciale, oppure un **autista collaboratore**) basta spuntarla e salvare. Chi ce l'ha, accedendo al **gestionale**, entra come amministratore qualunque sia il ruolo; nell'**app autisti** resta con il suo ruolo e continua a vedere i propri turni e fogli di viaggio.
+
+**Dipendente che lascia l'azienda.** Imposta la **cessazione** e togli **Attivo**: resta nello storico (ferie, presenze) ma perde i poteri da amministratore. Per togliergli anche l'accesso all'app: Supabase → Authentication → Users → l'email → **Ban user**.
 
 **Scadenze documenti**: Menu → **Scadenze autisti** → **Nuovo documento**: autista, tipo (patente, CQC, carta tachigrafica, visita medica…), numero, rilascio, scadenza. I documenti in scadenza entro 30 giorni compaiono in dashboard.
 
@@ -1068,7 +1084,7 @@ on conflict (slug) do nothing;
 -- le procedure di Operatività non vengono toccate).
 update manuali set titolo = 'Manuale del Gestionale', contenuto = $md$# Manuale del Gestionale Deangelisbus
 
-Versione 5.4 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
+Versione 5.5 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
 
 ## 1. Introduzione
 
@@ -1116,7 +1132,7 @@ In fondo al menu, sempre visibili, ci sono i pulsanti **App Autista** e **App Or
 
 | Area | Sezioni |
 | --- | --- |
-| Autisti e turni | Carica turni (con archivio dei turni salvati), Calendario turni, Turni ricorrenti, Turni TPL, Planning turni, Presenze, Registri settimanali, Autisti, Richieste ferie, Report autista, Report ed export, Archivio registri, Riposi e conformità, Gestione ferie |
+| Autisti e turni | Carica turni (con archivio dei turni salvati), Calendario turni, Turni ricorrenti, Turni TPL, Planning turni, Presenze, Registri settimanali, Personale dipendente, Richieste ferie, Report autista, Report ed export, Archivio registri, Riposi e conformità, Gestione ferie |
 | Veicoli e operatività | Veicoli, **Scadenze mezzi**, Manutenzioni, Report veicolo, Km veicoli, Fogli di viaggio, Fogli viaggio CRM, Archivio fogli, Rifornimenti, Registro rifornimenti, Carichi serbatoio, Checklist veicoli, Anomalie veicoli |
 | Commerciale e fatturazione | Committenti, Noleggi, Preventivi, Fatture proforma, Biglietti TPL, Report incassi |
 | Report e comunicazioni | **ANAV: circolari e news**, Statistiche, Chat aziendale, Scadenze autisti, Feedback clienti, Scadenzario |
@@ -1294,13 +1310,27 @@ Il codice di sicurezza del Portale impedisce le verifiche automatiche: il contro
 
 Le scadenze dei mezzi si gestiscono **solo nel gestionale**: il CRM serve unicamente fino alla messa a regime e non va aggiornato. Ogni data salvata entra da sola nello **Scadenzario** (capitolo 9).
 
-## 7. Autisti
+## 7. Personale dipendente
 
-**Creare un autista**
+La sezione (prima "Autisti") contiene tutto il personale: autisti, accompagnatori e amministrativi.
 
-1. Menu → **Autisti** → **Nuovo autista**: nome, cognome, email (valida e univoca: serve per login e notifiche), telefono.
-2. Spunta **Crea account**: la password viene generata in automatico.
-3. Annota la password e comunicala all'autista: dopo non è più recuperabile.
+**Inserire un dipendente**
+
+1. Menu → **Personale dipendente** → **Nuovo dipendente**: nome, cognome, email (valida e univoca: serve per login e notifiche), telefono.
+2. **Ruolo** (autista, accompagnatore, amministrativo, admin) e **qualifica**, obbligatoria: Autista TPL, Autista NCC, Accompagnatore o Amministrativo. Per accompagnatori e amministrativi la qualifica si imposta da sola; per gli autisti si sceglie TPL o NCC (guida indennità mensa/ticket e indennità TPL negli export).
+3. Dati contrattuali: tipo di contratto, assunzione, eventuale cessazione, giorni e ore settimanali.
+4. Spunta **Crea account**: la password viene generata e mostrata nella card verde, da copiare o inviare su WhatsApp.
+
+**Dove compare.** Autisti e accompagnatori compaiono in turni, presenze, registri e report; gli amministrativi in Gestione ferie, Report (scheda accompagnatori e amministrativi) e Richieste ferie, ma non in turni, fogli di viaggio e checklist, che riguardano solo chi guida.
+
+**Password dimenticata** (icone nella riga del dipendente):
+- ✉️ **link via email**: il dipendente riceve un'email per scegliersi una nuova password (controllare anche lo spam);
+- 🔑 **nuova password**: l'amministratore imposta una password nuova (proposta o scritta a mano, almeno 6 caratteri) e la condivide dalla card verde. Utile per chi non usa l'email.
+Se è l'amministratore a non poter entrare: Supabase → Authentication → Users → cerca l'email → Send password recovery, oppure un altro amministratore usa la 🔑.
+
+**Amministratori del gestionale.** Nella scheda del dipendente, la casella **🛡️ Amministratore del gestionale** dà i poteri completi (backup e ripristino, password, impostazioni, ANAV, notifiche, manuali) senza cambiare il ruolo: così la persona resta tra gli amministrativi in ferie e report. Vale solo finché la persona è **attiva** e **non cessata**; la casella la può cambiare solo un amministratore. Oggi è attiva per Leo Buonamassa e per la Titolare; per darla a un'altra persona (es. la Resp. Commerciale, oppure un **autista collaboratore**) basta spuntarla e salvare. Chi ce l'ha, accedendo al **gestionale**, entra come amministratore qualunque sia il ruolo; nell'**app autisti** resta con il suo ruolo e continua a vedere i propri turni e fogli di viaggio.
+
+**Dipendente che lascia l'azienda.** Imposta la **cessazione** e togli **Attivo**: resta nello storico (ferie, presenze) ma perde i poteri da amministratore. Per togliergli anche l'accesso all'app: Supabase → Authentication → Users → l'email → **Ban user**.
 
 **Scadenze documenti**: Menu → **Scadenze autisti** → **Nuovo documento**: autista, tipo (patente, CQC, carta tachigrafica, visita medica…), numero, rilascio, scadenza. I documenti in scadenza entro 30 giorni compaiono in dashboard.
 
