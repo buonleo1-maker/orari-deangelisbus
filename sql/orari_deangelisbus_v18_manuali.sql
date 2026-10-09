@@ -29,9 +29,10 @@ grant select, insert, update, delete on manuali to authenticated;
 
 
 
+
 insert into manuali (slug, titolo, categoria, ordine, contenuto) values ('manuale-gestionale', 'Manuale del Gestionale', 'manuale', 1, $md$# Manuale del Gestionale Deangelisbus
 
-Versione 5.3 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
+Versione 5.4 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
 
 ## 1. Introduzione
 
@@ -165,9 +166,36 @@ Tipi: TPL (T), NCC (N), riposo/ferie/malattia senza tipo. Se un autista ha ripos
 
 ### 4.3 Gestione ferie
 
-1. Menu → **Gestione ferie** → scegli l'autista.
-2. La dotazione annua segue il livello CCNL (fasce di 31/32 giorni); i saldi iniziali sono caricati come rettifiche; il calcolo vale anche su più anni.
-3. Per il primo semestre 2026 fanno fede le schede cartacee; dal luglio 2026 fa fede il gestionale.
+Menu → **Gestione ferie** → scegli l'anno (◀ ▶) e l'autista. La scheda si compila **da sola dalle presenze** (ferie, riposi, malattia, festivi); ogni correzione viene salvata nelle **rettifiche ferie** e **non tocca mai le presenze**, che continuano ad alimentare i file per il consulente. Per il primo semestre 2026 fanno fede le schede cartacee (importate come rettifiche); dal luglio 2026 fa fede il gestionale.
+
+**La scheda (formato 2025)**
+
+- Colonne: **N | FERIE | SETTIMANA | RIPOSO | COMP. | MAL.** e, a parte, **FESTIVO | ESITO** (PAG = pagato in busta, G gg/mm = goduto, MALATTIA).
+- In alto la card **Assunto il / Contratto**: data di assunzione, eventuale **anzianità convenzionale**, tipo di contratto (indeterminato, determinato, a chiamata), **CCNL** (TPL o NCC), eventuale **cessazione**, mesi di rapporto nell'anno e dotazione. Con **✎ Modifica** si correggono direttamente nell'anagrafica (con conferma).
+- Festivi: quelli nazionali, **San Rocco (16/08)** patrono, e dal 2026 **San Francesco (4 ottobre)**.
+
+**Dotazione**
+
+- Scaglioni per anzianità: **30** giorni fino a 10 anni, **31** da 11 a 20, **32** oltre 20. L'anzianità si conta dalla **data di anzianità convenzionale** se indicata (come nel cedolino), altrimenti dalla data di assunzione.
+- **Proporzionata** nell'anno di assunzione o cessazione: dotazione × mesi di rapporto ÷ 12 (una frazione di almeno 15 giorni vale un mese). Prima dell'assunzione e dopo la cessazione è 0.
+- Il menu **Dotazione** permette di impostarla a mano per l'anno (anche **0** per un anno senza scheda); il valore manuale ha la precedenza sul calcolo. Se per un anno ci sono più valori salvati, vale l'ultimo e la scheda lo segnala.
+
+**Ferie in continuo tra gli anni**
+
+- Le ferie di un anno completano **prima il residuo dell'anno precedente**: se le ferie 2025 non sono finite, i primi giorni di ferie del 2026 vengono contati nella scheda 2025 con l'etichetta **"goduta nel 2026"**, e nella scheda 2026 compaiono nel riquadro dei giorni passati al 2025.
+- Al contrario, se in un anno le ferie superano la dotazione, i giorni in più passano da soli all'anno successivo. Ogni giorno è contato **una sola volta**.
+- Una ferie inserita a mano appartiene alla scheda dell'anno in cui è stata inserita.
+
+**Correzioni ed eliminazioni** (tutte con conferma; in alto a destra compare "Salvato." oppure "Non salvato: motivo")
+
+- **Ferie**: **+ Aggiungi feria** (un giorno) o **+ Aggiungi periodo** (dal… al…, domeniche e festivi esclusi a scelta, senza doppioni); per togliere: spunta uno o più giorni → **Elimina selezionate** (anche le "goduta nel …", che vengono tolte dall'anno a cui appartengono).
+- **Riposi**: ✎ sulla riga → data del **riposo** (OK), **Malattia**, oppure **Elimina**; colonna **COMP.**: data del **compensativo** fino a 4 settimane dopo la domenica (OK), **Nessuno**, oppure **Auto** per tornare al calcolo dalle presenze. La ✕ elimina riposo e compensativo della settimana.
+- **Festivi**: ✎ per l'esito (goduto con data, pagato, **Malattia**, **Elimina esito**); la ✕ toglie il festivo dalla scheda, con **ripristina** in "Festivi eliminati". I festivi locali aggiunti a mano hanno la loro ✕.
+
+**Stampa ed Excel**
+
+- **🖨 Stampa**: una pagina A4 per scheda, nello stesso formato, con la riga di assunzione, contratto, mesi e dotazione sotto il titolo.
+- **⬇ Prospetto Excel**: stesso formato, già impostato per stampare su **un solo foglio A4**; con "tutti" un foglio per autista.
 
 ## 5. Fogli di viaggio (NCC)
 
@@ -386,7 +414,7 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | Connessione | Necessaria per tutte le funzioni |
 | Tecnologia | React + TypeScript + Vite, database Supabase (PostgreSQL), Cloudflare Pages, notifiche Firebase, email Resend, assistente Claude (Anthropic), app Android con Capacitor |
 
-Aggiornamenti e pubblicazione si fanno dal **menu Strumenti**: sempre voce 2 all'inizio, voce 3 alla fine, e voce 2 prima della voce 5. La **voce 5** pubblica insieme il gestionale e l'**app autisti** (stessa versione, due indirizzi).
+Aggiornamenti e pubblicazione si fanno dal **menu Strumenti**: sempre voce 2 all'inizio, voce 3 alla fine, e voce 2 prima della voce 5. La **voce 5** pubblica insieme il gestionale e l'**app autisti** (stessa versione, due indirizzi). Non pubblicare con comandi `wrangler` scritti a mano: con un ramo diverso (es. `--branch=main` per il gestionale) si aggiorna solo una versione di prova, non quella in uso.
 
 ## 17. Backup e ripristino
 
@@ -1040,7 +1068,7 @@ on conflict (slug) do nothing;
 -- le procedure di Operatività non vengono toccate).
 update manuali set titolo = 'Manuale del Gestionale', contenuto = $md$# Manuale del Gestionale Deangelisbus
 
-Versione 5.3 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
+Versione 5.4 — Ottobre 2026. Unisce il Manuale Utente v4.1 (giugno 2026) e il Manuale Amministratore v2.2 (maggio 2026), aggiornati con i moduli arrivati dopo: Noleggi, Scadenzario, Gestione ferie, sincronizzazioni automatiche, pagine App Orari e questa sezione Manuali.
 
 ## 1. Introduzione
 
@@ -1174,9 +1202,36 @@ Tipi: TPL (T), NCC (N), riposo/ferie/malattia senza tipo. Se un autista ha ripos
 
 ### 4.3 Gestione ferie
 
-1. Menu → **Gestione ferie** → scegli l'autista.
-2. La dotazione annua segue il livello CCNL (fasce di 31/32 giorni); i saldi iniziali sono caricati come rettifiche; il calcolo vale anche su più anni.
-3. Per il primo semestre 2026 fanno fede le schede cartacee; dal luglio 2026 fa fede il gestionale.
+Menu → **Gestione ferie** → scegli l'anno (◀ ▶) e l'autista. La scheda si compila **da sola dalle presenze** (ferie, riposi, malattia, festivi); ogni correzione viene salvata nelle **rettifiche ferie** e **non tocca mai le presenze**, che continuano ad alimentare i file per il consulente. Per il primo semestre 2026 fanno fede le schede cartacee (importate come rettifiche); dal luglio 2026 fa fede il gestionale.
+
+**La scheda (formato 2025)**
+
+- Colonne: **N | FERIE | SETTIMANA | RIPOSO | COMP. | MAL.** e, a parte, **FESTIVO | ESITO** (PAG = pagato in busta, G gg/mm = goduto, MALATTIA).
+- In alto la card **Assunto il / Contratto**: data di assunzione, eventuale **anzianità convenzionale**, tipo di contratto (indeterminato, determinato, a chiamata), **CCNL** (TPL o NCC), eventuale **cessazione**, mesi di rapporto nell'anno e dotazione. Con **✎ Modifica** si correggono direttamente nell'anagrafica (con conferma).
+- Festivi: quelli nazionali, **San Rocco (16/08)** patrono, e dal 2026 **San Francesco (4 ottobre)**.
+
+**Dotazione**
+
+- Scaglioni per anzianità: **30** giorni fino a 10 anni, **31** da 11 a 20, **32** oltre 20. L'anzianità si conta dalla **data di anzianità convenzionale** se indicata (come nel cedolino), altrimenti dalla data di assunzione.
+- **Proporzionata** nell'anno di assunzione o cessazione: dotazione × mesi di rapporto ÷ 12 (una frazione di almeno 15 giorni vale un mese). Prima dell'assunzione e dopo la cessazione è 0.
+- Il menu **Dotazione** permette di impostarla a mano per l'anno (anche **0** per un anno senza scheda); il valore manuale ha la precedenza sul calcolo. Se per un anno ci sono più valori salvati, vale l'ultimo e la scheda lo segnala.
+
+**Ferie in continuo tra gli anni**
+
+- Le ferie di un anno completano **prima il residuo dell'anno precedente**: se le ferie 2025 non sono finite, i primi giorni di ferie del 2026 vengono contati nella scheda 2025 con l'etichetta **"goduta nel 2026"**, e nella scheda 2026 compaiono nel riquadro dei giorni passati al 2025.
+- Al contrario, se in un anno le ferie superano la dotazione, i giorni in più passano da soli all'anno successivo. Ogni giorno è contato **una sola volta**.
+- Una ferie inserita a mano appartiene alla scheda dell'anno in cui è stata inserita.
+
+**Correzioni ed eliminazioni** (tutte con conferma; in alto a destra compare "Salvato." oppure "Non salvato: motivo")
+
+- **Ferie**: **+ Aggiungi feria** (un giorno) o **+ Aggiungi periodo** (dal… al…, domeniche e festivi esclusi a scelta, senza doppioni); per togliere: spunta uno o più giorni → **Elimina selezionate** (anche le "goduta nel …", che vengono tolte dall'anno a cui appartengono).
+- **Riposi**: ✎ sulla riga → data del **riposo** (OK), **Malattia**, oppure **Elimina**; colonna **COMP.**: data del **compensativo** fino a 4 settimane dopo la domenica (OK), **Nessuno**, oppure **Auto** per tornare al calcolo dalle presenze. La ✕ elimina riposo e compensativo della settimana.
+- **Festivi**: ✎ per l'esito (goduto con data, pagato, **Malattia**, **Elimina esito**); la ✕ toglie il festivo dalla scheda, con **ripristina** in "Festivi eliminati". I festivi locali aggiunti a mano hanno la loro ✕.
+
+**Stampa ed Excel**
+
+- **🖨 Stampa**: una pagina A4 per scheda, nello stesso formato, con la riga di assunzione, contratto, mesi e dotazione sotto il titolo.
+- **⬇ Prospetto Excel**: stesso formato, già impostato per stampare su **un solo foglio A4**; con "tutti" un foglio per autista.
 
 ## 5. Fogli di viaggio (NCC)
 
@@ -1395,7 +1450,7 @@ Esempi: "Quanti km ha il bus Mercedes?", "Armandi il 01/05 lavorava?", "Rossi er
 | Connessione | Necessaria per tutte le funzioni |
 | Tecnologia | React + TypeScript + Vite, database Supabase (PostgreSQL), Cloudflare Pages, notifiche Firebase, email Resend, assistente Claude (Anthropic), app Android con Capacitor |
 
-Aggiornamenti e pubblicazione si fanno dal **menu Strumenti**: sempre voce 2 all'inizio, voce 3 alla fine, e voce 2 prima della voce 5. La **voce 5** pubblica insieme il gestionale e l'**app autisti** (stessa versione, due indirizzi).
+Aggiornamenti e pubblicazione si fanno dal **menu Strumenti**: sempre voce 2 all'inizio, voce 3 alla fine, e voce 2 prima della voce 5. La **voce 5** pubblica insieme il gestionale e l'**app autisti** (stessa versione, due indirizzi). Non pubblicare con comandi `wrangler` scritti a mano: con un ramo diverso (es. `--branch=main` per il gestionale) si aggiorna solo una versione di prova, non quella in uso.
 
 ## 17. Backup e ripristino
 
