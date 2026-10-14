@@ -196,6 +196,10 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
       <CardTerritorio onApri={() => nav.apri({ tipo: 'territorio' })} />
       <CondividiApp />
       <Installa />
+      <div className="marchio-iso">
+        <img src="/marchio-sicert-iso9001.png" alt="Marchio SI Cert ISO 9001" />
+        <span><strong>Qualità certificata UNI EN ISO 9001:2015</strong><br />Sistema di gestione certificato SI Cert, n. 026D-DAB-Q. La nostra politica aziendale è nella pagina Info.</span>
+      </div>
     </>
   );
 }

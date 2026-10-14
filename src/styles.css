@@ -342,7 +342,14 @@ a.ridola { text-decoration: none; color: var(--inchiostro); }
 a.ridola .ridola-link { justify-self: start; }
 
 /* assistente virtuale */
-.fab-assistente { position: fixed; right: 16px; bottom: calc(76px + var(--safe-bottom)); z-index: 20; display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 999px; background: var(--blu); color: #fff; font-weight: 700; box-shadow: 0 6px 18px rgba(2, 10, 93, .35); border: 2px solid var(--giallo); }
+.fab-gruppo { position: fixed; right: 16px; bottom: calc(76px + var(--safe-bottom)); z-index: 20; display: flex; align-items: center; gap: 8px; }
+.fab-aggiorna { width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; background: #fff; color: var(--blu); border: 2px solid var(--blu); box-shadow: 0 6px 18px rgba(2, 10, 93, .25); }
+.fab-aggiorna svg { width: 20px; height: 20px; }
+.fab-aggiorna svg.gira { animation: fab-gira 1s linear infinite; }
+@keyframes fab-gira { to { transform: rotate(360deg); } }
+.marchio-iso { display: flex; align-items: center; gap: 12px; margin: 16px 0 8px; padding: 10px 14px; border-radius: 14px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.08); font-size: .85em; line-height: 1.35; }
+.marchio-iso img { height: 56px; width: auto; flex: none; }
+.fab-assistente { display: flex; cursor: grab; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 999px; background: var(--blu); color: #fff; font-weight: 700; box-shadow: 0 6px 18px rgba(2, 10, 93, .35); border: 2px solid var(--giallo); }
 .fab-assistente svg { width: 22px; height: 22px; color: var(--giallo); }
 .schermo { padding-bottom: 90px; }
 .chat-pagina { display: flex; flex-direction: column; min-height: 100%; }
