@@ -57,6 +57,7 @@ function Qualita() {
   return (
     <section className="sezione">
       <h2 className="gruppo">Qualità certificata</h2>
+      <img src="/marchio-sicert-iso9001.png" alt="Marchio SI Cert ISO 9001" style={{ height: 84, width: 'auto', float: 'right', marginLeft: 12 }} />
       <p className="testo">Sistema di gestione per la qualità certificato <strong>UNI EN ISO 9001:2015</strong> – certificato n. 026D-DAB-Q (SI Cert Italy) per trasporto pubblico locale, noleggio con conducente e trasporto scolastico con accompagnamento.</p>
       <button className="secondario" onClick={apri}>{aperta ? 'Chiudi la politica aziendale' : 'Leggi la nostra politica aziendale'}</button>
       {aperta && <div className="testo" style={{ marginTop: '.8em' }}>{testo === null ? 'Carico…' : <MdSemplice testo={testo} />}</div>}
