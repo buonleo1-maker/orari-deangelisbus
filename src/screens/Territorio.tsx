@@ -26,10 +26,39 @@ export default function Territorio({ orario, nav }: { orario: Orario; nav: Nav }
             <h2>{p.nome}</h2>
             <p>{p.motto}</p>
           </header>
-          <ul className="paese-luoghi">
-            {p.luoghi.map((l) => <li key={l.nome}><strong>{l.nome}</strong><span>{l.testo}</span></li>)}
-          </ul>
-          {p.evento && <p className="paese-evento"><b>Da non perdere:</b> {p.evento}</p>}
+          {(() => {
+            // luoghi ed eventi dal gestionale (territorio_luoghi); se non ci sono ancora, i testi inclusi nell'app
+            const oggiIso = new Date().toISOString().slice(0, 10);
+            const db = (orario.d.luoghi ?? []).filter((x) => x.paese === p.id && x.visibile).sort((a, b) => a.ordine - b.ordine || a.nome.localeCompare(b.nome));
+            const usaDb = (orario.d.luoghi ?? []).length > 0;
+            const luoghi = usaDb ? db.filter((x) => x.tipo === 'luogo') : p.luoghi.map((l, i) => ({ id: -i - 1, nome: l.nome, descrizione: l.testo, indirizzo: null as string | null, link: null as string | null }));
+            const eventi = usaDb ? db.filter((x) => x.tipo === 'evento' && (!x.data_al || x.data_al >= oggiIso)) : [];
+            const itD = (d: string) => d.split('-').reverse().join('/');
+            return (
+              <>
+                <ul className="paese-luoghi">
+                  {luoghi.map((l) => (
+                    <li key={l.id}>
+                      <strong>{l.nome}</strong>
+                      {l.descrizione && <span>{l.descrizione}</span>}
+                      {(l.indirizzo || l.link) && (
+                        <span className="gusto-azioni">
+                          {l.indirizzo && <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${l.nome} ${l.indirizzo} ${p.nome}`)}`} target="_blank" rel="noreferrer">Mappa</a>}
+                          {l.link && <a href={l.link} target="_blank" rel="noreferrer">Sito</a>}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                {usaDb ? eventi.map((e) => (
+                  <p key={e.id} className="paese-evento">
+                    <b>Da non perdere:</b> {e.nome}{e.quando ? ` – ${e.quando}` : e.data_dal ? ` – dal ${itD(e.data_dal)}${e.data_al && e.data_al !== e.data_dal ? ` al ${itD(e.data_al)}` : ''}` : ''}.{e.descrizione ? ` ${e.descrizione}` : ''}
+                    {e.link && <> <a href={e.link} target="_blank" rel="noreferrer">Programma</a></>}
+                  </p>
+                )) : p.evento && <p className="paese-evento"><b>Da non perdere:</b> {p.evento}</p>}
+              </>
+            );
+          })()}
           {(() => {
             const g = (orario.d.gusto ?? []).filter((x) => x.paese === p.id && x.visibile).sort((a, b) => a.ordine - b.ordine || a.nome.localeCompare(b.nome));
             const piatti = g.filter((x) => x.tipo === 'piatto');

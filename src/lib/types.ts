@@ -35,6 +35,10 @@ export interface Gusto {
   id: number; paese: string; tipo: 'piatto' | 'ristorante'; nome: string; descrizione: string | null;
   indirizzo: string | null; telefono: string | null; link: string | null; ordine: number; visibile: boolean;
 }
+export interface LuogoTerritorio {
+  id: number; paese: string; tipo: 'luogo' | 'evento'; nome: string; descrizione: string | null; quando: string | null;
+  data_dal: string | null; data_al: string | null; indirizzo: string | null; link: string | null; ordine: number; visibile: boolean;
+}
 export interface Foto {
   id: number; paese: string; percorso: string; didascalia: string | null; crediti: string | null; ordine: number; visibile: boolean;
 }
@@ -44,7 +48,7 @@ export interface Sospensione { id: number; dal: string; al: string; ambito: 'tut
 export interface Dati {
   generato: string;
   linee: Linea[]; fermate: Fermata[]; percorsi: Percorso[]; percorsi_fermate: PercorsoFermata[];
-  corse: Corsa[]; tariffe: Tariffa[]; avvisi: Avviso[]; novita?: Novita[]; gusto?: Gusto[]; foto?: Foto[]; periodi: Periodo[]; sospensioni: Sospensione[];
+  corse: Corsa[]; tariffe: Tariffa[]; avvisi: Avviso[]; novita?: Novita[]; gusto?: Gusto[]; luoghi?: LuogoTerritorio[]; foto?: Foto[]; periodi: Periodo[]; sospensioni: Sospensione[];
 }
 
 /** Un passaggio di una corsa a una fermata, già calcolato. */
