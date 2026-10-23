@@ -10,6 +10,7 @@ import { nonLette } from '../lib/lette';
 import { leggiSalvate } from '../lib/preferiti';
 import CardRidola from '../components/CardRidola';
 import CardTerritorio from '../components/CardTerritorio';
+import CardAudioguida from '../components/CardAudioguida';
 import CondividiApp from '../components/CondividiApp';
 import { fotoOrdinate, urlFoto } from '../lib/foto';
 import CardBiglietterie from '../components/CardBiglietterie';
@@ -111,6 +112,10 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 22s7-7.5 7-13a7 7 0 0 0-14 0c0 5.5 7 13 7 13z" /><circle cx="12" cy="9" r="2.5" /></svg>
         <span><strong>Fermate vicino a me</strong><small>Trova la fermata più vicina e il prossimo bus</small></span>
       </button>
+
+      {(orario.d.audioguida ?? []).some((t) => t.visibile && t.percorso === 'panoramico-matera') && (
+        <CardAudioguida onApri={() => nav.apri({ tipo: 'audioguida', percorso: 'panoramico-matera' })} />
+      )}
 
       <AttivaNotifiche invito />
 

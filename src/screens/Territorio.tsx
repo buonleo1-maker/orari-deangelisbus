@@ -1,6 +1,7 @@
 import type { Nav } from '../App';
 import { fotoOrdinate, urlFoto } from '../lib/foto';
 import Testata from '../components/Testata';
+import CardAudioguida from '../components/CardAudioguida';
 import { PAESI } from '../lib/territorio';
 import type { Orario } from '../lib/schedule';
 
@@ -11,6 +12,9 @@ export default function Territorio({ orario, nav }: { orario: Orario; nav: Nav }
     <>
       <Testata titolo="Scopri il territorio" sotto="Matera, Grottole, Miglionico e Montescaglioso" onIndietro={nav.indietro} />
       <p className="terr-intro">Borghi, castelli, abbazie e i Sassi di Matera: tutto a pochi chilometri, e con noi ci arrivi in bus.</p>
+      {(orario.d.audioguida ?? []).some((t) => t.visibile && t.percorso === 'panoramico-matera') && (
+        <CardAudioguida onApri={() => nav.apri({ tipo: 'audioguida', percorso: 'panoramico-matera' })} />
+      )}
       {tutteFoto.length > 0 && (
         <button className="terr-galleria" onClick={() => nav.apri({ tipo: 'galleria' })}>
           <span className="tg-anteprime">{tutteFoto.slice(0, 3).map((f) => <img key={f.id} src={urlFoto(f)} alt="" loading="lazy" />)}</span>

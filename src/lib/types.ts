@@ -42,13 +42,19 @@ export interface LuogoTerritorio {
 export interface Foto {
   id: number; paese: string; percorso: string; didascalia: string | null; crediti: string | null; ordine: number; visibile: boolean;
 }
+export interface TappaAudioguida {
+  id: number; percorso: string; ordine: number; nome: string; lat: number | null; lon: number | null; raggio_m: number;
+  testo_it: string | null; testo_en: string | null; testo_de: string | null; testo_fr: string | null; testo_es: string | null;
+  audio_it: string | null; audio_en: string | null; audio_de: string | null; audio_fr: string | null; audio_es: string | null;
+  visibile: boolean;
+}
 export interface Periodo { id: number; linea_id: string; dal: string; al: string; note: string | null; solo_informativo?: boolean }
 export interface Sospensione { id: number; dal: string; al: string; ambito: 'tutti' | 'scolastico'; linea_id: string | null; descrizione: string | null }
 
 export interface Dati {
   generato: string;
   linee: Linea[]; fermate: Fermata[]; percorsi: Percorso[]; percorsi_fermate: PercorsoFermata[];
-  corse: Corsa[]; tariffe: Tariffa[]; avvisi: Avviso[]; novita?: Novita[]; gusto?: Gusto[]; luoghi?: LuogoTerritorio[]; foto?: Foto[]; periodi: Periodo[]; sospensioni: Sospensione[];
+  corse: Corsa[]; tariffe: Tariffa[]; avvisi: Avviso[]; novita?: Novita[]; gusto?: Gusto[]; luoghi?: LuogoTerritorio[]; foto?: Foto[]; audioguida?: TappaAudioguida[]; periodi: Periodo[]; sospensioni: Sospensione[];
 }
 
 /** Un passaggio di una corsa a una fermata, già calcolato. */

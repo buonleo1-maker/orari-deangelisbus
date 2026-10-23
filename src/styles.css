@@ -561,3 +561,41 @@ a.ridola .ridola-link { justify-self: start; }
 @media (prefers-color-scheme: dark) { .card-biglietterie h2, .card-biglietterie li a { color: var(--giallo); } }
 /* slogan sotto il logo */
 .testata.con-logo p.slogan { font-style: italic; letter-spacing: .3px; }
+
+/* audioguida (v56) */
+.card-audioguida { display: flex; align-items: center; gap: 14px; margin: 14px 18px 0; width: calc(100% - 36px); padding: 16px; border-radius: 6px 6px 18px 6px; background: linear-gradient(135deg, var(--blu) 0%, #1b2f8f 100%); color: #fff; border-left: 8px solid var(--giallo); text-align: left; }
+.card-audioguida svg { width: 40px; height: 40px; flex: none; color: var(--giallo); }
+.card-audioguida span { display: grid; gap: 2px; }
+.card-audioguida strong { font-family: var(--cond); font-size: 1.3rem; }
+.card-audioguida small { opacity: .9; }
+.card-audioguida em { font-style: normal; font-size: .8rem; color: var(--giallo); }
+.ca-nuovo { justify-self: start; font-style: normal; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; background: var(--giallo); color: var(--blu); padding: 1px 7px; border-radius: 4px; }
+.ag-lingue { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 18px 0; }
+.ag-lingue button { padding: 8px 12px; border-radius: 999px; border: 2px solid var(--riga); background: var(--superficie); font-weight: 600; }
+.ag-lingue button.attiva { background: var(--blu); border-color: var(--blu); color: #fff; }
+@media (prefers-color-scheme: dark) { .ag-lingue button.attiva { background: var(--giallo); border-color: var(--giallo); color: var(--blu); } }
+.ag-avvio { display: grid; justify-items: center; gap: 12px; margin: 18px; padding: 22px 18px; background: var(--superficie); border: 2px solid var(--blu); border-radius: 12px; text-align: center; }
+.ag-avvio svg { width: 54px; height: 54px; color: var(--blu); }
+.ag-avvio p { margin: 0; }
+.ag-avvio small { color: var(--tenue); }
+@media (prefers-color-scheme: dark) { .ag-avvio { border-color: var(--giallo); } .ag-avvio svg { color: var(--giallo); } }
+.ag-lettore { display: grid; gap: 6px; margin: 18px; padding: 18px; background: var(--blu); color: #fff; border-radius: 6px 6px 18px 6px; border-left: 8px solid var(--giallo); }
+.ag-stato { font-size: .8rem; text-transform: uppercase; letter-spacing: .6px; color: var(--giallo); font-weight: 700; }
+.ag-stato small { text-transform: none; letter-spacing: 0; color: #fff; opacity: .8; font-weight: 400; }
+.ag-lettore strong { font-family: var(--cond); font-size: 1.35rem; }
+.ag-testo { margin: 0; font-size: 1.05rem; line-height: 1.5; }
+.ag-comandi { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.ag-comandi button { padding: 9px 14px; border-radius: 8px; background: rgba(255, 255, 255, .14); color: #fff; font-weight: 600; }
+.ag-comandi button:first-child { background: var(--giallo); color: var(--blu); }
+.ag-avviso { padding: 10px 12px; border-left: 4px solid var(--giallo); background: var(--superficie); border-radius: 6px; }
+.ag-titolo-tappe { margin-top: 22px; }
+.ag-tappe { list-style: none; margin: 0 18px; padding: 0; display: grid; gap: 8px; }
+.ag-tappe button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; background: var(--superficie); border: 2px solid var(--riga); border-radius: 10px; }
+.ag-tappe li.ora button { border-color: var(--giallo); box-shadow: 0 0 0 2px var(--giallo) inset; }
+.ag-tappe li.fatta button { opacity: .7; }
+.ag-n { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--blu); color: #fff; font-weight: 700; font-size: .9rem; }
+.ag-tappe li.fatta .ag-n { background: #2e7d32; }
+.ag-nome { flex: 1; display: grid; font-weight: 600; }
+.ag-nome small { font-weight: 400; color: var(--tenue); }
+.ag-play { color: var(--blu); font-size: 1rem; }
+@media (prefers-color-scheme: dark) { .ag-play { color: var(--giallo); } }

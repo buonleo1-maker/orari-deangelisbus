@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { App as CapApp } from '@capacitor/app';
 import { aggiornaDati, datiIniziali } from './lib/data';
 import { Orario } from './lib/schedule';
@@ -20,6 +20,7 @@ import Assistente from './screens/Assistente';
 import Territorio from './screens/Territorio';
 import Vicine from './screens/Vicine';
 import Galleria from './screens/Galleria';
+import Audioguida from './screens/Audioguida';
 import BottoneAssistente from './components/BottoneAssistente';
 
 export type Schermata =
@@ -35,7 +36,8 @@ export type Schermata =
   | { tipo: 'assistente' }
   | { tipo: 'territorio' }
   | { tipo: 'galleria' }
-  | { tipo: 'vicine' };
+  | { tipo: 'vicine' }
+  | { tipo: 'audioguida'; percorso?: string };
 
 export interface Nav {
   apri: (s: Schermata) => void;
@@ -62,6 +64,11 @@ export default function App() {
       setPila([{ tipo: 'tab', tab: 'home' }, { tipo: 'novita' }]);
       window.history.replaceState(null, '', window.location.pathname);
     }
+    // QR code sul bus panoramico: ?apri=audioguida (eventualmente &percorso=...)
+    if (q.get('apri') === 'audioguida') {
+      setPila([{ tipo: 'tab', tab: 'home' }, { tipo: 'audioguida', percorso: q.get('percorso') ?? undefined }]);
+      window.history.replaceState(null, '', window.location.pathname);
+    }
     const daSw = (e: MessageEvent) => { if (e.data?.apri === 'novita') setPila([{ tipo: 'tab', tab: 'home' }, { tipo: 'novita' }]); };
     navigator.serviceWorker?.addEventListener('message', daSw);
     return () => navigator.serviceWorker?.removeEventListener('message', daSw);
@@ -80,13 +87,17 @@ export default function App() {
   }), []);
 
   // Riaprendo l'app dopo un po' si riparte dalla schermata iniziale, con orari aggiornati
+  // (ma non durante l'audioguida: il passeggero puo' uscire per fare foto e deve ritrovarla com'era)
+  const pilaRef = useRef(pila);
+  pilaRef.current = pila;
   const [ripresa, setRipresa] = useState(0);
   useEffect(() => {
     const SOGLIA_MS = 30_000; // tempo in secondo piano oltre il quale si torna alla home
     let nascostaDal = 0;
     const via = () => { nascostaDal = Date.now(); };
     const torna = () => {
-      if (nascostaDal && Date.now() - nascostaDal >= SOGLIA_MS) {
+      const inAudioguida = pilaRef.current[pilaRef.current.length - 1]?.tipo === 'audioguida';
+      if (nascostaDal && !inAudioguida && Date.now() - nascostaDal >= SOGLIA_MS) {
         setPila([{ tipo: 'tab', tab: 'home' }]);
         setRipresa((n) => n + 1);
         aggiorna();
@@ -123,6 +134,7 @@ export default function App() {
     case 'corsa': contenuto = <CorsaView orario={orario} codice={cima.codice} giorno={cima.giorno} nav={nav} />; break;
     case 'categoria': contenuto = <Linee orario={orario} nav={nav} soloExtraurbano />; break;
     case 'vicine': contenuto = <Vicine orario={orario} nav={nav} />; break;
+    case 'audioguida': contenuto = <Audioguida orario={orario} nav={nav} percorso={cima.percorso} />; break;
     case 'galleria': contenuto = <Galleria orario={orario} nav={nav} />; break;
     case 'territorio': contenuto = <Territorio orario={orario} nav={nav} />; break;
     case 'assistente': contenuto = <Assistente orario={orario} nav={nav} />; break;

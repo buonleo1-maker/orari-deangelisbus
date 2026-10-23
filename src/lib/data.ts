@@ -3,17 +3,17 @@ import snapshot from '../data/snapshot.json';
 import type { Dati } from './types';
 
 const CACHE_KEY = 'orari_dati_v1';
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+export const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 export const supabase = url && key ? createClient(url, key, { auth: { persistSession: false } }) : null;
 
 const TABELLE = {
   linee: 'orari_linee', fermate: 'orari_fermate', percorsi: 'orari_percorsi',
   percorsi_fermate: 'orari_percorsi_fermate', corse: 'orari_corse', tariffe: 'orari_tariffe',
-  avvisi: 'orari_avvisi', periodi: 'orari_periodi', sospensioni: 'orari_sospensioni', novita: 'orari_novita', gusto: 'territorio_gusto', luoghi: 'territorio_luoghi', foto: 'territorio_foto',
+  avvisi: 'orari_avvisi', periodi: 'orari_periodi', sospensioni: 'orari_sospensioni', novita: 'orari_novita', gusto: 'territorio_gusto', luoghi: 'territorio_luoghi', foto: 'territorio_foto', audioguida: 'audioguida_tappe',
 } as const;
 /** Tabelle facoltative: se non esistono ancora, l'app funziona lo stesso. */
-const FACOLTATIVE = new Set<string>(['orari_novita', 'territorio_gusto', 'territorio_luoghi', 'territorio_foto']);
+const FACOLTATIVE = new Set<string>(['orari_novita', 'territorio_gusto', 'territorio_luoghi', 'territorio_foto', 'audioguida_tappe']);
 
 /** Dati disponibili subito: copia salvata sul telefono, altrimenti quelli inclusi nell'app. */
 export function datiIniziali(): Dati {
