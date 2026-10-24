@@ -11,6 +11,7 @@ import { leggiSalvate } from '../lib/preferiti';
 import CardRidola from '../components/CardRidola';
 import CardTerritorio from '../components/CardTerritorio';
 import CardAudioguida from '../components/CardAudioguida';
+import CardPrenotaAuto from '../components/CardPrenotaAuto';
 import CondividiApp from '../components/CondividiApp';
 import { fotoOrdinate, urlFoto } from '../lib/foto';
 import CardBiglietterie from '../components/CardBiglietterie';
@@ -172,6 +173,7 @@ export default function Home({ orario, nav, casa }: { orario: Orario; nav: Nav; 
       </button>
 
       <CardPreventivo onApri={() => nav.apri({ tipo: 'preventivo' })} />
+      <CardPrenotaAuto onApri={(servizio) => nav.apri({ tipo: 'prenota-auto', servizio })} />
 
       <CardRidola />
       {(() => {

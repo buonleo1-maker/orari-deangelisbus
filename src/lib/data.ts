@@ -73,6 +73,26 @@ export async function inviaRichiesta(r: Richiesta): Promise<boolean> {
   }
 }
 
+export interface PrenotazioneAuto {
+  servizio: 'ultimo_miglio' | 'visita_medica';
+  nome: string; cognome: string; telefono: string; email: string | null;
+  per_altri: boolean; passeggero_nome: string | null; passeggero_telefono: string | null;
+  data: string | null; ora: string | null; partenza: string; destinazione: string; corsa: string | null;
+  attesa: boolean; ritorno: boolean; ora_ritorno: string | null;
+  passeggeri: number; bagagli: number | null; esigenze: string | null; note: string | null; consenso_privacy: boolean;
+}
+
+/** Invia una prenotazione di auto/minivan con conducente. Restituisce true se salvata. */
+export async function inviaPrenotazioneAuto(p: PrenotazioneAuto): Promise<boolean> {
+  if (!supabase) return false;
+  try {
+    const { error } = await supabase.from('prenotazioni_auto').insert(p);
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
 export interface Segnalazione {
   tipo: 'suggerimento' | 'reclamo' | 'segnalazione' | 'complimento';
   linea_id: string | null; data_evento: string | null; ora_evento: string | null;

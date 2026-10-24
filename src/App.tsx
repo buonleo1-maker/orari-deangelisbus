@@ -21,6 +21,7 @@ import Territorio from './screens/Territorio';
 import Vicine from './screens/Vicine';
 import Galleria from './screens/Galleria';
 import Audioguida from './screens/Audioguida';
+import PrenotaAuto from './screens/PrenotaAuto';
 import BottoneAssistente from './components/BottoneAssistente';
 
 export type Schermata =
@@ -29,6 +30,7 @@ export type Schermata =
   | { tipo: 'corsa'; codice: string; giorno: string }
   | { tipo: 'fermata'; id: number }
   | { tipo: 'preventivo' }
+  | { tipo: 'prenota-auto'; servizio?: 'ultimo_miglio' | 'visita_medica' }
   | { tipo: 'categoria'; categoria: 'extraurbano' }
   | { tipo: 'servizio'; id: string }
   | { tipo: 'novita' }
@@ -142,6 +144,7 @@ export default function App() {
     case 'novita': contenuto = <NovitaView orario={orario} nav={nav} />; break;
     case 'servizio': contenuto = <Servizio id={cima.id} nav={nav} />; break;
     case 'preventivo': contenuto = <Preventivo nav={nav} />; break;
+    case 'prenota-auto': contenuto = <PrenotaAuto orario={orario} nav={nav} servizio={cima.servizio} />; break;
     case 'fermata': contenuto = <Partenze orario={orario} fermataId={cima.id} nav={nav} dettaglio onScegli={scegliCasa} casa={fermataCasa} />; break;
     default:
       switch (cima.tab) {

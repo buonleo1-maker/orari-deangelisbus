@@ -80,6 +80,10 @@ export default function Info({ orario, stato, onAggiorna, nav }: {
         <strong>Richiedi un preventivo</strong>
         <span>Trasferimenti, noleggio con autista, gite di gruppo. Ti ricontattiamo noi.</span>
       </button>
+      <button className="richiesta richiesta-auto" onClick={() => nav.apri({ tipo: 'prenota-auto' })}>
+        <strong>Prenota auto o minivan</strong>
+        <span>Dalla fermata del bus a destinazione, o accompagnamento alle visite mediche.</span>
+      </button>
       {avvisi.length > 0 && (
         <section className="sezione">
           <h2 className="gruppo">Avvisi</h2>
