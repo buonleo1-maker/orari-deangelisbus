@@ -8,3 +8,6 @@ android/.idea/
 .wrangler/
 
 supabase/.temp/
+
+# archivi zip: non vanno su GitHub
+*.zip
