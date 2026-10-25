@@ -36,7 +36,13 @@ Tutto il codice sta su **GitHub** (privato). Ogni PC ne ha una copia; la chiavet
 Per pubblicare: voce **4** (app Orari) o **5** (gestionale). Il menu controlla da solo che il `.env` sia giusto
 prima di pubblicare, cosi' non si rischia di mettere online un sito senza chiavi.
 
-Copia di sicurezza: voce **6** (chiavetta USB, cartella `DEANGELISBUS-COPIA`).
+Copia di sicurezza: voce **6** (chiavetta USB, cartella `DEANGELISBUS-COPIA`): copia app Orari, gestionale,
+**Sassi in Bus** (`C:\SASSINBUS`), la chiave Android (`C:\DEANGELISBUS\CHIAVI`) e il materiale del Play Store (`C:\DEANGELISBUS\PLAYSTORE`).
+
+**Sassi in Bus** e' un progetto separato (GitHub `sassinbus`, ramo **main**, cartella `C:\SASSINBUS`) con il suo menu
+`C:\SASSINBUS\strumenti\SassiInBus-Strumenti.bat` per pubblicare app e pannello. Le voci **2**, **3**, **6** e **7** di questo menu
+lo aggiornano, lo salvano, lo copiano e lo controllano insieme agli altri. Su un PC nuovo:
+`git clone https://github.com/buonleo1-maker/sassinbus.git C:\SASSINBUS` e poi, nel suo menu, voce 1.
 
 ## Regole d'oro
 

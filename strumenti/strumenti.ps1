@@ -2,6 +2,7 @@
 #  STRUMENTI DEANGELISBUS - lavorare da qualsiasi PC + copia su USB
 #  Progetti: app Orari (repo orari-deangelisbus, ramo main)
 #            gestionale (repo deangelisbus-gestionale, ramo master)
+#            Sassi in Bus (repo sassinbus, ramo main, C:\SASSINBUS): qui solo aggiorna/salva/copia, pubblica dal suo menu
 #  Avvio: doppio clic su "DeAngelisBus-Strumenti.bat"
 #  NB: testi senza accenti di proposito (compatibilita' PowerShell 5).
 # =====================================================================
@@ -22,6 +23,11 @@ $PAGES_GEST  = 'amministrazione-deangelisbus-v2'
 $PAGES_AUTISTI = 'deangelisbussrl-app'   # app autisti: stessa versione del gestionale, ramo di produzione 'main'
 $env:GIT_MERGE_AUTOEDIT = 'no'           # le unioni non aprono la finestra della descrizione
 $BACKUP_DA_TENERE = 1                    # copie del database tenute su PC/chiavetta (online restano 30 giorni + una al mese)
+# Progetto separato Sassi in Bus (Ridola Viaggi + Deangelisbus S.r.l.): ha il suo menu, qui viene solo aggiornato, salvato e copiato
+# Sul PC: C:\SASSINBUS  -  sulla chiavetta: <chiavetta>\DEANGELISBUS-USB-v21\sassinbus
+$SASSINBUS   = if ($SU_USB) { Join-Path $BASE 'sassinbus' } else { Join-Path $env:SystemDrive 'SASSINBUS' }
+# Cartelle da copiare sulla chiavetta oltre ai progetti (chiave di firma Android e materiale del Play Store)
+$EXTRA_USB   = @(@((Join-Path $env:SystemDrive 'DEANGELISBUS\CHIAVI'), 'CHIAVI'), @((Join-Path $env:SystemDrive 'DEANGELISBUS\PLAYSTORE'), 'PLAYSTORE'))
 
 function Titolo($t) { Write-Host ''; Write-Host ('=' * 64) -ForegroundColor DarkCyan; Write-Host "  $t" -ForegroundColor Cyan; Write-Host ('=' * 64) -ForegroundColor DarkCyan }
 function Ok($t)     { Write-Host "  [OK] $t" -ForegroundColor Green }
@@ -164,6 +170,7 @@ function Aggiorna-Tutto {
   Stato-Postazione
   Aggiorna-Repo $ORARI 'App Orari'
   Aggiorna-Repo $script:REPO_GEST 'Gestionale'
+  if (Test-Path "$SASSINBUS\.git") { Aggiorna-Repo $SASSINBUS 'Sassi in Bus' }
   Scarica-Backup -Silenzioso
 }
 
@@ -193,6 +200,7 @@ function Salva-Tutto {
   Stato-Postazione
   Salva-Repo $ORARI 'App Orari'
   Salva-Repo $script:REPO_GEST 'Gestionale'
+  if (Test-Path "$SASSINBUS\.git") { Salva-Repo $SASSINBUS 'Sassi in Bus' }
 }
 
 # ---------- 4/5. pubblica ----------
@@ -230,7 +238,10 @@ function Copia-Usb {
   if (-not (Test-Path "$($lettera):\")) { Errore "Unita' $($lettera): non trovata"; return }
   $dest = "$($lettera):\DEANGELISBUS-COPIA"
   $escludi = @('node_modules', 'dist', '.wrangler', 'build', '.gradle')
-  foreach ($p in @(@($ORARI, 'orari-deangelisbus'), @($script:REPO_GEST, 'gestionale'))) {
+  $elenco = @(@($ORARI, 'orari-deangelisbus'), @($script:REPO_GEST, 'gestionale'))
+  if (Test-Path $SASSINBUS) { $elenco += ,@($SASSINBUS, 'sassinbus') }
+  foreach ($x in $EXTRA_USB) { if (Test-Path $x[0]) { $elenco += ,$x } }
+  foreach ($p in $elenco) {
     if (-not $p[0]) { continue }
     Write-Host "  Copio $($p[1])..."
     robocopy $p[0] "$dest\$($p[1])" /MIR /XD $escludi /R:1 /W:1 /NFL /NDL /NJH /NP | Out-Null
@@ -255,6 +266,10 @@ function Controllo {
     if ($script:APP_GEST) { Ok "Gestionale: app da compilare in $($script:APP_GEST)"; Controlla-Env $script:APP_GEST 'Gestionale' | Out-Null }
     git -C $script:REPO_GEST fetch -q 2>$null; $st = git -C $script:REPO_GEST status -sb | Select-Object -First 1; Write-Host "       $st"
   } else { Avviso "Gestionale non presente (usa la voce 1)" }
+  if (Test-Path "$SASSINBUS\.git") {
+    Ok "Sassi in Bus: $SASSINBUS (ramo $(git -C $SASSINBUS branch --show-current)) - menu proprio in $SASSINBUS\strumenti"
+    git -C $SASSINBUS fetch -q 2>$null; $st = git -C $SASSINBUS status -sb | Select-Object -First 1; Write-Host "       $st"
+  } else { Avviso "Sassi in Bus non presente su questo PC (git clone https://github.com/buonleo1-maker/sassinbus.git $SASSINBUS)" }
   Write-Host "  (Se accanto al ramo compare 'behind' devi aggiornare; se compare 'ahead' devi salvare.)"
 }
 
