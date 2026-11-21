@@ -3,6 +3,8 @@
 //   riassunto { id }    -> riassume con l'AI il PDF della circolare caricato nello spazio privato "anav"
 // Accesso: amministratori del gestionale (login) oppure cron notturno (chiave backup_cron_secret del Vault).
 // Il testo delle circolari resta nell'area riservata ANAV: qui si salvano solo i dati pubblici.
+// v2 (21/11/2026): chiavi nuove (sb_secret per il database, sb_publishable per l'utente),
+// con ripiego sulle Legacy. "Enforce JWT verification" DISATTIVATA.
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 const CORS = {
@@ -12,6 +14,12 @@ const CORS = {
 };
 const json = (d: unknown, status = 200) => new Response(JSON.stringify(d), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
 const env = (k: string) => Deno.env.get(k) ?? '';
+const chiaviNuove = (k: string): string[] => {
+  try { return Object.values(JSON.parse(env(k) || '{}')).filter((v): v is string => typeof v === 'string' && v.length > 0); }
+  catch { return []; }
+};
+const CHIAVE_DB = chiaviNuove('SUPABASE_SECRET_KEYS')[0] || env('SUPABASE_SERVICE_ROLE_KEY');
+const CHIAVE_PUBBLICA = chiaviNuove('SUPABASE_PUBLISHABLE_KEYS')[0] || env('SUPABASE_ANON_KEY');
 const BASE = 'https://anav.it';
 const MESI: Record<string, number> = { gennaio: 1, febbraio: 2, marzo: 3, aprile: 4, maggio: 5, giugno: 6, luglio: 7, agosto: 8, settembre: 9, ottobre: 10, novembre: 11, dicembre: 12 };
 
@@ -168,12 +176,15 @@ async function gestisci(req: Request): Promise<Response> {
   if (req.method !== 'POST') return json({ errore: 'Metodo non consentito' }, 405);
   let corpo: Record<string, unknown> = {};
   try { corpo = await req.json(); } catch { /* vuoto */ }
-  const db = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false } });
+  const db = createClient(env('SUPABASE_URL'), CHIAVE_DB, { auth: { persistSession: false, autoRefreshToken: false } });
   const cron = req.headers.get('x-cron-secret');
   let ok = false;
   if (cron) ok = (await db.rpc('backup_verifica_chiave', { p_nome: 'backup_cron_secret', p_valore: cron })).data === true && corpo.azione === 'aggiorna';
   else {
-    const u = createClient(env('SUPABASE_URL'), env('SUPABASE_ANON_KEY'), { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } }, auth: { persistSession: false } });
+    const auth = req.headers.get('Authorization') ?? '';
+    // solo un token utente (JWT): le chiavi sb_ non sono utenti
+    if (!/^Bearer\s+ey/i.test(auth)) return json({ errore: 'Accesso riservato agli amministratori del gestionale.' }, 403);
+    const u = createClient(env('SUPABASE_URL'), CHIAVE_PUBBLICA, { global: { headers: { Authorization: auth } }, auth: { persistSession: false } });
     ok = (await u.rpc('is_admin_gestionale')).data === true;
   }
   if (!ok) return json({ errore: 'Accesso riservato agli amministratori del gestionale.' }, 403);
