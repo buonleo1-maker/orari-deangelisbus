@@ -1,10 +1,12 @@
-﻿# =====================================================================
+# =====================================================================
 #  STRUMENTI DEANGELISBUS - lavorare da qualsiasi PC + copia su USB
 #  Progetti: app Orari (repo orari-deangelisbus, ramo main)
 #            gestionale (repo deangelisbus-gestionale, ramo master)
 #            Sassi in Bus (repo sassinbus, ramo main, C:\SASSINBUS): qui solo aggiorna/salva/copia, pubblica dal suo menu
 #  Avvio: doppio clic su "DeAngelisBus-Strumenti.bat"
 #  NB: testi senza accenti di proposito (compatibilita' PowerShell 5).
+#  21/11/2026: chiavi Supabase nuove. Nei .env serve la chiave PUBLISHABLE (sb_publishable_...):
+#              se trova la vecchia chiave anon (eyJ...) la sostituisce chiedendola una volta sola.
 # =====================================================================
 $ErrorActionPreference = 'Continue'
 # Le cartelle si ricavano dalla posizione di questo script: <BASE>\orari-deangelisbus\strumenti
@@ -83,15 +85,43 @@ function Controlla-Programmi {
   if (Get-Command node -ErrorAction SilentlyContinue) { Ok ("Node.js: " + (node --version)) } else { Errore "Node.js non installato: scarica la versione LTS da https://nodejs.org"; $ok = $false }
   return $ok
 }
+$script:CHIAVE_PUB = $null   # chiave publishable chiesta in questa sessione (riusata per tutti i progetti)
+function Chiedi-ChiavePublishable {
+  if ($script:CHIAVE_PUB) { return $script:CHIAVE_PUB }
+  Write-Host "  Serve la chiave PUBLISHABLE di Supabase (Settings > API Keys > Publishable key, inizia con sb_publishable_)." -ForegroundColor White
+  for ($i = 0; $i -lt 3; $i++) {
+    $k = (Chiedi "Incolla qui la chiave publishable").Trim()
+    if ($k -match '^sb_publishable_[A-Za-z0-9_-]+$') { $script:CHIAVE_PUB = $k; return $k }
+    Errore "Non e' una chiave publishable (deve iniziare con sb_publishable_). Non usare la secret!"
+  }
+  return $null
+}
+function File-Env($cartella) {
+  return @('.env', '.env.local', '.env.production') | ForEach-Object { Join-Path $cartella $_ } | Where-Object { Test-Path $_ }
+}
+function Migra-ChiaveEnv($cartella, $nome) {
+  # sostituisce SOLO il valore di VITE_SUPABASE_ANON_KEY se e' ancora la vecchia chiave anon (eyJ...); il resto del file resta uguale
+  foreach ($f in @(File-Env $cartella)) {
+    $t = [IO.File]::ReadAllText($f)
+    if ($t -notmatch '(?m)^\s*VITE_SUPABASE_ANON_KEY\s*=\s*["'']?eyJ') { continue }
+    Avviso "$nome - $(Split-Path $f -Leaf) usa ancora la VECCHIA chiave anon: la sostituisco con quella publishable."
+    $k = Chiedi-ChiavePublishable
+    if (-not $k) { Errore "$nome - chiave non inserita: $(Split-Path $f -Leaf) lasciato com'era."; return }
+    $t2 = [regex]::Replace($t, '(?m)^(\s*VITE_SUPABASE_ANON_KEY\s*=\s*["'']?)eyJ[A-Za-z0-9_.-]+', ('${1}' + $k))
+    [IO.File]::WriteAllText($f, $t2, (New-Object System.Text.UTF8Encoding $false))
+    Ok "$nome - $(Split-Path $f -Leaf) aggiornato con la chiave publishable"
+  }
+}
 function Controlla-Env($cartella, $nome) {
   # accetta .env, .env.local o .env.production (Vite li legge tutti)
-  $f = @('.env', '.env.local', '.env.production') | ForEach-Object { Join-Path $cartella $_ } | Where-Object { Test-Path $_ } | Select-Object -First 1
+  Migra-ChiaveEnv $cartella $nome
+  $f = File-Env $cartella | Select-Object -First 1
   if (-not $f) { Errore "$nome - manca il file .env (o .env.local) in $cartella"; return $false }
   $t = Get-Content $f -Raw
-  if ($t -notmatch 'VITE_SUPABASE_URL\s*=\s*["'']?https://' -or $t -notmatch 'VITE_SUPABASE_ANON_KEY\s*=\s*["'']?(eyJ|sb_publishable_)' -or $t -notmatch $PROGETTO_SB) {
-    Errore "$nome - il file $(Split-Path $f -Leaf) non e' completo (servono VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY del progetto $PROGETTO_SB)"; return $false
+  if ($t -notmatch 'VITE_SUPABASE_URL\s*=\s*["'']?https://' -or $t -notmatch 'VITE_SUPABASE_ANON_KEY\s*=\s*["'']?sb_publishable_' -or $t -notmatch $PROGETTO_SB) {
+    Errore "$nome - il file $(Split-Path $f -Leaf) non e' corretto (servono VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY = chiave sb_publishable_ del progetto $PROGETTO_SB)"; return $false
   }
-  Ok "$nome - file $(Split-Path $f -Leaf) presente e corretto"; return $true
+  Ok "$nome - file $(Split-Path $f -Leaf) presente e corretto (chiave publishable)"; return $true
 }
 function Scrivi-Env($cartella, $chiave) {
   $testo = "VITE_SUPABASE_URL=https://$PROGETTO_SB.supabase.co`r`nVITE_SUPABASE_ANON_KEY=$chiave`r`n"
@@ -129,15 +159,15 @@ function Prima-Installazione {
   # file .env (non stanno su GitHub)
   $chiave = $null
   foreach ($c in @($ORARI, $script:APP_GEST)) {
-    if ($c -and (Test-Path "$c\.env")) { $m = Select-String -Path "$c\.env" -Pattern '^VITE_SUPABASE_ANON_KEY=((eyJ|sb_publishable_)\S+)'; if ($m) { $chiave = $m.Matches[0].Groups[1].Value } }
-  }
-  if (-not $chiave) {
-    Write-Host "  Serve la chiave 'anon public' di Supabase (Project Settings > API Keys > Legacy > anon)."
-    $chiave = Chiedi "Incolla qui la chiave (inizia con eyJ)"
+    if ($c -and (Test-Path "$c\.env")) { $m = Select-String -Path "$c\.env" -Pattern '^VITE_SUPABASE_ANON_KEY=(sb_publishable_\S+)'; if ($m) { $chiave = $m.Matches[0].Groups[1].Value } }
   }
   foreach ($p in @(@($ORARI, 'App Orari'), @($script:APP_GEST, 'Gestionale'))) {
-    if ($p[0] -and -not (Test-Path "$($p[0])\.env")) { Scrivi-Env $p[0] $chiave; Ok "$($p[1]) - creato il file .env" }
+    if ($p[0] -and -not (Test-Path "$($p[0])\.env")) {
+      if (-not $chiave) { $chiave = Chiedi-ChiavePublishable }
+      if ($chiave) { Scrivi-Env $p[0] $chiave; Ok "$($p[1]) - creato il file .env" } else { Errore "$($p[1]) - .env non creato (manca la chiave)" }
+    }
   }
+  foreach ($p in @(@($ORARI, 'App Orari'), @($script:APP_GEST, 'Gestionale'))) { if ($p[0]) { Migra-ChiaveEnv $p[0] $p[1] } }
 
   foreach ($p in @(@($ORARI, 'App Orari'), @($script:APP_GEST, 'Gestionale'))) {
     if ($p[0]) { Write-Host "  Installo le librerie di $($p[1]) (qualche minuto)..."; Push-Location $p[0]; npm.cmd install --no-audit --no-fund; Pop-Location }
@@ -171,6 +201,9 @@ function Aggiorna-Tutto {
   Aggiorna-Repo $ORARI 'App Orari'
   Aggiorna-Repo $script:REPO_GEST 'Gestionale'
   if (Test-Path "$SASSINBUS\.git") { Aggiorna-Repo $SASSINBUS 'Sassi in Bus' }
+  # i .env non passano da GitHub: qui si sistemano se hanno ancora la chiave vecchia
+  if (Test-Path $ORARI) { Migra-ChiaveEnv $ORARI 'App Orari' }
+  if ($script:APP_GEST) { Migra-ChiaveEnv $script:APP_GEST 'Gestionale' }
   Scarica-Backup -Silenzioso
 }
 
@@ -185,6 +218,7 @@ function Salva-Repo($cartella, $nome) {
   Write-Host "  $nome - file modificati:" -ForegroundColor White
   $modifiche | ForEach-Object { Write-Host "     $_" }
   if ($modifiche -match '(^|[\\/ ])\.env(\.local|\.production)?$') { Errore "$nome - c'e' un file .env nell'elenco: NON lo carico. Controlla il .gitignore."; return }
+  if ($modifiche -match '\.bak-legacy$') { Errore "$nome - ci sono copie *.bak-legacy (contengono la chiave vecchia): cancellale prima di salvare."; return }
   if (-not (SiNo "Salvo queste modifiche su GitHub")) { return }
   $msg = Chiedi "Descrizione breve (es. nuovi orari Montescaglioso)"
   if (-not $msg) { $msg = "Aggiornamento del " + (Get-Date -Format 'dd/MM/yyyy HH:mm') }
