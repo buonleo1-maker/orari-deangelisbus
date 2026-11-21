@@ -5,12 +5,23 @@
 //    tramite la funzione del sito /api/invia-notifica (la stessa dei turni), con la chiave di servizio;
 //  - dal 2o giorno di ritardo: avviso all'ufficio nella campanella del gestionale;
 //  - al massimo un promemoria al giorno per foglio e per persona; solo servizi finiti negli ultimi 30 giorni.
-// Chi puo' lanciarla: il cron (x-cron-secret = SYNC_CRON_SECRET) o un admin del gestionale.
+// Chi puo' lanciarla: il cron (x-cron-secret = parola "sync_cron_secret" del Vault, o il secret
+// SYNC_CRON_SECRET finche' esiste) o un admin del gestionale.
+// v2 (21/11/2026): database con la secret key nuova; per la push verso /api/invia-notifica si usa
+// PUSH_SERVICE_KEY o, in mancanza, la service_role Legacy (deve coincidere con SUPABASE_SERVICE_KEY
+// su Cloudflare). "Enforce JWT verification" DISATTIVATA.
 // body {"prova": true} = conta e mostra, senza inviare niente.
 // ============================================================================
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SITO = "https://amministrazione-deangelisbus-v2.pages.dev";
+const chiaviNuove = (k: string): string[] => {
+  try { return Object.values(JSON.parse(Deno.env.get(k) || "{}")).filter((v): v is string => typeof v === "string" && v.length > 0); }
+  catch { return []; }
+};
+const CHIAVE_DB = chiaviNuove("SUPABASE_SECRET_KEYS")[0] || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const CHIAVE_PUBBLICA = chiaviNuove("SUPABASE_PUBLISHABLE_KEYS")[0] || Deno.env.get("SUPABASE_ANON_KEY")!;
+const CHIAVE_PUSH = Deno.env.get("PUSH_SERVICE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
@@ -28,16 +39,20 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return risposta({ successo: false, errore: "Usa POST" }, 405);
 
-  const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  const supabase = createClient(Deno.env.get("SUPABASE_URL")!, CHIAVE_DB, { auth: { persistSession: false, autoRefreshToken: false } });
 
-  // autorizzazione: cron con segreto, oppure amministratore collegato
+  // autorizzazione: cron con segreto (Vault o secret), oppure amministratore collegato
   const segreto = Deno.env.get("SYNC_CRON_SECRET");
+  const hdrCron = (req.headers.get("x-cron-secret") || "").trim();
   let chi: string | null = null;
-  if (segreto && req.headers.get("x-cron-secret") === segreto) chi = "cron";
-  else {
+  if (hdrCron) {
+    const { data: ok } = await supabase.rpc("backup_verifica_chiave", { p_nome: "sync_cron_secret", p_valore: hdrCron });
+    if (ok === true || (segreto && hdrCron === segreto)) chi = "cron";
+  }
+  if (!chi) {
     const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
-    if (token) {
-      const utente = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: `Bearer ${token}` } } });
+    if (token && !token.startsWith("sb_")) {
+      const utente = createClient(Deno.env.get("SUPABASE_URL")!, CHIAVE_PUBBLICA, { global: { headers: { Authorization: `Bearer ${token}` } } });
       const { data } = await utente.rpc("is_admin_gestionale");
       if (data === true) chi = "admin";
     }
@@ -102,7 +117,7 @@ Deno.serve(async (req: Request) => {
           // stessa funzione del sito usata per i turni: /api/invia-notifica, chiamata interna con la chiave di servizio
           const r = await fetch(`${SITO}/api/invia-notifica`, {
             method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}` },
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${CHIAVE_PUSH}` },
             body: JSON.stringify({ autista_ids: [a.id], titolo, messaggio,
               data: { tipo_evento: "promemoria_foglio", riferimento_id: f.id, url: `/fogli-viaggio/${f.id}/modifica` } }),
           });

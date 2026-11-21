@@ -13,6 +13,11 @@
 // SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY sono già disponibili automaticamente.
 // Notifiche push (facoltativi): PUSH_URL (predefinito: funzione /api/invia-notifica del gestionale)
 //   e PUSH_SERVICE_KEY (predefinito: SUPABASE_SERVICE_ROLE_KEY; deve coincidere con SUPABASE_SERVICE_KEY su Cloudflare).
+//
+// v2 (21/11/2026): database con la secret key nuova (sb_secret) se disponibile.
+//   La chiave per le notifiche push resta PUSH_SERVICE_KEY o, in mancanza, la service_role
+//   Legacy: quando su Cloudflare SUPABASE_SERVICE_KEY diventa la secret nuova, impostare
+//   anche qui il secret PUSH_SERVICE_KEY con lo stesso valore.
 
 import nodemailer from 'npm:nodemailer@6.9.14';
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -27,11 +32,17 @@ const TIPI_SEGNALAZIONE: Record<string, string> = {
 const SERVIZI_AUTO: Record<string, string> = {
   ultimo_miglio: 'Ultimo miglio (dal bus alla destinazione)', visita_medica: 'Accompagnamento visita medica',
 };
+const chiaviNuove = (k: string): string[] => {
+  try { return Object.values(JSON.parse(Deno.env.get(k) || '{}')).filter((v): v is string => typeof v === 'string' && v.length > 0); }
+  catch { return []; }
+};
+const CHIAVE_DB = chiaviNuove('SUPABASE_SECRET_KEYS')[0] || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const nuovoDb = () => createClient(Deno.env.get('SUPABASE_URL')!, CHIAVE_DB, { auth: { persistSession: false, autoRefreshToken: false } });
 const PUSH_URL_PREDEFINITO = 'https://amministrazione-deangelisbus-v2.pages.dev/api/invia-notifica';
 
 /** Notifica sul telefono a tutti gli amministratori del gestionale che hanno l'app con le notifiche attive. */
 async function notificaAmministratori(titolo: string, messaggio: string, dati: Record<string, string>) {
-  const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+  const sb = nuovoDb();
   const { data: admin, error } = await sb.from('autisti').select('id')
     .or('ruolo.in.(admin,amministratore),and(accesso_amministratore.is.true,attivo.is.true)')
     .not('fcm_token', 'is', null);
@@ -174,7 +185,7 @@ Deno.serve(async (req) => {
     if (!push) return new Response(JSON.stringify({ ok: false, errore: String(e) }), { status: 500 });
   }
 
-  const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+  const sb = nuovoDb();
   const nomeTabella = tabella === 'segnalazioni_app' ? 'segnalazioni_app' : tabella === 'prenotazioni_auto' ? 'prenotazioni_auto' : 'richieste_preventivo';
   const aggiornamento: Record<string, string> = {};
   if (!esitoSmtp.errore_email) aggiornamento.email_inviata_il = new Date().toISOString();

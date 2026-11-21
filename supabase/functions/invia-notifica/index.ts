@@ -4,6 +4,9 @@
 //   { azione: "invia", titolo, testo, url?, novita_id? } -> invia a tutti gli iscritti (solo admin del gestionale)
 // Segreti richiesti: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (es. mailto:info@deangelisbus.it).
 // Web Push implementato con WebCrypto (RFC 8291 aes128gcm + RFC 8292 VAPID): nessuna libreria esterna.
+// v2 (21/11/2026): chiavi nuove (sb_secret per il database, sb_publishable per l'utente), con ripiego
+// sulle Legacy. "Enforce JWT verification" DISATTIVATA (l'azione "chiave" e' pubblica, l'invio e'
+// riservato agli admin e controllato nel codice).
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const CORS = {
@@ -89,6 +92,12 @@ async function gestisci(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return json({ errore: 'Metodo non consentito' }, 405);
   const env = (k: string) => Deno.env.get(k) ?? '';
+  const chiaviNuove = (k: string): string[] => {
+    try { return Object.values(JSON.parse(env(k) || '{}')).filter((v): v is string => typeof v === 'string' && v.length > 0); }
+    catch { return []; }
+  };
+  const CHIAVE_DB = chiaviNuove('SUPABASE_SECRET_KEYS')[0] || env('SUPABASE_SERVICE_ROLE_KEY');
+  const CHIAVE_PUBBLICA = chiaviNuove('SUPABASE_PUBLISHABLE_KEYS')[0] || env('SUPABASE_ANON_KEY');
   let dati: Record<string, unknown> = {};
   try { dati = await req.json(); } catch { return json({ errore: 'Richiesta non valida' }, 400); }
 
@@ -96,8 +105,10 @@ async function gestisci(req: Request): Promise<Response> {
 
   if (dati.azione === 'invia') {
     // solo gli amministratori del gestionale possono inviare
-    const utente = createClient(env('SUPABASE_URL'), env('SUPABASE_ANON_KEY'), {
-      global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } }, auth: { persistSession: false },
+    const auth = req.headers.get('Authorization') ?? '';
+    if (!/^Bearer\s+ey/i.test(auth)) return json({ errore: 'Solo gli amministratori del gestionale possono inviare notifiche.' }, 403);
+    const utente = createClient(env('SUPABASE_URL'), CHIAVE_PUBBLICA, {
+      global: { headers: { Authorization: auth } }, auth: { persistSession: false },
     });
     const { data: admin } = await utente.rpc('is_admin_gestionale');
     if (admin !== true) return json({ errore: 'Solo gli amministratori del gestionale possono inviare notifiche.' }, 403);
@@ -108,7 +119,7 @@ async function gestisci(req: Request): Promise<Response> {
     const novitaId = dati.novita_id ? Number(dati.novita_id) : null;
     const url = String(dati.url ?? './?apri=novita');
 
-    const servizio = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false } });
+    const servizio = createClient(env('SUPABASE_URL'), CHIAVE_DB, { auth: { persistSession: false, autoRefreshToken: false } });
     const { data: iscritti, error } = await servizio.from('push_iscrizioni').select('endpoint, p256dh, auth');
     if (error) return json({ errore: error.message }, 500);
 

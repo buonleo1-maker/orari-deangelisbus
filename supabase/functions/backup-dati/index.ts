@@ -7,6 +7,11 @@
 //   ripristina  { id, tabella, chiavi? }       -> rimette le righe (tutte o solo quelle indicate); prima fa un backup di sicurezza
 //   elenco-pc   {}  + header x-backup-key       -> elenco dei file con link, per scaricarli sul PC/chiavetta (menu Strumenti)
 // Accesso: amministratori del gestionale (login) oppure chiavi segrete del Vault (cron notturno / menu Strumenti).
+// v3 (21/11/2026): il backup si scrive in streaming, una tabella e una pagina alla volta,
+// comprimendo mentre legge (prima tutto il database stava in memoria e la funzione andava
+// oltre il limite di risorse: WORKER_RESOURCE_LIMIT). Il file prodotto e' lo stesso.
+// v2 (21/11/2026): chiavi nuove (sb_secret per il database, sb_publishable per l'utente),
+// con ripiego sulle Legacy. "Enforce JWT verification" DISATTIVATA.
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 const CORS = {
@@ -16,6 +21,12 @@ const CORS = {
 };
 const json = (d: unknown, status = 200) => new Response(JSON.stringify(d), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
 const env = (k: string) => Deno.env.get(k) ?? '';
+const chiaviNuove = (k: string): string[] => {
+  try { return Object.values(JSON.parse(env(k) || '{}')).filter((v): v is string => typeof v === 'string' && v.length > 0); }
+  catch { return []; }
+};
+const CHIAVE_DB = chiaviNuove('SUPABASE_SECRET_KEYS')[0] || env('SUPABASE_SERVICE_ROLE_KEY');
+const CHIAVE_PUBBLICA = chiaviNuove('SUPABASE_PUBLISHABLE_KEYS')[0] || env('SUPABASE_ANON_KEY');
 const BUCKET = 'backup';
 const GIORNI_TENUTI = 30;
 
@@ -44,24 +55,59 @@ async function eseguiBackup(db: SupabaseClient, tipo: string, note?: string) {
   const inizio = Date.now();
   const { data: elenco, error } = await db.rpc('backup_tabelle');
   if (error) throw new Error(`Elenco tabelle: ${error.message}`);
-  const backup: Backup = { versione: 1, creato_il: new Date().toISOString(), tabelle: {} };
+
+  // gzip in streaming: si scrive il JSON a pezzi, il compresso viene raccolto in parallelo
+  const gz = new CompressionStream('gzip');
+  const compresso = new Response(gz.readable).arrayBuffer();
+  const scrittore = gz.writable.getWriter();
+  const enc = new TextEncoder();
+  const scrivi = (t: string) => scrittore.write(enc.encode(t));
+
   const conteggi: Record<string, number> = {};
-  for (const r of (elenco ?? []) as { tabella: string; chiave: string[] }[]) {
-    const righe = await leggiTabella(db, r.tabella);
-    backup.tabelle[r.tabella] = { chiave: r.chiave ?? [], righe };
-    conteggi[r.tabella] = righe.length;
+  const PAGINA = 500;
+  let testoStruttura: string | null = null;
+  try {
+    await scrivi(`{"versione":1,"creato_il":${JSON.stringify(new Date().toISOString())},"tabelle":{`);
+    let primaTabella = true;
+    for (const r of (elenco ?? []) as { tabella: string; chiave: string[] }[]) {
+      await scrivi(`${primaTabella ? '' : ','}${JSON.stringify(r.tabella)}:{"chiave":${JSON.stringify(r.chiave ?? [])},"righe":[`);
+      primaTabella = false;
+      let n = 0;
+      for (let da = 0; ; da += PAGINA) {
+        const { data, error: e } = await db.from(r.tabella).select('*').range(da, da + PAGINA - 1);
+        if (e) throw new Error(`${r.tabella}: ${e.message}`);
+        const righe = data ?? [];
+        if (righe.length) {
+          await scrivi((n ? ',' : '') + righe.map((x) => JSON.stringify(x)).join(','));
+          n += righe.length;
+        }
+        if (righe.length < PAGINA) break;
+      }
+      await scrivi(']}');
+      conteggi[r.tabella] = n;
+    }
+    await scrivi('}');
+    const { data: struttura } = await db.rpc('backup_schema');
+    if (typeof struttura === 'string') {
+      testoStruttura = struttura;
+      await scrivi(`,"struttura":${JSON.stringify(struttura)}`);
+    }
+    await scrivi('}');
+    await scrittore.close();
+  } catch (e) {
+    try { await scrittore.abort(e); } catch { /* */ }
+    throw e;
   }
-  const { data: struttura } = await db.rpc('backup_schema');
-  if (typeof struttura === 'string') backup.struttura = struttura;
-  const file = await comprimi(JSON.stringify(backup));
+  const file = new Uint8Array(await compresso);
+
   const d = new Date(); const p2 = (n: number) => String(n).padStart(2, '0');
   const percorso = `${d.getUTCFullYear()}/${p2(d.getUTCMonth() + 1)}/backup-${d.getUTCFullYear()}-${p2(d.getUTCMonth() + 1)}-${p2(d.getUTCDate())}-${p2(d.getUTCHours())}${p2(d.getUTCMinutes())}-${tipo}.json.gz`;
   const up = await db.storage.from(BUCKET).upload(percorso, file, { contentType: 'application/gzip', upsert: true });
   if (up.error) throw new Error(`Salvataggio file: ${up.error.message}`);
   let percorsoStruttura: string | null = null;
-  if (backup.struttura) {
+  if (testoStruttura) {
     percorsoStruttura = percorso.replace(/backup-([^/]+)\.json\.gz$/, 'struttura-$1.sql');
-    const us = await db.storage.from(BUCKET).upload(percorsoStruttura, new Blob([backup.struttura], { type: 'text/plain' }), { contentType: 'text/plain; charset=utf-8', upsert: true });
+    const us = await db.storage.from(BUCKET).upload(percorsoStruttura, new Blob([testoStruttura], { type: 'text/plain' }), { contentType: 'text/plain; charset=utf-8', upsert: true });
     if (us.error) percorsoStruttura = null;
   }
   const { data: reg } = await db.from('backup_registro').insert({
@@ -101,7 +147,7 @@ async function gestisci(req: Request): Promise<Response> {
   let corpo: Record<string, unknown> = {};
   try { corpo = await req.json(); } catch { /* corpo vuoto */ }
   const azione = String(corpo.azione ?? '');
-  const db = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false } });
+  const db = createClient(env('SUPABASE_URL'), CHIAVE_DB, { auth: { persistSession: false, autoRefreshToken: false } });
 
   // chi chiama?
   const cron = req.headers.get('x-cron-secret');
@@ -110,10 +156,14 @@ async function gestisci(req: Request): Promise<Response> {
   if (cron) autorizzato = (await db.rpc('backup_verifica_chiave', { p_nome: 'backup_cron_secret', p_valore: cron })).data === true;
   else if (chiavePc) autorizzato = (await db.rpc('backup_verifica_chiave', { p_nome: 'backup_download_key', p_valore: chiavePc })).data === true;
   else {
-    const utente = createClient(env('SUPABASE_URL'), env('SUPABASE_ANON_KEY'), {
-      global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } }, auth: { persistSession: false },
-    });
-    autorizzato = (await utente.rpc('is_admin_gestionale')).data === true;
+    const auth = req.headers.get('Authorization') ?? '';
+    // solo un token utente (JWT): le chiavi sb_ non sono utenti
+    if (/^Bearer\s+ey/i.test(auth)) {
+      const utente = createClient(env('SUPABASE_URL'), CHIAVE_PUBBLICA, {
+        global: { headers: { Authorization: auth } }, auth: { persistSession: false },
+      });
+      autorizzato = (await utente.rpc('is_admin_gestionale')).data === true;
+    }
   }
   if (!autorizzato) return json({ errore: 'Accesso riservato agli amministratori del gestionale.' }, 403);
   if (chiavePc && azione !== 'elenco-pc') return json({ errore: 'Con la chiave del PC si possono solo scaricare le copie.' }, 403);
