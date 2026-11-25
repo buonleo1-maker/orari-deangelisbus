@@ -1,4 +1,4 @@
-# =====================================================================
+﻿# =====================================================================
 #  STRUMENTI DEANGELISBUS - lavorare da qualsiasi PC + copia su USB
 #  Progetti: app Orari (repo orari-deangelisbus, ramo main)
 #            gestionale (repo deangelisbus-gestionale, ramo master)
@@ -246,6 +246,7 @@ function Pubblica($cartella, $nome, $progetto, $ramo) {
   Push-Location $cartella
   npm.cmd run build
   if ($LASTEXITCODE -ne 0) { Pop-Location; Errore "Compilazione non riuscita: niente e' stato pubblicato."; return }
+  if ($progetto -eq $PAGES_GEST) { $ramo = 'master' }   # 25/11/2026: produzione del gestionale = ramo master
   if ($ramo) { npx.cmd wrangler pages deploy dist --project-name=$progetto --branch=$ramo --commit-dirty=true }
   else       { npx.cmd wrangler pages deploy dist --project-name=$progetto --commit-dirty=true }
   $esito = $LASTEXITCODE
